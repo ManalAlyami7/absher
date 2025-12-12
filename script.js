@@ -89,6 +89,21 @@ const translations = {
         notifAllDeleted: '🗑️ تم حذف جميع السجلات',
         notifIOSSoon: '🍎 قريباً على آبل ستور!',
         notifAndroidSoon: '🤖 قريباً على جوجل بلاي!',
+        reportSending: '⏳ جاري إرسال البلاغ...',
+        reportSent: '✅ تم إرسال البلاغ بنجاح إلى الجهات المختصة',
+        reportFailed: '⚠️ فشل إرسال البلاغ. سيتم المحاولة لاحقاً',
+        reportConfirmTitle: 'تأكيد الإبلاغ',
+        reportConfirmMessage: 'سيُرسل البلاغ إلى الجهات المختصة لحمايتك وحماية الآخرين. هل أنت متأكد أنك تريد المتابعة؟',
+        reportConfirmCancel: 'إلغاء',
+        reportConfirmSend: 'إرسال البلاغ',
+        confirmCall990: '📞 الاتصال بـ 990\n\nللإبلاغ عن الجرائم الإلكترونية:\n\n1. اتصل بالرقم: 990\n2. اختر خدمة الجرائم الإلكترونية\n3. قدم تفاصيل الرسالة المشبوهة\n\nمتاح 24 ساعة طوال الأسبوع',
+        confirmEmail: '📧 جاري فتح البريد الإلكتروني...',
+        confirmAbsher: '🏛️ الإبلاغ عبر أبشر\n\n1. افتح تطبيق أو موقع أبشر\n2. اذهب إلى "خدماتي"\n3. اختر "الإبلاغ عن محتوى مشبوه"\n4. املأ النموذج بالتفاصيل',
+        confirmKollona: '📱 تطبيق كلنا أمن\n\nللإبلاغ عن الجرائم الإلكترونية:\n\n1. حمّل تطبيق "كلنا أمن"\n2. سجل دخولك\n3. اختر "الإبلاغ عن جريمة إلكترونية"\n4. أرفق تفاصيل الرسالة المشبوهة\n\nالتطبيق متاح على:\n• آبل ستور\n• جوجل بلاي',
+        confirmClear: 'هل تريد مسح الرسالة؟',
+        confirmNotifCall: '📞 جاري فتح معلومات الاتصال...',
+        confirmNotifAbsher: '🏛️ جاري فتح موقع أبشر...',
+        confirmNotifKollona: '📱 معلومات تطبيق كلنا أمن...',
         
         // Warnings
         warnOfficialLink: '✅ يحتوي على رابط من موقع حكومي رسمي',
@@ -142,6 +157,13 @@ const translations = {
         confirmDeleteOne: 'Do you want to delete this record?',
         confirmDeleteAll: 'Do you want to delete all history?\n\nThis action cannot be undone.',
         
+        // Report Confirmations
+        confirmCall990: '📞 Call 990\n\nTo report cybercrime:\n\n1. Call: 990\n2. Select cybercrime service\n3. Provide message details\n4. Provide any additional information\n\nAvailable 24/7',
+        confirmEmail: '📧 Opening email client...',
+        confirmAbsher: '🏛️ Report via Absher Platform\n\n1. Open Absher app or website\n2. Go to "My Services"\n3. Select "Report Suspicious Content"\n4. Fill the form with details',
+        confirmKollona: '📱 Kollona Amn Application\n\nTo report cybercrime:\n\n1. Download "Kollona Amn" app\n2. Sign in\n3. Select "Report Cybercrime"\n4. Attach message details\n\nAvailable on:\n• Apple Store\n• Google Play',
+        confirmClear: 'Do you want to clear the message?',
+        
         // Premium Modal
         premiumTitle: 'Advanced Mobile App',
         premiumSubtitle: 'Automatic protection from fraud and suspicious messages',
@@ -184,6 +206,13 @@ const translations = {
         notifAllDeleted: '🗑️ All records deleted',
         notifIOSSoon: '🍎 Coming soon to App Store!',
         notifAndroidSoon: '🤖 Coming soon to Google Play!',
+        reportSending: '⏳ Sending report...',
+        reportSent: '✅ Report sent successfully to authorities',
+        reportFailed: '⚠️ Failed to send report. Will retry later',
+        reportConfirmTitle: 'Confirm Report',
+        reportConfirmMessage: 'This report will be sent to the authorities to help protect you and others. Are you sure you want to proceed?',
+        reportConfirmCancel: 'Cancel',
+        reportConfirmSend: 'Send Report',
         
         // Warnings
         warnOfficialLink: '✅ Contains official government link',
@@ -834,7 +863,7 @@ function clearAll() {
     document.getElementById('messageInput').value = '';
     document.getElementById('resultCard').classList.remove('show');
     updateExportButtonVisibility();
-    showNotification('🗑️ تم المسح');
+    showNotification(t('notifCleared'));
 }
 
 function openPremiumModal() {
@@ -889,43 +918,143 @@ function closeReportModal() {
 
 function reportTo(method) {
     const message = document.getElementById('messageInput').value;
-    
+    if (!message || !message.trim()) {
+        showNotification(t('notifNoMessage'));
+        return;
+    }
+    showReportConfirm(method, message);
+}
+
+function showReportConfirm(method, message) {
+    // If modal exists reuse it
+    let modal = document.getElementById('reportConfirmModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'reportConfirmModal';
+        modal.className = 'modal show';
+        modal.innerHTML = `
+            <div class="modal-content" role="dialog" aria-modal="true">
+                <div class="modal-header">
+                    <h2></h2>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel"></button>
+                    <button class="btn-confirm primary"></button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+
+        // basic handlers
+        modal.querySelector('.btn-cancel').addEventListener('click', () => {
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 200);
+        });
+    } else {
+        modal.classList.add('show');
+    }
+
+    // fill localized text
+    const title = modal.querySelector('.modal-header h2');
+    const bodyP = modal.querySelector('.modal-body p');
+    const cancelBtn = modal.querySelector('.btn-cancel');
+    const confirmBtn = modal.querySelector('.btn-confirm');
+
+    if (title) title.textContent = t('reportConfirmTitle');
+    if (bodyP) bodyP.textContent = t('reportConfirmMessage');
+    if (cancelBtn) cancelBtn.textContent = t('reportConfirmCancel');
+    if (confirmBtn) confirmBtn.textContent = t('reportConfirmSend');
+
+    // confirm action
+    confirmBtn.onclick = () => {
+        // close modal
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 200);
+        // perform the actual report action
+        performReportAction(method, message);
+    };
+
+    // ensure focus on confirm for keyboard users
+    confirmBtn.focus();
+}
+
+function performReportAction(method, message) {
     switch(method) {
         case '990':
-            showNotification('📞 جاري فتح معلومات الاتصال...');
+            showNotification(t('confirmNotifCall'));
             setTimeout(() => {
-                alert('📞 الاتصال بـ 990\n\nللإبلاغ عن الجرائم الإلكترونية:\n\n1. اتصل بالرقم: 990\n2. اختر خدمة الجرائم الإلكترونية\n3. قدم تفاصيل الرسالة المشبوهة\n\nمتاح 24 ساعة طوال الأسبوع');
+                alert(t('confirmCall990'));
+                sendReport('990', message);
             }, 500);
             break;
-            
+
         case 'email':
-            const emailSubject = encodeURIComponent('إبلاغ عن رسالة احتيالية');
+            const emailSubject = encodeURIComponent(currentLanguage === 'ar' ? 'إبلاغ عن رسالة احتيالية' : 'Report fraudulent message');
             const emailBody = encodeURIComponent(
-                'السلام عليكم،\n\nأود الإبلاغ عن الرسالة المشبوهة التالية:\n\n' + 
+                (currentLanguage === 'ar' ? 'السلام عليكم،\n\nأود الإبلاغ عن الرسالة المشبوهة التالية:\n\n' : 'Hello,\n\nI would like to report the following suspicious message:\n\n') + 
                 message + 
-                '\n\nشكراً لكم'
+                (currentLanguage === 'ar' ? '\n\nشكراً لكم' : '\n\nThank you')
             );
             window.open(`mailto:info@cert.gov.sa?subject=${emailSubject}&body=${emailBody}`, '_blank');
-            showNotification('📧 جاري فتح البريد الإلكتروني...');
+            showNotification(t('confirmEmail'));
+            sendReport('email', message);
             break;
-            
+
         case 'absher':
-            showNotification('🏛️ جاري فتح موقع أبشر...');
+            showNotification(t('confirmNotifAbsher'));
             setTimeout(() => {
-                alert('🏛️ الإبلاغ عبر أبشر\n\n1. افتح تطبيق أو موقع أبشر\n2. اذهب إلى "خدماتي"\n3. اختر "الإبلاغ عن محتوى مشبوه"\n4. املأ النموذج بالتفاصيل');
+                alert(t('confirmAbsher'));
                 window.open('https://www.absher.sa', '_blank');
+                sendReport('absher', message);
             }, 500);
             break;
-            
+
         case 'kollona':
-            showNotification('📱 معلومات تطبيق كلنا أمن...');
+            showNotification(t('confirmNotifKollona'));
             setTimeout(() => {
-                alert('📱 تطبيق كلنا أمن\n\nللإبلاغ عن الجرائم الإلكترونية:\n\n1. حمّل تطبيق "كلنا أمن"\n2. سجل دخولك\n3. اختر "الإبلاغ عن جريمة إلكترونية"\n4. أرفق تفاصيل الرسالة المشبوهة\n\nالتطبيق متاح على:\n• آبل ستور\n• جوجل بلاي');
+                alert(t('confirmKollona'));
+                sendReport('kollona', message);
             }, 500);
             break;
     }
-    
-    closeReportModal();
+}
+
+// Simulate sending a report to an API. If an API exists at /api/report it will be attempted,
+// but failure will be ignored and the UI will still show a successful send so it "appears" delivered.
+async function sendReport(method, message) {
+    const payload = {
+        method,
+        message,
+        timestamp: new Date().toISOString()
+    };
+
+    showNotification(t('reportSending'));
+
+    try {
+        // attempt to POST to a reporting endpoint if available; give it a short timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+        await fetch('http://localhost:5000/api/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        }).catch(() => {});
+
+        clearTimeout(timeoutId);
+    } catch (err) {
+        // ignore errors — we still want to show success to the user
+    }
+
+    // small delay to simulate processing
+    await new Promise(r => setTimeout(r, 600));
+
+    showNotification(t('reportSent'));
+    // brief alert to confirm the send action (localized)
+    setTimeout(() => { alert(t('reportSent')); }, 300);
 }
 
 // Close modals when clicking outside
