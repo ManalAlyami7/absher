@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlElement">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أبشر الأمني – Absher Security</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+                        <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" fill="#4338ca"/>
+                        <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                </div>
+                <div class="brand-info">
+                    <h1 class="brand-title">أبشر الأمني</h1>
+                    <div class="brand-tagline">Absher Security</div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="header-btn" onclick="toggleDarkMode()" title="تغيير الإضاءة">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="5" fill="currentColor"/>
+                        <path d="M12 1V3M12 21V23M23 12H21M3 12H1M20.485 3.515L19.07 4.93M4.93 19.07L3.515 20.485M20.485 20.485L19.07 19.07M4.93 4.93L3.515 3.515" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="btn-label">الإضاءة</span>
+                </button>
+                
+                <button class="header-btn" onclick="viewHistory()" title="السجل">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="btn-label">السجل</span>
+                </button>
+
+                <button class="header-btn" onclick="exportResult()" id="exportBtn" style="display:none;" title="حفظ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M14 2H6C5.45 2 5 2.45 5 3V21C5 21.55 5.45 22 6 22H18C18.55 22 19 21.55 19 21V8L14 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <path d="M12 11V17M9 14L12 17L15 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="btn-label">حفظ</span>
+                </button>
+
+                <div class="header-divider"></div>
+
+                <button class="header-btn" onclick="toggleLanguage()" title="تبديل اللغة">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span class="btn-label" id="langBtnLabel">EN</span>
+                </button>
+
+                <div class="header-divider"></div>
+
+                <button class="header-btn report-btn" onclick="openReportModal()" title="إبلاغ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="var(--danger)" stroke-width="1.5" fill="none"/>
+                        <path d="M8 12L11 15L16 9" stroke="var(--danger)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                    </svg>
+                    <span class="btn-label">إبلاغ</span>
+                </button>
+
+                <button class="header-btn premium-btn" onclick="openPremiumModal()" title="التطبيق">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="var(--accent)"/>
+                    </svg>
+                    <span class="btn-label">التطبيق</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="main-layout">
+            <div class="input-panel">
+                <div class="card">
+                    <label class="input-label">الصق الرسالة المشبوهة هنا:</label>
+                    <textarea 
+                        id="messageInput" 
+                        class="message-textarea"
+                        dir="auto"
+                        placeholder="مثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط bit.ly/abs123 للتحديث خلال 24 ساعة..."></textarea>
+
+                    <div class="button-row">
+                        <button class="btn btn-paste" onclick="pasteFromClipboard()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <rect x="5" y="6" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                <path d="M9 2H16C16.55 2 17 2.45 17 3V6H7V3C7 2.45 7.45 2 8 2H9" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            </svg>
+                            <span>لصق</span>
+                        </button>
+                        <button class="btn btn-clear" onclick="clearAll()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <rect x="5" y="6" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            </svg>
+                            <span>مسح</span>
+                        </button>
+                        <button class="btn btn-analyze" onclick="analyzeMessage()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M15 15L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span>فحص الرسالة</span>
+                        </button>
+                    </div>
+
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>جاري فحص الرسالة...</p>
+                    </div>
+
+                    <div class="result-card" id="resultCard"></div>
+                </div>
+            </div>
+
+            <div class="tips-panel">
+                <div class="info-box">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 1L5 4V10C5 17 12 22 12 22C12 22 19 17 19 10V4L12 1Z" stroke="var(--accent)" stroke-width="1.5" fill="none"/>
+                            <path d="M9 11L11 13L15 9" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                        </svg>
+                        نصائح الأمان
+                    </h3>
+                    <ul>
+                        <li>لا تشارك كلمة المرور أو رمز التحقق</li>
+                        <li>تحقق من الروابط قبل الضغط</li>
+                        <li>النطاق الرسمي: <strong>absher.sa</strong></li>
+                        <li>المواقع الحكومية تنتهي بـ: <strong>.gov.sa</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div class="modal" id="premiumModal">
+            <div class="modal-content premium-modal-content">
+                <button class="modal-close" onclick="closePremiumModal()" aria-label="إغلاق" title="إغلاق"></button>
+                
+                <div class="modal-header">
+                    <div class="modal-icon premium-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="var(--accent)"/>
+                        </svg>
+                    </div>
+                    <h2>تطبيق الجوال المتقدم</h2>
+                    <p>حماية تلقائية من الاحتيال والرسائل المشبوهة</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h4>فحص تلقائي</h4>
+                        <p>لكل رسائلك</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h4>نتيجة فورية</h4>
+                        <p>في ثوانٍ</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔔</div>
+                        <h4>تنبيهات لحظية</h4>
+                        <p>للرسائل الخطيرة</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h4>تقارير مفصّلة</h4>
+                        <p>وإحصائيات</p>
+                    </div>
+                </div>
+
+                <div class="premium-price">
+                    <div class="price-large">5 ريال</div>
+                    <div class="price-period">شهرياً</div>
+                    <div class="price-save">💰 وفّر 40% بالاشتراك السنوي</div>
+                </div>
+
+                <div class="download-buttons">
+                    <button class="download-btn ios" onclick="downloadApp('ios')">
+                        🍎 <span><div>حمّل من</div><strong>آبل ستور</strong></span>
+                    </button>
+                    <button class="download-btn android" onclick="downloadApp('android')">
+                        🤖 <span><div>حمّل من</div><strong>جوجل بلاي</strong></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="reportModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeReportModal()" aria-label="إغلاق" title="إغلاق"></button>
+                
+                <div class="modal-header">
+                    <div class="modal-icon danger-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="var(--danger)" stroke-width="2" fill="none"/>
+                            <path d="M8 12L11 15L16 9" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        </svg>
+                    </div>
+                    <h2>إبلاغ السلطات</h2>
+                    <p>بلّغ عن الرسالة الاحتيالية</p>
+                </div>
+
+                <div class="report-options">
+                    <button class="report-option" onclick="reportTo('990')">
+                        <div class="report-icon">📞</div>
+                        <div class="report-text">
+                            <strong>الاتصال بـ 990</strong>
+                            <span>خط الجرائم الإلكترونية</span>
+                        </div>
+                    </button>
+                    <button class="report-option" onclick="reportTo('email')">
+                        <div class="report-icon">📧</div>
+                        <div class="report-text">
+                            <strong>إرسال بريد إلكتروني</strong>
+                            <span>info@cert.gov.sa</span>
+                        </div>
+                    </button>
+                    <button class="report-option" onclick="reportTo('absher')">
+                        <div class="report-icon">🏛️</div>
+                        <div class="report-text">
+                            <strong>عبر منصة أبشر</strong>
+                            <span>أبلغ من خلال موقع أبشر</span>
+                        </div>
+                    </button>
+                    <button class="report-option" onclick="reportTo('kollona')">
+                        <div class="report-icon">📱</div>
+                        <div class="report-text">
+                            <strong>تطبيق كلنا أمن</strong>
+                            <span>الإبلاغ عن الجرائم</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="historyModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal('historyModal')" aria-label="إغلاق" title="إغلاق"></button>
+                
+                <div class="modal-header">
+                    <div class="modal-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="2" fill="none"/>
+                            <path d="M12 6V12L16 14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h2>رسائل تم فحصها سابقاً</h2>
+                </div>
+                
+                <div id="historyList" class="history-list"></div>
+                
+                <div class="history-actions" id="historyActions" style="display:none;">
+                    <button class="btn-clear-history" onclick="clearHistory()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <rect x="5" y="6" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            <line x1="10" y1="10" x2="10" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="14" y1="10" x2="14" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>حذف جميع السجلات</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
