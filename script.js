@@ -3,7 +3,202 @@ const HISTORY_KEY = 'absher_analysis_history';
 const DARK_MODE_KEY = 'absher_dark_mode';
 const LANGUAGE_KEY = 'absher_language';
 let analysisHistory = [];
-let currentLanguage = 'ar';
+const translations = {
+    ar: {
+        // Header
+        brandTitle: 'أبشر الأمني',
+        brandSubtitle: 'Absher Security',
+        darkMode: 'الإضاءة',
+        history: 'السجل',
+        save: 'حفظ',
+        language: 'EN',
+        report: 'إبلاغ',
+        app: 'التطبيق',
+        
+        // Input
+        inputLabel: 'الصق الرسالة المشبوهة هنا:',
+        placeholder: 'مثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط bit.ly/abs123 للتحديث خلال 24 ساعة...',
+        paste: 'لصق',
+        clear: 'مسح',
+        analyze: 'فحص الرسالة',
+        analyzing: 'جاري فحص الرسالة...',
+        
+        // Results
+        safe: 'آمنة غالباً',
+        suspicious: 'مشبوهة',
+        fraud: 'احتيالية',
+        riskScore: 'درجة الخطر',
+        details: 'التفاصيل والتحذيرات',
+        explanation: 'تم فحص الرسالة بنجاح وتحليل جميع العناصر المشبوهة',
+        
+        // Tips
+        tipsTitle: 'نصائح الأمان',
+        tip1: 'لا تشارك كلمة المرور أو رمز التحقق',
+        tip2: 'تحقق من الروابط قبل الضغط',
+        tip3: 'النطاق الرسمي:',
+        tip3Value: 'absher.sa',
+        tip4: 'المواقع الحكومية تنتهي بـ:',
+        tip4Value: '.gov.sa',
+        
+        // History Modal
+        historyTitle: 'رسائل تم فحصها سابقاً',
+        noHistory: 'لم يتم فحص أي رسائل بعد',
+        deleteHistory: 'حذف جميع السجلات',
+        confirmDeleteOne: 'هل تريد حذف هذا السجل؟',
+        confirmDeleteAll: 'هل تريد حذف جميع السجلات؟\n\nلا يمكن التراجع عن هذا الإجراء.',
+        
+        // Premium Modal
+        premiumTitle: 'تطبيق الجوال المتقدم',
+        premiumSubtitle: 'حماية تلقائية من الاحتيال والرسائل المشبوهة',
+        feature1Title: 'فحص تلقائي',
+        feature1Desc: 'لكل رسائلك',
+        feature2Title: 'نتيجة فورية',
+        feature2Desc: 'في ثوانٍ',
+        feature3Title: 'تنبيهات لحظية',
+        feature3Desc: 'للرسائل الخطيرة',
+        feature4Title: 'تقارير مفصّلة',
+        feature4Desc: 'وإحصائيات',
+        price: '5 ريال',
+        pricePeriod: 'شهرياً',
+        priceSave: '💰 وفّر 40% بالاشتراك السنوي',
+        downloadIOS: 'متجر آبل',
+        iosStore: 'App Store',
+        downloadAndroid: 'متجر جوجل',
+        androidStore: 'Google Play',
+        
+        // Report Modal
+        reportTitle: 'إبلاغ السلطات',
+        reportSubtitle: 'بلّغ عن الرسالة الاحتيالية',
+        call990Title: 'الاتصال بـ 990',
+        call990Desc: 'خط الجرائم الإلكترونية',
+        emailTitle: 'إرسال بريد إلكتروني',
+        emailDesc: 'info@cert.gov.sa',
+        absherTitle: 'عبر منصة أبشر',
+        absherDesc: 'أبلغ من خلال موقع أبشر',
+        kollonaTitle: 'تطبيق كلنا أمن',
+        kollonaDesc: 'الإبلاغ عن الجرائم',
+        
+        // Notifications
+        notifPasted: '✅ تم اللصق بنجاح',
+        notifCleared: '🗑️ تم المسح',
+        notifSaved: '✅ تم نسخ النتيجة بنجاح',
+        notifPasteFailed: '⚠️ استخدم Ctrl+V للصق',
+        notifNoResult: 'لا توجد نتيجة للحفظ',
+        notifNoMessage: '⚠️ الرجاء لصق الرسالة أولاً',
+        notifDeleted: '🗑️ تم حذف السجل',
+        notifAllDeleted: '🗑️ تم حذف جميع السجلات',
+        notifIOSSoon: '🍎 قريباً على آبل ستور!',
+        notifAndroidSoon: '🤖 قريباً على جوجل بلاي!',
+        
+        // Warnings
+        warnOfficialLink: '✅ يحتوي على رابط من موقع حكومي رسمي',
+        warnShortener: '🚨 يحتوي على روابط مختصرة مشبوهة',
+        warnInsecure: '⚠️ يحتوي على روابط غير آمنة (http)',
+        warnFakeAbsher: '🚨 يذكر أبشر لكن الرابط ليس من النطاق الرسمي',
+        warnUrgent: '🚨 يستخدم أساليب الضغط والاستعجال',
+        warnPhishing: '⚠️ يستخدم عبارات احتيالية نموذجية',
+        warnUnofficial: '⚠️ يحتوي على روابط من مصادر غير رسمية'
+    },
+    en: {
+        // Header
+        brandTitle: 'Absher Security',
+        brandSubtitle: 'أبشر الأمني',
+        darkMode: 'Theme',
+        history: 'History',
+        save: 'Export',
+        language: 'عربي',
+        report: 'Report',
+        app: 'App',
+        
+        // Input
+        inputLabel: 'Paste suspicious message here:',
+        placeholder: 'Example: Your Absher account has been suspended. Click the link bit.ly/abs456 to update within 24 hours...',
+        paste: 'Paste',
+        clear: 'Clear',
+        analyze: 'Analyze Message',
+        analyzing: 'Analyzing message...',
+        
+        // Results
+        safe: 'Likely Safe',
+        suspicious: 'Suspicious',
+        fraud: 'Fraudulent',
+        riskScore: 'Risk Score',
+        details: 'Details & Warnings',
+        explanation: 'Message analyzed successfully and all suspicious elements checked',
+        
+        // Tips
+        tipsTitle: 'Security Tips',
+        tip1: 'Never share passwords or verification codes',
+        tip2: 'Verify links before clicking',
+        tip3: 'Official domain:',
+        tip3Value: 'absher.sa',
+        tip4: 'Government sites end with:',
+        tip4Value: '.gov.sa',
+        
+        // History Modal
+        historyTitle: 'Previously Analyzed Messages',
+        noHistory: 'No messages analyzed yet',
+        deleteHistory: 'Delete All History',
+        confirmDeleteOne: 'Do you want to delete this record?',
+        confirmDeleteAll: 'Do you want to delete all history?\n\nThis action cannot be undone.',
+        
+        // Premium Modal
+        premiumTitle: 'Advanced Mobile App',
+        premiumSubtitle: 'Automatic protection from fraud and suspicious messages',
+        feature1Title: 'Auto-scan',
+        feature1Desc: 'All your messages',
+        feature2Title: 'Instant results',
+        feature2Desc: 'In seconds',
+        feature3Title: 'Real-time alerts',
+        feature3Desc: 'For dangerous messages',
+        feature4Title: 'Detailed reports',
+        feature4Desc: 'And statistics',
+        price: '5 SAR',
+        pricePeriod: 'monthly',
+        priceSave: '💰 Save 40% with annual plan',
+        downloadIOS: 'Download iOS',
+        iosStore: 'App Store',
+        downloadAndroid: 'Download Android',
+        androidStore: 'Google Play',
+        
+        // Report Modal
+        reportTitle: 'Report to Authorities',
+        reportSubtitle: 'Report fraudulent message',
+        call990Title: 'Call 990',
+        call990Desc: 'Cybercrime hotline',
+        emailTitle: 'Send Email',
+        emailDesc: 'info@cert.gov.sa',
+        absherTitle: 'Via Absher Platform',
+        absherDesc: 'Report through Absher website',
+        kollonaTitle: 'Kollona Amn App',
+        kollonaDesc: 'Report crimes',
+        
+        // Notifications
+        notifPasted: '✅ Pasted successfully',
+        notifCleared: '🗑️ Cleared',
+        notifSaved: '✅ Result copied successfully',
+        notifPasteFailed: '⚠️ Use Ctrl+V to paste',
+        notifNoResult: 'No result to save',
+        notifNoMessage: '⚠️ Please paste the message first',
+        notifDeleted: '🗑️ Record deleted',
+        notifAllDeleted: '🗑️ All records deleted',
+        notifIOSSoon: '🍎 Coming soon to App Store!',
+        notifAndroidSoon: '🤖 Coming soon to Google Play!',
+        
+        // Warnings
+        warnOfficialLink: '✅ Contains official government link',
+        warnShortener: '🚨 Contains suspicious shortened URLs',
+        warnInsecure: '⚠️ Contains insecure links (http)',
+        warnFakeAbsher: '🚨 Mentions Absher but link is not official',
+        warnUrgent: '🚨 Uses pressure and urgency tactics',
+        warnPhishing: '⚠️ Uses typical phishing phrases',
+        warnUnofficial: '⚠️ Contains links from unofficial sources'
+    }
+};
+
+function t(key) {
+    return translations[currentLanguage][key] || key;
+}
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', function() {
@@ -19,7 +214,6 @@ function initializeApp() {
         const html = document.getElementById('htmlElement');
         html.lang = currentLanguage;
         html.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
-        document.getElementById('langBtnLabel').textContent = currentLanguage === 'ar' ? 'EN' : 'عربي';
     }
 
     // Load dark mode preference
@@ -32,6 +226,9 @@ function initializeApp() {
     if (saved) {
         analysisHistory = JSON.parse(saved);
     }
+    
+    // Update UI with current language
+    updateUILanguage();
 }
 
 function setupTextareaAutoDirection() {
@@ -62,15 +259,73 @@ function toggleLanguage() {
     html.lang = currentLanguage;
     html.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
     
-    document.getElementById('langBtnLabel').textContent = currentLanguage === 'ar' ? 'EN' : 'عربي';
+    // Update all UI elements
+    updateUILanguage();
+}
+
+function updateUILanguage() {
+    // Header buttons
+    document.getElementById('langBtnLabel').textContent = t('language');
     
-    // Update placeholder
+    // Update button labels
+    const darkModeLabel = document.querySelector('[onclick="toggleDarkMode()"] .btn-label');
+    if (darkModeLabel) darkModeLabel.textContent = t('darkMode');
+    
+    const historyLabel = document.querySelector('[onclick="viewHistory()"] .btn-label');
+    if (historyLabel) historyLabel.textContent = t('history');
+    
+    const exportLabel = document.querySelector('[onclick="exportResult()"] .btn-label');
+    if (exportLabel) exportLabel.textContent = t('save');
+    
+    const reportLabel = document.querySelector('[onclick="openReportModal()"] .btn-label');
+    if (reportLabel) reportLabel.textContent = t('report');
+    
+    const appLabel = document.querySelector('[onclick="openPremiumModal()"] .btn-label');
+    if (appLabel) appLabel.textContent = t('app');
+    
+    // Input section
+    const inputLabel = document.querySelector('.input-label');
+    if (inputLabel) inputLabel.textContent = t('inputLabel');
+    
     const textarea = document.getElementById('messageInput');
-    if (currentLanguage === 'ar') {
-        textarea.placeholder = 'الصق الرسالة المشبوهة هنا...\n\nمثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط للتحديث...';
-    } else {
-        textarea.placeholder = 'Paste suspicious message here...\n\nExample: Your Absher account has been suspended. Click the link to update...';
+    if (textarea) textarea.placeholder = t('placeholder');
+    
+    // Buttons
+    const pasteBtn = document.querySelector('.btn-paste span');
+    if (pasteBtn) pasteBtn.textContent = t('paste');
+    
+    const clearBtn = document.querySelector('.btn-clear span');
+    if (clearBtn) clearBtn.textContent = t('clear');
+    
+    const analyzeBtn = document.querySelector('.btn-analyze span');
+    if (analyzeBtn) analyzeBtn.textContent = t('analyze');
+    
+    // Loading
+    const loadingText = document.querySelector('.loading p');
+    if (loadingText) loadingText.innerHTML = `<strong>${t('analyzing')}</strong>`;
+    
+    // Tips section
+    const tipsTitle = document.querySelector('.info-box h3');
+    if (tipsTitle) {
+        const svg = tipsTitle.querySelector('svg');
+        tipsTitle.innerHTML = '';
+        if (svg) tipsTitle.appendChild(svg);
+        tipsTitle.appendChild(document.createTextNode(t('tipsTitle')));
     }
+    
+    const tipsList = document.querySelectorAll('.info-box li');
+    if (tipsList.length >= 4) {
+        tipsList[0].innerHTML = t('tip1');
+        tipsList[1].innerHTML = t('tip2');
+        tipsList[2].innerHTML = `${t('tip3')} <strong>${t('tip3Value')}</strong>`;
+        tipsList[3].innerHTML = `${t('tip4')} <strong>${t('tip4Value')}</strong>`;
+    }
+    
+    // Update download button texts
+    const iosText = document.getElementById('iosText');
+    const androidText = document.getElementById('androidText');
+    if (iosText) iosText.textContent = t('iosStore');
+    if (androidText) androidText.textContent = t('androidStore');
 }
 
 function toggleDarkMode() {
@@ -102,12 +357,12 @@ function viewHistory() {
     const historyActions = document.getElementById('historyActions');
     
     if (analysisHistory.length === 0) {
-        historyList.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px;">لم يتم فحص أي رسائل بعد</p>';
+        historyList.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:20px;">${t('noHistory')}</p>`;
         historyActions.style.display = 'none';
     } else {
         historyList.innerHTML = analysisHistory.map((item, idx) => `
             <div class="history-item" onclick="loadFromHistory(${idx})">
-                <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${idx})" title="حذف">
+                <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${idx})" title="${currentLanguage === 'ar' ? 'حذف' : 'Delete'}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                     </svg>
@@ -116,31 +371,39 @@ function viewHistory() {
                     ${item.message}...
                 </div>
                 <div class="history-item-meta">
-                    ${item.classification_ar} (${item.riskScore}%) • ${item.timestamp}
+                    ${currentLanguage === 'ar' ? item.classification_ar : item.classification} (${item.riskScore}%) • ${item.timestamp}
                 </div>
             </div>
         `).join('');
         historyActions.style.display = 'block';
+        
+        // Update delete button text
+        const deleteBtn = historyActions.querySelector('.btn-clear-history span');
+        if (deleteBtn) deleteBtn.textContent = t('deleteHistory');
     }
+    
+    // Update modal title
+    const modalTitle = document.querySelector('#historyModal h2');
+    if (modalTitle) modalTitle.textContent = t('historyTitle');
     
     openModal('historyModal');
 }
 
 function deleteHistoryItem(idx) {
-    if (confirm('هل تريد حذف هذا السجل؟')) {
+    if (confirm(t('confirmDeleteOne'))) {
         analysisHistory.splice(idx, 1);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(analysisHistory));
         viewHistory();
-        showNotification('🗑️ تم حذف السجل');
+        showNotification(t('notifDeleted'));
     }
 }
 
 function clearHistory() {
-    if (confirm('هل تريد حذف جميع السجلات؟\n\nلا يمكن التراجع عن هذا الإجراء.')) {
+    if (confirm(t('confirmDeleteAll'))) {
         analysisHistory = [];
         localStorage.setItem(HISTORY_KEY, JSON.stringify(analysisHistory));
         viewHistory();
-        showNotification('🗑️ تم حذف جميع السجلات');
+        showNotification(t('notifAllDeleted'));
     }
 }
 
@@ -270,12 +533,18 @@ async function analyzeMessage() {
     const text = textarea.value.trim();
 
     if (!text) {
-        showNotification('⚠️ الرجاء لصق الرسالة أولاً');
+        showNotification(t('notifNoMessage'));
         return;
     }
 
     const loading = document.getElementById('loading');
     const resultCard = document.getElementById('resultCard');
+    
+    // Update loading text
+    loading.innerHTML = `
+        <div class="spinner"></div>
+        <p>${t('analyzing')}</p>
+    `;
     
     loading.classList.add('show');
     resultCard.classList.remove('show');
@@ -356,10 +625,7 @@ function performRuleBasedAnalysis(text) {
 
     if (hasOfficialDomain) {
         riskScore -= 20;
-        warnings.push({
-            ar: '✅ يحتوي على رابط من موقع حكومي رسمي',
-            en: '✅ Contains official government link'
-        });
+        warnings.push(t('warnOfficialLink'));
     }
 
     const shorteners = ['bit.ly', 'tinyurl.com', 't.co', 'tmra.pe', 'goo.gl', 'is.gd', 'ow.ly', 'rebrand.ly', 'buff.ly'];
@@ -367,10 +633,7 @@ function performRuleBasedAnalysis(text) {
     
     if (foundShorteners.length > 0) {
         riskScore += 25;
-        warnings.push({
-            ar: '🚨 يحتوي على روابط مختصرة مشبوهة',
-            en: '🚨 Contains suspicious shortened URLs'
-        });
+        warnings.push(t('warnShortener'));
     }
 
     const insecureUrls = urls.filter(url => {
@@ -382,19 +645,13 @@ function performRuleBasedAnalysis(text) {
     
     if (insecureUrls.length > 0) {
         riskScore += 30;
-        warnings.push({
-            ar: '⚠️ يحتوي على روابط غير آمنة (http)',
-            en: '⚠️ Contains insecure links (http)'
-        });
+        warnings.push(t('warnInsecure'));
     }
 
     const mentionsAbsher = text.match(/أبشر|absher/i);
     if (mentionsAbsher && hasUrls && !hasOfficialDomain) {
         riskScore += 30;
-        warnings.push({
-            ar: '🚨 يذكر أبشر لكن الرابط ليس من النطاق الرسمي',
-            en: '🚨 Mentions Absher but link is not official'
-        });
+        warnings.push(t('warnFakeAbsher'));
     }
 
     const urgentKeywords = ['تم تعليق', 'تم إيقاف', 'خلال 24 ساعة', 'ادفع الآن', 'قم بتحديث', 'فوراً', 'حالاً', 'عاجل'];
@@ -402,10 +659,7 @@ function performRuleBasedAnalysis(text) {
     
     if (foundUrgent.length > 0) {
         riskScore += 20;
-        warnings.push({
-            ar: '🚨 يستخدم أساليب الضغط والاستعجال',
-            en: '🚨 Uses pressure and urgency tactics'
-        });
+        warnings.push(t('warnUrgent'));
     }
 
     const phishingKeywords = ['اضغط هنا', 'انقر فوراً', 'تحديث معلوماتك', 'تأكيد الحساب', 'confirm account', 'update now', 'click here'];
@@ -413,29 +667,22 @@ function performRuleBasedAnalysis(text) {
     
     if (foundPhishing.length > 0) {
         riskScore += 15;
-        warnings.push({
-            ar: '⚠️ يستخدم عبارات احتيالية نموذجية',
-            en: '⚠️ Uses typical phishing phrases'
-        });
+        warnings.push(t('warnPhishing'));
     }
 
     if (hasUrls && !hasOfficialDomain) {
         riskScore += 10;
-        warnings.push({
-            ar: '⚠️ يحتوي على روابط من مصادر غير رسمية',
-            en: '⚠️ Contains links from unofficial sources'
-        });
+        warnings.push(t('warnUnofficial'));
     }
 
     riskScore = Math.max(0, Math.min(100, riskScore));
 
     return {
         classification: riskScore <= 30 ? 'SAFE' : (riskScore <= 65 ? 'SUSPICIOUS' : 'FRAUD'),
-        classification_ar: riskScore <= 30 ? 'آمنة غالباً' : (riskScore <= 65 ? 'مشبوهة' : 'احتيالية'),
+        classification_ar: riskScore <= 30 ? t('safe') : (riskScore <= 65 ? t('suspicious') : t('fraud')),
         riskScore,
         icon: riskScore <= 30 ? '✅' : (riskScore <= 65 ? '⚠️' : '❌'),
-        explanation_ar: 'تم فحص الرسالة بنجاح وتحليل جميع العناصر المشبوهة',
-        explanation_en: 'Message analyzed successfully',
+        explanation: t('explanation'),
         warnings,
         urlsFound: urls.length
     };
@@ -471,30 +718,32 @@ function displayResult(result) {
         warningsHTML = `
             <div class="warnings-section">
                 <div class="warnings-title">
-                    🔍 التفاصيل والتحذيرات
+                    🔍 ${t('details')}
                 </div>
-                ${result.warnings.map(w => `
+                ${result.warnings.map(warning => `
                     <div class="warning-item">
                         <span class="warning-bullet">•</span>
-                        <div><strong>${w.ar}</strong></div>
+                        <div><strong>${warning}</strong></div>
                     </div>
                 `).join('')}
             </div>
         `;
     }
 
+    const displayClassification = currentLanguage === 'ar' ? result.classification_ar : result.classification;
+
     resultCard.innerHTML = `
         <div class="result-header">
             <div class="result-icon">${result.icon}</div>
             <div class="result-info">
-                <div class="result-title">${result.classification_ar}</div>
+                <div class="result-title">${displayClassification}</div>
                 <div class="result-subtitle">${result.classification}</div>
-                <div class="risk-score">درجة الخطر: ${result.riskScore} / 100</div>
+                <div class="risk-score">${t('riskScore')}: ${result.riskScore} / 100</div>
             </div>
         </div>
         
         <div class="result-explanation">
-            <strong>${result.explanation_ar}</strong>
+            <strong>${result.explanation}</strong>
         </div>
 
         ${warningsHTML}
@@ -554,14 +803,20 @@ function closePremiumModal() {
 
 function downloadApp(platform) {
     if (platform === 'ios') {
-        showNotification('🍎 قريباً على آبل ستور!');
+        showNotification(t('notifIOSSoon'));
         setTimeout(() => {
-            alert('🍎 قريباً على آبل ستور!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً');
+            const msg = currentLanguage === 'ar' 
+                ? '🍎 قريباً على آبل ستور!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً'
+                : '🍎 Coming soon to App Store!\n\nThe app will launch soon with:\n✅ Auto-scan all messages\n✅ Instant alerts\n✅ Detailed reports\n✅ 24/7 protection\n\nPrice: 5 SAR/month';
+            alert(msg);
         }, 500);
     } else if (platform === 'android') {
-        showNotification('🤖 قريباً على جوجل بلاي!');
+        showNotification(t('notifAndroidSoon'));
         setTimeout(() => {
-            alert('🤖 قريباً على جوجل بلاي!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً');
+            const msg = currentLanguage === 'ar'
+                ? '🤖 قريباً على جوجل بلاي!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً'
+                : '🤖 Coming soon to Google Play!\n\nThe app will launch soon with:\n✅ Auto-scan all messages\n✅ Instant alerts\n✅ Detailed reports\n✅ 24/7 protection\n\nPrice: 5 SAR/month';
+            alert(msg);
         }, 500);
     }
 }
@@ -571,9 +826,15 @@ function openReportModal() {
     const text = textarea.value.trim();
     
     if (!text) {
-        showNotification('⚠️ الرجاء لصق الرسالة المشبوهة أولاً');
+        showNotification(t('notifNoMessage'));
         return;
     }
+    
+    // Update modal content
+    const reportTitle = document.querySelector('#reportModal h2');
+    const reportSubtitle = document.querySelector('#reportModal p');
+    if (reportTitle) reportTitle.textContent = t('reportTitle');
+    if (reportSubtitle) reportSubtitle.textContent = t('reportSubtitle');
     
     openModal('reportModal');
 }
