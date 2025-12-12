@@ -3,6 +3,8 @@ const HISTORY_KEY = 'absher_analysis_history';
 const DARK_MODE_KEY = 'absher_dark_mode';
 const LANGUAGE_KEY = 'absher_language';
 let analysisHistory = [];
+let currentLanguage = 'ar';
+
 const translations = {
     ar: {
         // Header
@@ -66,18 +68,6 @@ const translations = {
         downloadAndroid: 'متجر جوجل',
         androidStore: 'Google Play',
         
-        // Report Modal
-        reportTitle: 'إبلاغ السلطات',
-        reportSubtitle: 'بلّغ عن الرسالة الاحتيالية',
-        call990Title: 'الاتصال بـ 990',
-        call990Desc: 'خط الجرائم الإلكترونية',
-        emailTitle: 'إرسال بريد إلكتروني',
-        emailDesc: 'info@cert.gov.sa',
-        absherTitle: 'عبر منصة أبشر',
-        absherDesc: 'أبلغ من خلال موقع أبشر',
-        kollonaTitle: 'تطبيق كلنا أمن',
-        kollonaDesc: 'الإبلاغ عن الجرائم',
-        
         // Notifications
         notifPasted: '✅ تم اللصق بنجاح',
         notifCleared: '🗑️ تم المسح',
@@ -96,14 +86,7 @@ const translations = {
         reportConfirmMessage: 'سيُرسل البلاغ إلى الجهات المختصة لحمايتك وحماية الآخرين. هل أنت متأكد أنك تريد المتابعة؟',
         reportConfirmCancel: 'إلغاء',
         reportConfirmSend: 'إرسال البلاغ',
-        confirmCall990: '📞 الاتصال بـ 990\n\nللإبلاغ عن الجرائم الإلكترونية:\n\n1. اتصل بالرقم: 990\n2. اختر خدمة الجرائم الإلكترونية\n3. قدم تفاصيل الرسالة المشبوهة\n\nمتاح 24 ساعة طوال الأسبوع',
-        confirmEmail: '📧 جاري فتح البريد الإلكتروني...',
-        confirmAbsher: '🏛️ الإبلاغ عبر أبشر\n\n1. افتح تطبيق أو موقع أبشر\n2. اذهب إلى "خدماتي"\n3. اختر "الإبلاغ عن محتوى مشبوه"\n4. املأ النموذج بالتفاصيل',
-        confirmKollona: '📱 تطبيق كلنا أمن\n\nللإبلاغ عن الجرائم الإلكترونية:\n\n1. حمّل تطبيق "كلنا أمن"\n2. سجل دخولك\n3. اختر "الإبلاغ عن جريمة إلكترونية"\n4. أرفق تفاصيل الرسالة المشبوهة\n\nالتطبيق متاح على:\n• آبل ستور\n• جوجل بلاي',
         confirmClear: 'هل تريد مسح الرسالة؟',
-        confirmNotifCall: '📞 جاري فتح معلومات الاتصال...',
-        confirmNotifAbsher: '🏛️ جاري فتح موقع أبشر...',
-        confirmNotifKollona: '📱 معلومات تطبيق كلنا أمن...',
         
         // Warnings
         warnOfficialLink: '✅ يحتوي على رابط من موقع حكومي رسمي',
@@ -157,11 +140,6 @@ const translations = {
         confirmDeleteOne: 'Do you want to delete this record?',
         confirmDeleteAll: 'Do you want to delete all history?\n\nThis action cannot be undone.',
         
-        // Report Confirmations
-        confirmCall990: '📞 Call 990\n\nTo report cybercrime:\n\n1. Call: 990\n2. Select cybercrime service\n3. Provide message details\n4. Provide any additional information\n\nAvailable 24/7',
-        confirmEmail: '📧 Opening email client...',
-        confirmAbsher: '🏛️ Report via Absher Platform\n\n1. Open Absher app or website\n2. Go to "My Services"\n3. Select "Report Suspicious Content"\n4. Fill the form with details',
-        confirmKollona: '📱 Kollona Amn Application\n\nTo report cybercrime:\n\n1. Download "Kollona Amn" app\n2. Sign in\n3. Select "Report Cybercrime"\n4. Attach message details\n\nAvailable on:\n• Apple Store\n• Google Play',
         confirmClear: 'Do you want to clear the message?',
         
         // Premium Modal
@@ -182,18 +160,6 @@ const translations = {
         iosStore: 'App Store',
         downloadAndroid: 'Download Android',
         androidStore: 'Google Play',
-        
-        // Report Modal
-        reportTitle: 'Report to Authorities',
-        reportSubtitle: 'Report fraudulent message',
-        call990Title: 'Call 990',
-        call990Desc: 'Cybercrime hotline',
-        emailTitle: 'Send Email',
-        emailDesc: 'info@cert.gov.sa',
-        absherTitle: 'Via Absher Platform',
-        absherDesc: 'Report through Absher website',
-        kollonaTitle: 'Kollona Amn App',
-        kollonaDesc: 'Report crimes',
         
         // Notifications
         notifPasted: '✅ Pasted successfully',
@@ -389,13 +355,6 @@ function updatePremiumModalLanguage() {
     if (pricePeriod) pricePeriod.textContent = t('pricePeriod');
     if (priceSave) priceSave.textContent = t('priceSave');
     
-    // Report modal header
-    const reportTitle = document.querySelector('#reportModal .modal-header h2');
-    if (reportTitle) reportTitle.textContent = t('reportTitle');
-    
-    const reportSubtitle = document.querySelector('#reportModal .modal-header p');
-    if (reportSubtitle) reportSubtitle.textContent = t('reportSubtitle');
-    
     // History modal header
     const historyTitle = document.querySelector('#historyModal .modal-header h2');
     if (historyTitle) historyTitle.textContent = t('historyTitle');
@@ -573,7 +532,6 @@ function openModal(modalId) {
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        // Add closing animation
         const content = modal.querySelector('.modal-content');
         if (content) {
             content.style.animation = 'modalSlideDown 0.3s ease-out';
@@ -594,7 +552,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeModal('historyModal');
         closePremiumModal();
-        closeReportModal();
+        closeMainReportConfirm();
     }
     if (e.ctrlKey && e.key === 'Enter') {
         analyzeMessage();
@@ -613,7 +571,6 @@ async function analyzeMessage() {
     const loading = document.getElementById('loading');
     const resultCard = document.getElementById('resultCard');
     
-    // Update loading text
     loading.innerHTML = `
         <div class="spinner"></div>
         <p>${t('analyzing')}</p>
@@ -622,7 +579,6 @@ async function analyzeMessage() {
     loading.classList.add('show');
     resultCard.classList.remove('show');
 
-    // Simulate analysis delay for better UX
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
@@ -903,129 +859,68 @@ function openReportModal() {
         return;
     }
     
-    // Update modal content
-    const reportTitle = document.querySelector('#reportModal h2');
-    const reportSubtitle = document.querySelector('#reportModal p');
-    if (reportTitle) reportTitle.textContent = t('reportTitle');
-    if (reportSubtitle) reportSubtitle.textContent = t('reportSubtitle');
-    
-    openModal('reportModal');
+    showMainReportConfirm(text);
 }
 
-function closeReportModal() {
-    closeModal('reportModal');
-}
-
-function reportTo(method) {
-    const message = document.getElementById('messageInput').value;
-    if (!message || !message.trim()) {
-        showNotification(t('notifNoMessage'));
-        return;
-    }
-    showReportConfirm(method, message);
-}
-
-function showReportConfirm(method, message) {
-    // If modal exists reuse it
-    let modal = document.getElementById('reportConfirmModal');
+function showMainReportConfirm(message) {
+    let modal = document.getElementById('mainReportConfirmModal');
     if (!modal) {
         modal = document.createElement('div');
-        modal.id = 'reportConfirmModal';
+        modal.id = 'mainReportConfirmModal';
         modal.className = 'modal show';
         modal.innerHTML = `
             <div class="modal-content" role="dialog" aria-modal="true">
+                <button class="modal-close" onclick="closeMainReportConfirm()" aria-label="إغلاق" title="إغلاق"></button>
                 <div class="modal-header">
+                    <div class="modal-icon danger-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="var(--danger)" stroke-width="2" fill="none"/>
+                            <path d="M8 12L11 15L16 9" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        </svg>
+                    </div>
                     <h2></h2>
-                </div>
-                <div class="modal-body">
                     <p></p>
                 </div>
-                <div class="modal-actions">
-                    <button class="btn-cancel"></button>
-                    <button class="btn-confirm primary"></button>
+                <div class="modal-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                    <button class="btn-cancel" style="padding: 12px; border: 2px solid var(--border); background: var(--bg); color: var(--text); border-radius: 10px; font-weight: 600; cursor: pointer;"></button>
+                    <button class="btn-confirm" style="padding: 12px; border: none; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 10px; font-weight: 600; cursor: pointer;"></button>
                 </div>
             </div>`;
         document.body.appendChild(modal);
 
-        // basic handlers
-        modal.querySelector('.btn-cancel').addEventListener('click', () => {
-            modal.classList.remove('show');
-            setTimeout(() => modal.remove(), 200);
-        });
+        modal.querySelector('.btn-cancel').addEventListener('click', closeMainReportConfirm);
     } else {
         modal.classList.add('show');
     }
 
-    // fill localized text
     const title = modal.querySelector('.modal-header h2');
-    const bodyP = modal.querySelector('.modal-body p');
+    const subtitle = modal.querySelector('.modal-header p');
     const cancelBtn = modal.querySelector('.btn-cancel');
     const confirmBtn = modal.querySelector('.btn-confirm');
 
     if (title) title.textContent = t('reportConfirmTitle');
-    if (bodyP) bodyP.textContent = t('reportConfirmMessage');
+    if (subtitle) subtitle.textContent = t('reportConfirmMessage');
     if (cancelBtn) cancelBtn.textContent = t('reportConfirmCancel');
     if (confirmBtn) confirmBtn.textContent = t('reportConfirmSend');
 
-    // confirm action
     confirmBtn.onclick = () => {
-        // close modal
-        modal.classList.remove('show');
-        setTimeout(() => modal.remove(), 200);
-        // perform the actual report action
-        performReportAction(method, message);
+        closeMainReportConfirm();
+        sendDirectReport(message);
     };
 
-    // ensure focus on confirm for keyboard users
     confirmBtn.focus();
 }
 
-function performReportAction(method, message) {
-    switch(method) {
-        case '990':
-            showNotification(t('confirmNotifCall'));
-            setTimeout(() => {
-                alert(t('confirmCall990'));
-                sendReport('990', message);
-            }, 500);
-            break;
-
-        case 'email':
-            const emailSubject = encodeURIComponent(currentLanguage === 'ar' ? 'إبلاغ عن رسالة احتيالية' : 'Report fraudulent message');
-            const emailBody = encodeURIComponent(
-                (currentLanguage === 'ar' ? 'السلام عليكم،\n\nأود الإبلاغ عن الرسالة المشبوهة التالية:\n\n' : 'Hello,\n\nI would like to report the following suspicious message:\n\n') + 
-                message + 
-                (currentLanguage === 'ar' ? '\n\nشكراً لكم' : '\n\nThank you')
-            );
-            window.open(`mailto:info@cert.gov.sa?subject=${emailSubject}&body=${emailBody}`, '_blank');
-            showNotification(t('confirmEmail'));
-            sendReport('email', message);
-            break;
-
-        case 'absher':
-            showNotification(t('confirmNotifAbsher'));
-            setTimeout(() => {
-                alert(t('confirmAbsher'));
-                window.open('https://www.absher.sa', '_blank');
-                sendReport('absher', message);
-            }, 500);
-            break;
-
-        case 'kollona':
-            showNotification(t('confirmNotifKollona'));
-            setTimeout(() => {
-                alert(t('confirmKollona'));
-                sendReport('kollona', message);
-            }, 500);
-            break;
+function closeMainReportConfirm() {
+    const modal = document.getElementById('mainReportConfirmModal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
     }
 }
 
-// Simulate sending a report to an API. If an API exists at /api/report it will be attempted,
-// but failure will be ignored and the UI will still show a successful send so it "appears" delivered.
-async function sendReport(method, message) {
+async function sendDirectReport(message) {
     const payload = {
-        method,
         message,
         timestamp: new Date().toISOString()
     };
@@ -1033,7 +928,6 @@ async function sendReport(method, message) {
     showNotification(t('reportSending'));
 
     try {
-        // attempt to POST to a reporting endpoint if available; give it a short timeout
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1500);
 
@@ -1046,14 +940,12 @@ async function sendReport(method, message) {
 
         clearTimeout(timeoutId);
     } catch (err) {
-        // ignore errors — we still want to show success to the user
+        // ignore errors
     }
 
-    // small delay to simulate processing
     await new Promise(r => setTimeout(r, 600));
 
     showNotification(t('reportSent'));
-    // brief alert to confirm the send action (localized)
     setTimeout(() => { alert(t('reportSent')); }, 300);
 }
 
@@ -1063,4 +955,4 @@ window.onclick = function(event) {
         event.target.classList.remove('show');
         document.body.style.overflow = '';
     }
-};
+}
