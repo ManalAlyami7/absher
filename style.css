@@ -592,7 +592,9 @@ body::before {
 }
 
 .premium-modal-content {
-    max-width: 600px;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 .modal-close {
@@ -655,13 +657,13 @@ body::before {
 
 .modal-header {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .modal-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 12px;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -678,29 +680,29 @@ body::before {
 }
 
 .modal-header h2 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--text);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: 800;
 }
 
 .modal-header p {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
 /* Features Grid */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin: 20px 0;
+    gap: 10px;
+    margin: 14px 0;
 }
 
 .feature-card {
     background: var(--bg);
-    padding: 16px;
-    border-radius: 12px;
+    padding: 12px;
+    border-radius: 10px;
     text-align: center;
     transition: all 0.3s ease;
     border: 2px solid transparent;
@@ -708,55 +710,55 @@ body::before {
 
 .feature-card:hover {
     border-color: var(--accent);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px var(--shadow);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
 }
 
 .feature-icon {
-    font-size: 2rem;
-    margin-bottom: 8px;
+    font-size: 1.6rem;
+    margin-bottom: 6px;
 }
 
 .feature-card h4 {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: var(--text);
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     font-weight: 700;
 }
 
 .feature-card p {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
 }
 
 /* Premium Price */
 .premium-price {
     text-align: center;
-    margin: 20px 0;
-    padding: 20px;
+    margin: 14px 0;
+    padding: 14px;
     background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
-    border-radius: 16px;
+    border-radius: 12px;
     color: white;
 }
 
 .price-large {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 800;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .price-period {
-    font-size: 1rem;
+    font-size: 0.85rem;
     opacity: 0.9;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .price-save {
     display: inline-block;
-    padding: 6px 16px;
+    padding: 4px 12px;
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    font-size: 0.85rem;
+    border-radius: 16px;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
@@ -764,20 +766,20 @@ body::before {
 .download-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
 }
 
 .download-btn {
-    padding: 14px;
+    padding: 10px;
     border: none;
-    border-radius: 12px;
-    font-size: 0.95rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 6px;
     transition: all 0.3s ease;
     color: white;
 }
