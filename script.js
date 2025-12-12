@@ -326,6 +326,50 @@ function updateUILanguage() {
     const androidText = document.getElementById('androidText');
     if (iosText) iosText.textContent = t('iosStore');
     if (androidText) androidText.textContent = t('androidStore');
+    
+    // Update premium modal
+    updatePremiumModalLanguage();
+}
+
+function updatePremiumModalLanguage() {
+    // Premium modal header
+    const premiumTitle = document.querySelector('#premiumModal .modal-header h2');
+    if (premiumTitle) premiumTitle.textContent = t('premiumTitle');
+    
+    const premiumSubtitle = document.querySelector('#premiumModal .modal-header p');
+    if (premiumSubtitle) premiumSubtitle.textContent = t('premiumSubtitle');
+    
+    // Features
+    const features = document.querySelectorAll('#premiumModal .feature-card');
+    const featureTitles = ['feature1Title', 'feature2Title', 'feature3Title', 'feature4Title'];
+    const featureDescs = ['feature1Desc', 'feature2Desc', 'feature3Desc', 'feature4Desc'];
+    
+    features.forEach((feature, idx) => {
+        const title = feature.querySelector('h4');
+        const desc = feature.querySelector('p');
+        if (title) title.textContent = t(featureTitles[idx]);
+        if (desc) desc.textContent = t(featureDescs[idx]);
+    });
+    
+    // Price section
+    const priceLarge = document.querySelector('#premiumModal .price-large');
+    const pricePeriod = document.querySelector('#premiumModal .price-period');
+    const priceSave = document.querySelector('#premiumModal .price-save');
+    
+    if (priceLarge) priceLarge.textContent = t('price');
+    if (pricePeriod) pricePeriod.textContent = t('pricePeriod');
+    if (priceSave) priceSave.textContent = t('priceSave');
+    
+    // Report modal header
+    const reportTitle = document.querySelector('#reportModal .modal-header h2');
+    if (reportTitle) reportTitle.textContent = t('reportTitle');
+    
+    const reportSubtitle = document.querySelector('#reportModal .modal-header p');
+    if (reportSubtitle) reportSubtitle.textContent = t('reportSubtitle');
+    
+    // History modal header
+    const historyTitle = document.querySelector('#historyModal .modal-header h2');
+    if (historyTitle) historyTitle.textContent = t('historyTitle');
 }
 
 function toggleDarkMode() {
