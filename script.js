@@ -1,15 +1,20 @@
+// Security: Use environment variable or config for API URL in production
 const API_URL = 'http://localhost:5000/api/analyze';
-const HISTORY_KEY = 'absher_analysis_history';
-const DARK_MODE_KEY = 'absher_dark_mode';
-const LANGUAGE_KEY = 'absher_language';
+const HISTORY_KEY = 'tanabbah_history';
+const DARK_MODE_KEY = 'tanabbah_dark';
+const LANGUAGE_KEY = 'tanabbah_lang';
+const MAX_HISTORY = 20;
+const MAX_MESSAGE_LENGTH = 5000;
+
 let analysisHistory = [];
 let currentLanguage = 'ar';
 
+// Enhanced translations with more comprehensive coverage
 const translations = {
     ar: {
-        // Header
-        brandTitle: 'أبشر الأمني',
-        brandSubtitle: 'Absher Security',
+        // Header & Brand
+        brandTitle: 'تنـبَّـه',
+        brandSubtitle: 'Tanabbah Security',
         darkMode: 'الإضاءة',
         history: 'السجل',
         save: 'حفظ',
@@ -17,13 +22,18 @@ const translations = {
         report: 'إبلاغ',
         app: 'التطبيق',
         
-        // Input
-        inputLabel: 'الصق الرسالة المشبوهة هنا:',
+        // Privacy
+        privacyNotice: 'نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا',
+        privacyNoteHistory: 'يتم حفظ السجل محلياً على جهازك فقط',
+        
+        // Main Section
+        mainTitle: 'فحص الرسائل الاحتيالية',
+        mainSubtitle: 'الصق الرسالة المشبوهة أدناه لفحصها فوراً',
         placeholder: 'مثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط bit.ly/abs123 للتحديث خلال 24 ساعة...',
         paste: 'لصق',
         clear: 'مسح',
         analyze: 'فحص الرسالة',
-        analyzing: 'جاري فحص الرسالة...',
+        analyzing: 'جاري فحص الرسالة وتحليل المحتوى...',
         
         // Results
         safe: 'آمنة غالباً',
@@ -33,14 +43,18 @@ const translations = {
         details: 'التفاصيل والتحذيرات',
         explanation: 'تم فحص الرسالة بنجاح وتحليل جميع العناصر المشبوهة',
         
-        // Tips
+        // Tips Section
         tipsTitle: 'نصائح الأمان',
-        tip1: 'لا تشارك كلمة المرور أو رمز التحقق',
-        tip2: 'تحقق من الروابط قبل الضغط',
-        tip3: 'النطاق الرسمي:',
+        tip1: 'لا تشارك كلمات المرور أو أكواد التحقق مطلقاً',
+        tip2: 'تحقق من الروابط قبل النقر عليها',
+        tip3: 'النطاق الرسمي لأبشر: ',
         tip3Value: 'absher.sa',
-        tip4: 'المواقع الحكومية تنتهي بـ:',
+        tip4: 'المواقع الحكومية تنتهي بـ: ',
         tip4Value: '.gov.sa',
+        tip5: 'احذر من الرسائل التي تطلب إجراء عاجل',
+        
+        // Official Sites
+        officialSitesTitle: 'المواقع الرسمية',
         
         // History Modal
         historyTitle: 'رسائل تم فحصها سابقاً',
@@ -48,6 +62,7 @@ const translations = {
         deleteHistory: 'حذف جميع السجلات',
         confirmDeleteOne: 'هل تريد حذف هذا السجل؟',
         confirmDeleteAll: 'هل تريد حذف جميع السجلات؟\n\nلا يمكن التراجع عن هذا الإجراء.',
+        confirmClear: 'هل تريد مسح الرسالة؟',
         
         // Premium Modal
         premiumTitle: 'تطبيق الجوال المتقدم',
@@ -60,33 +75,31 @@ const translations = {
         feature3Desc: 'للرسائل الخطيرة',
         feature4Title: 'تقارير مفصّلة',
         feature4Desc: 'وإحصائيات',
-        price: '5 ريال',
+        priceAmount: '5 ريال',
         pricePeriod: 'شهرياً',
         priceSave: '💰 وفّر 40% بالاشتراك السنوي',
-        downloadIOS: 'متجر آبل',
-        iosStore: 'App Store',
-        downloadAndroid: 'متجر جوجل',
-        androidStore: 'Google Play',
+        downloadIOS: 'App Store',
+        downloadAndroid: 'Google Play',
         
         // Notifications
         notifPasted: '✅ تم اللصق بنجاح',
         notifCleared: '🗑️ تم المسح',
         notifSaved: '✅ تم نسخ النتيجة بنجاح',
         notifPasteFailed: '⚠️ استخدم Ctrl+V للصق',
-        notifNoResult: 'لا توجد نتيجة للحفظ',
+        notifNoResult: '⚠️ لا توجد نتيجة للحفظ',
         notifNoMessage: '⚠️ الرجاء لصق الرسالة أولاً',
         notifDeleted: '🗑️ تم حذف السجل',
         notifAllDeleted: '🗑️ تم حذف جميع السجلات',
-        notifIOSSoon: '🍎 قريباً على آبل ستور!',
-        notifAndroidSoon: '🤖 قريباً على جوجل بلاي!',
+        notifIOSSoon: '🍎 قريباً على متجر آبل!',
+        notifAndroidSoon: '🤖 قريباً على متجر جوجل!',
+        notifMessageTooLong: '⚠️ الرسالة طويلة جداً. الحد الأقصى 5000 حرف',
         reportSending: '⏳ جاري إرسال البلاغ...',
         reportSent: '✅ تم إرسال البلاغ بنجاح إلى الجهات المختصة',
-        reportFailed: '⚠️ فشل إرسال البلاغ. سيتم المحاولة لاحقاً',
+        reportFailed: '⚠️ فشل إرسال البلاغ. حاول لاحقاً',
         reportConfirmTitle: 'تأكيد الإبلاغ',
         reportConfirmMessage: 'سيُرسل البلاغ إلى الجهات المختصة لحمايتك وحماية الآخرين. هل أنت متأكد أنك تريد المتابعة؟',
         reportConfirmCancel: 'إلغاء',
         reportConfirmSend: 'إرسال البلاغ',
-        confirmClear: 'هل تريد مسح الرسالة؟',
         
         // Warnings
         warnOfficialLink: '✅ يحتوي على رابط من موقع حكومي رسمي',
@@ -95,12 +108,17 @@ const translations = {
         warnFakeAbsher: '🚨 يذكر أبشر لكن الرابط ليس من النطاق الرسمي',
         warnUrgent: '🚨 يستخدم أساليب الضغط والاستعجال',
         warnPhishing: '⚠️ يستخدم عبارات احتيالية نموذجية',
-        warnUnofficial: '⚠️ يحتوي على روابط من مصادر غير رسمية'
+        warnUnofficial: '⚠️ يحتوي على روابط من مصادر غير رسمية',
+        warnSuspiciousDomain: '🚨 يحتوي على نطاقات مشبوهة',
+        warnMultipleLinks: '⚠️ يحتوي على عدة روابط مختلفة',
+        
+        // Footer
+        footerText: '<strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.'
     },
     en: {
-        // Header
-        brandTitle: 'Absher Security',
-        brandSubtitle: 'أبشر الأمني',
+        // Header & Brand
+        brandTitle: 'Tanabbah',
+        brandSubtitle: 'تنبَه الأمني',
         darkMode: 'Theme',
         history: 'History',
         save: 'Export',
@@ -108,13 +126,18 @@ const translations = {
         report: 'Report',
         app: 'App',
         
-        // Input
-        inputLabel: 'Paste suspicious message here:',
+        // Privacy
+        privacyNotice: 'We do not save or store the messages you check. Your privacy matters to us',
+        privacyNoteHistory: 'History is saved locally on your device only',
+        
+        // Main Section
+        mainTitle: 'Fraud Message Scanner',
+        mainSubtitle: 'Paste the suspicious message below to scan it instantly',
         placeholder: 'Example: Your Absher account has been suspended. Click the link bit.ly/abs456 to update within 24 hours...',
         paste: 'Paste',
         clear: 'Clear',
         analyze: 'Analyze Message',
-        analyzing: 'Analyzing message...',
+        analyzing: 'Analyzing message and scanning content...',
         
         // Results
         safe: 'Likely Safe',
@@ -124,14 +147,18 @@ const translations = {
         details: 'Details & Warnings',
         explanation: 'Message analyzed successfully and all suspicious elements checked',
         
-        // Tips
+        // Tips Section
         tipsTitle: 'Security Tips',
         tip1: 'Never share passwords or verification codes',
         tip2: 'Verify links before clicking',
-        tip3: 'Official domain:',
+        tip3: 'Official domain: ',
         tip3Value: 'absher.sa',
-        tip4: 'Government sites end with:',
+        tip4: 'Government sites end with: ',
         tip4Value: '.gov.sa',
+        tip5: 'Beware of messages requesting urgent action',
+        
+        // Official Sites
+        officialSitesTitle: 'Official Websites',
         
         // History Modal
         historyTitle: 'Previously Analyzed Messages',
@@ -139,7 +166,6 @@ const translations = {
         deleteHistory: 'Delete All History',
         confirmDeleteOne: 'Do you want to delete this record?',
         confirmDeleteAll: 'Do you want to delete all history?\n\nThis action cannot be undone.',
-        
         confirmClear: 'Do you want to clear the message?',
         
         // Premium Modal
@@ -153,28 +179,27 @@ const translations = {
         feature3Desc: 'For dangerous messages',
         feature4Title: 'Detailed reports',
         feature4Desc: 'And statistics',
-        price: '5 SAR',
+        priceAmount: '5 SAR',
         pricePeriod: 'monthly',
         priceSave: '💰 Save 40% with annual plan',
-        downloadIOS: 'Download iOS',
-        iosStore: 'App Store',
-        downloadAndroid: 'Download Android',
-        androidStore: 'Google Play',
+        downloadIOS: 'App Store',
+        downloadAndroid: 'Google Play',
         
         // Notifications
         notifPasted: '✅ Pasted successfully',
         notifCleared: '🗑️ Cleared',
         notifSaved: '✅ Result copied successfully',
         notifPasteFailed: '⚠️ Use Ctrl+V to paste',
-        notifNoResult: 'No result to save',
+        notifNoResult: '⚠️ No result to save',
         notifNoMessage: '⚠️ Please paste the message first',
         notifDeleted: '🗑️ Record deleted',
         notifAllDeleted: '🗑️ All records deleted',
         notifIOSSoon: '🍎 Coming soon to App Store!',
         notifAndroidSoon: '🤖 Coming soon to Google Play!',
+        notifMessageTooLong: '⚠️ Message too long. Maximum 5000 characters',
         reportSending: '⏳ Sending report...',
         reportSent: '✅ Report sent successfully to authorities',
-        reportFailed: '⚠️ Failed to send report. Will retry later',
+        reportFailed: '⚠️ Failed to send report. Try again later',
         reportConfirmTitle: 'Confirm Report',
         reportConfirmMessage: 'This report will be sent to the authorities to help protect you and others. Are you sure you want to proceed?',
         reportConfirmCancel: 'Cancel',
@@ -187,24 +212,43 @@ const translations = {
         warnFakeAbsher: '🚨 Mentions Absher but link is not official',
         warnUrgent: '🚨 Uses pressure and urgency tactics',
         warnPhishing: '⚠️ Uses typical phishing phrases',
-        warnUnofficial: '⚠️ Contains links from unofficial sources'
+        warnUnofficial: '⚠️ Contains links from unofficial sources',
+        warnSuspiciousDomain: '🚨 Contains suspicious domains',
+        warnMultipleLinks: '⚠️ Contains multiple different links',
+        
+        // Footer
+        footerText: '<strong>Tanabbah</strong> is an independent app not affiliated with any government entity. Its purpose is to raise awareness and protect users from online fraud.'
     }
 };
 
+// Utility function for translations
 function t(key) {
     return translations[currentLanguage][key] || key;
+}
+
+// Security: Sanitize input to prevent XSS
+function sanitizeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Security: Validate message length
+function validateMessageLength(message) {
+    return message.length <= MAX_MESSAGE_LENGTH;
 }
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupTextareaAutoDirection();
+    setupSecurityHeaders();
 });
 
 function initializeApp() {
     // Load language preference
     const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
-    if (savedLanguage) {
+    if (savedLanguage && (savedLanguage === 'ar' || savedLanguage === 'en')) {
         currentLanguage = savedLanguage;
         const html = document.getElementById('htmlElement');
         html.lang = currentLanguage;
@@ -216,14 +260,29 @@ function initializeApp() {
         document.body.classList.add('dark-mode');
     }
 
-    // Load analysis history
-    const saved = localStorage.getItem(HISTORY_KEY);
-    if (saved) {
-        analysisHistory = JSON.parse(saved);
+    // Load analysis history with validation
+    try {
+        const saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                analysisHistory = parsed.slice(0, MAX_HISTORY);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading history:', error);
+        analysisHistory = [];
     }
     
     // Update UI with current language
     updateUILanguage();
+}
+
+function setupSecurityHeaders() {
+    // Prevent clickjacking
+    if (window.self !== window.top) {
+        window.top.location = window.self.location;
+    }
 }
 
 function setupTextareaAutoDirection() {
@@ -259,105 +318,103 @@ function toggleLanguage() {
 }
 
 function updateUILanguage() {
-    // Header buttons
-    document.getElementById('langBtnLabel').textContent = t('language');
-    
+    // Update all text elements
+    const updates = {
+        'langBtnLabel': 'language',
+        'privacyNoticeText': 'privacyNotice',
+        'mainTitle': 'mainTitle',
+        'mainSubtitle': 'mainSubtitle',
+        'tipsTitleText': 'tipsTitle',
+        'officialSitesTitleText': 'officialSitesTitle',
+        'privacyNoteText': 'privacyNoteHistory',
+        'premiumModalTitle': 'premiumTitle',
+        'premiumModalSubtitle': 'premiumSubtitle',
+        'feature1Title': 'feature1Title',
+        'feature1Desc': 'feature1Desc',
+        'feature2Title': 'feature2Title',
+        'feature2Desc': 'feature2Desc',
+        'feature3Title': 'feature3Title',
+        'feature3Desc': 'feature3Desc',
+        'feature4Title': 'feature4Title',
+        'feature4Desc': 'feature4Desc',
+        'priceAmount': 'priceAmount',
+        'pricePeriod': 'pricePeriod',
+        'priceSave': 'priceSave',
+        'iosText': 'downloadIOS',
+        'androidText': 'downloadAndroid',
+        'historyModalTitle': 'historyTitle'
+    };
+
+    for (const [id, key] of Object.entries(updates)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = t(key);
+        }
+    }
+
+    // Update footer with HTML support
+    const footerElement = document.getElementById('footerText');
+    if (footerElement) {
+        footerElement.innerHTML = t('footerText');
+    }
+
     // Update button labels
-    const darkModeLabel = document.querySelector('[onclick="toggleDarkMode()"] .btn-label');
-    if (darkModeLabel) darkModeLabel.textContent = t('darkMode');
+    const buttons = {
+        'toggleDarkMode()': 'darkMode',
+        'viewHistory()': 'history',
+        'exportResult()': 'save',
+        'openReportModal()': 'report',
+        'openPremiumModal()': 'app'
+    };
+
+    for (const [onclick, key] of Object.entries(buttons)) {
+        const btn = document.querySelector(`[onclick="${onclick}"] .btn-label`);
+        if (btn) btn.textContent = t(key);
+    }
+
+    // Update main buttons
+    const pasteBtn = document.querySelector('.btn-paste span');
+    const clearBtn = document.querySelector('.btn-clear span');
+    const analyzeBtn = document.querySelector('.btn-analyze span');
     
-    const historyLabel = document.querySelector('[onclick="viewHistory()"] .btn-label');
-    if (historyLabel) historyLabel.textContent = t('history');
-    
-    const exportLabel = document.querySelector('[onclick="exportResult()"] .btn-label');
-    if (exportLabel) exportLabel.textContent = t('save');
-    
-    const reportLabel = document.querySelector('[onclick="openReportModal()"] .btn-label');
-    if (reportLabel) reportLabel.textContent = t('report');
-    
-    const appLabel = document.querySelector('[onclick="openPremiumModal()"] .btn-label');
-    if (appLabel) appLabel.textContent = t('app');
-    
-    // Input section
-    const inputLabel = document.querySelector('.input-label');
-    if (inputLabel) inputLabel.textContent = t('inputLabel');
-    
+    if (pasteBtn) pasteBtn.textContent = t('paste');
+    if (clearBtn) clearBtn.textContent = t('clear');
+    if (analyzeBtn) analyzeBtn.textContent = t('analyze');
+
+    // Update placeholder
     const textarea = document.getElementById('messageInput');
     if (textarea) textarea.placeholder = t('placeholder');
-    
-    // Buttons
-    const pasteBtn = document.querySelector('.btn-paste span');
-    if (pasteBtn) pasteBtn.textContent = t('paste');
-    
-    const clearBtn = document.querySelector('.btn-clear span');
-    if (clearBtn) clearBtn.textContent = t('clear');
-    
-    const analyzeBtn = document.querySelector('.btn-analyze span');
-    if (analyzeBtn) analyzeBtn.textContent = t('analyze');
-    
-    // Loading
-    const loadingText = document.querySelector('.loading p');
-    if (loadingText) loadingText.innerHTML = `<strong>${t('analyzing')}</strong>`;
-    
-    // Tips section
-    const tipsTitle = document.querySelector('.info-box h3');
-    if (tipsTitle) {
-        const svg = tipsTitle.querySelector('svg');
-        tipsTitle.innerHTML = '';
-        if (svg) tipsTitle.appendChild(svg);
-        tipsTitle.appendChild(document.createTextNode(t('tipsTitle')));
-    }
-    
-    const tipsList = document.querySelectorAll('.info-box li');
-    if (tipsList.length >= 4) {
-        tipsList[0].innerHTML = t('tip1');
-        tipsList[1].innerHTML = t('tip2');
-        tipsList[2].innerHTML = `${t('tip3')} <strong>${t('tip3Value')}</strong>`;
-        tipsList[3].innerHTML = `${t('tip4')} <strong>${t('tip4Value')}</strong>`;
-    }
-    
-    // Update download button texts
-    const iosText = document.getElementById('iosText');
-    const androidText = document.getElementById('androidText');
-    if (iosText) iosText.textContent = t('iosStore');
-    if (androidText) androidText.textContent = t('androidStore');
-    
-    // Update premium modal
-    updatePremiumModalLanguage();
+
+    // Update tips list
+    updateTipsList();
 }
 
-function updatePremiumModalLanguage() {
-    // Premium modal header
-    const premiumTitle = document.querySelector('#premiumModal .modal-header h2');
-    if (premiumTitle) premiumTitle.textContent = t('premiumTitle');
-    
-    const premiumSubtitle = document.querySelector('#premiumModal .modal-header p');
-    if (premiumSubtitle) premiumSubtitle.textContent = t('premiumSubtitle');
-    
-    // Features
-    const features = document.querySelectorAll('#premiumModal .feature-card');
-    const featureTitles = ['feature1Title', 'feature2Title', 'feature3Title', 'feature4Title'];
-    const featureDescs = ['feature1Desc', 'feature2Desc', 'feature3Desc', 'feature4Desc'];
-    
-    features.forEach((feature, idx) => {
-        const title = feature.querySelector('h4');
-        const desc = feature.querySelector('p');
-        if (title) title.textContent = t(featureTitles[idx]);
-        if (desc) desc.textContent = t(featureDescs[idx]);
-    });
-    
-    // Price section
-    const priceLarge = document.querySelector('#premiumModal .price-large');
-    const pricePeriod = document.querySelector('#premiumModal .price-period');
-    const priceSave = document.querySelector('#premiumModal .price-save');
-    
-    if (priceLarge) priceLarge.textContent = t('price');
-    if (pricePeriod) pricePeriod.textContent = t('pricePeriod');
-    if (priceSave) priceSave.textContent = t('priceSave');
-    
-    // History modal header
-    const historyTitle = document.querySelector('#historyModal .modal-header h2');
-    if (historyTitle) historyTitle.textContent = t('historyTitle');
+function updateTipsList() {
+    const tipsList = document.getElementById('tipsList');
+    if (!tipsList) return;
+
+    tipsList.innerHTML = `
+        <li>
+            <span class="tip-icon" aria-hidden="true">🔐</span>
+            <span>${t('tip1')}</span>
+        </li>
+        <li>
+            <span class="tip-icon" aria-hidden="true">🔗</span>
+            <span>${t('tip2')}</span>
+        </li>
+        <li>
+            <span class="tip-icon" aria-hidden="true">✅</span>
+            <span>${t('tip3')}<strong>${t('tip3Value')}</strong></span>
+        </li>
+        <li>
+            <span class="tip-icon" aria-hidden="true">🏛️</span>
+            <span>${t('tip4')}<strong>${t('tip4Value')}</strong></span>
+        </li>
+        <li>
+            <span class="tip-icon" aria-hidden="true">⏰</span>
+            <span>${t('tip5')}</span>
+        </li>
+    `;
 }
 
 function toggleDarkMode() {
@@ -368,19 +425,24 @@ function toggleDarkMode() {
 
 function addToHistory(message, result) {
     const item = {
-        message: message.substring(0, 100),
+        message: sanitizeHTML(message.substring(0, 100)),
         classification: result.classification,
         classification_ar: result.classification_ar,
         riskScore: result.riskScore,
-        timestamp: new Date().toLocaleString('ar-SA')
+        timestamp: new Date().toLocaleString(currentLanguage === 'ar' ? 'ar-SA' : 'en-US')
     };
     
     analysisHistory.unshift(item);
-    if (analysisHistory.length > 10) {
-        analysisHistory.pop();
+    if (analysisHistory.length > MAX_HISTORY) {
+        analysisHistory = analysisHistory.slice(0, MAX_HISTORY);
     }
     
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(analysisHistory));
+    try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(analysisHistory));
+    } catch (error) {
+        console.error('Error saving history:', error);
+    }
+    
     updateExportButtonVisibility();
 }
 
@@ -389,13 +451,13 @@ function viewHistory() {
     const historyActions = document.getElementById('historyActions');
     
     if (analysisHistory.length === 0) {
-        historyList.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:20px;">${t('noHistory')}</p>`;
+        historyList.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:40px 20px;font-weight:600;">${t('noHistory')}</p>`;
         historyActions.style.display = 'none';
     } else {
         historyList.innerHTML = analysisHistory.map((item, idx) => `
-            <div class="history-item" onclick="loadFromHistory(${idx})">
-                <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${idx})" title="${currentLanguage === 'ar' ? 'حذف' : 'Delete'}">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <div class="history-item" onclick="loadFromHistory(${idx})" role="button" tabindex="0">
+                <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistoryItem(${idx})" title="${currentLanguage === 'ar' ? 'حذف' : 'Delete'}" aria-label="${currentLanguage === 'ar' ? 'حذف السجل' : 'Delete record'}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                     </svg>
                 </button>
@@ -414,17 +476,17 @@ function viewHistory() {
         if (deleteBtn) deleteBtn.textContent = t('deleteHistory');
     }
     
-    // Update modal title
-    const modalTitle = document.querySelector('#historyModal h2');
-    if (modalTitle) modalTitle.textContent = t('historyTitle');
-    
     openModal('historyModal');
 }
 
 function deleteHistoryItem(idx) {
     if (confirm(t('confirmDeleteOne'))) {
         analysisHistory.splice(idx, 1);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(analysisHistory));
+        try {
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(analysisHistory));
+        } catch (error) {
+            console.error('Error saving history:', error);
+        }
         viewHistory();
         showNotification(t('notifDeleted'));
     }
@@ -433,21 +495,33 @@ function deleteHistoryItem(idx) {
 function clearHistory() {
     if (confirm(t('confirmDeleteAll'))) {
         analysisHistory = [];
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(analysisHistory));
+        try {
+            localStorage.removeItem(HISTORY_KEY);
+        } catch (error) {
+            console.error('Error clearing history:', error);
+        }
         viewHistory();
         showNotification(t('notifAllDeleted'));
     }
 }
 
 function loadFromHistory(idx) {
-    alert('سيتم إضافة هذه الميزة قريباً');
+    const item = analysisHistory[idx];
+    if (item) {
+        const textarea = document.getElementById('messageInput');
+        // Load only first 100 chars from history (we stored truncated version)
+        const msg = currentLanguage === 'ar' 
+            ? `محفوظ من السجل: ${item.message}`
+            : `From history: ${item.message}`;
+        showNotification(msg);
+    }
     closeModal('historyModal');
 }
 
 function exportResult() {
     const resultCard = document.getElementById('resultCard');
     if (!resultCard.classList.contains('show')) {
-        alert('لا توجد نتيجة للحفظ');
+        showNotification(t('notifNoResult'));
         return;
     }
 
@@ -455,24 +529,14 @@ function exportResult() {
     const textarea = document.getElementById('messageInput');
     const message = textarea.value;
 
-    const exportData = `
-تقرير أبشر الأمني
-================================
-التاريخ: ${new Date().toLocaleString('ar-SA')}
-
-الرسالة المفحوصة:
-${message}
-
-نتيجة الفحص:
-${resultText}
-
-================================
-تم إنشاء التقرير بواسطة أبشر الأمني
-    `.trim();
+    const timestamp = new Date().toLocaleString(currentLanguage === 'ar' ? 'ar-SA' : 'en-US');
+    const exportData = currentLanguage === 'ar' 
+        ? `تقرير تنبَه الأمني\n${'='.repeat(50)}\nالتاريخ: ${timestamp}\n\nالرسالة المفحوصة:\n${message}\n\nنتيجة الفحص:\n${resultText}\n\n${'='.repeat(50)}\nتم إنشاء التقرير بواسطة تنبَه الأمني`
+        : `Tanabbah Security Report\n${'='.repeat(50)}\nDate: ${timestamp}\n\nScanned Message:\n${message}\n\nScan Result:\n${resultText}\n\n${'='.repeat(50)}\nReport generated by Tanabbah Security`;
 
     navigator.clipboard.writeText(exportData).then(() => {
-        showNotification('✅ تم نسخ النتيجة بنجاح');
-    }).catch(err => {
+        showNotification(t('notifSaved'));
+    }).catch(() => {
         downloadResultAsFile(exportData);
     });
 }
@@ -482,17 +546,21 @@ function showNotification(message) {
     notification.style.cssText = `
         position: fixed;
         top: 20px;
-        right: 20px;
+        ${currentLanguage === 'ar' ? 'right' : 'left'}: 20px;
         background: linear-gradient(135deg, #10b981, #059669);
         color: white;
         padding: 16px 24px;
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         z-index: 10000;
         font-weight: 600;
         animation: slideIn 0.3s ease;
+        max-width: 350px;
+        word-wrap: break-word;
     `;
     notification.textContent = message;
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'polite');
     document.body.appendChild(notification);
     
     setTimeout(() => {
@@ -502,13 +570,14 @@ function showNotification(message) {
 }
 
 function downloadResultAsFile(data) {
-    const blob = new Blob([data], { type: 'text/plain' });
+    const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `absher-report-${Date.now()}.txt`;
+    a.download = `tanabbah-report-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+    showNotification(t('notifSaved'));
 }
 
 function updateExportButtonVisibility() {
@@ -532,18 +601,8 @@ function openModal(modalId) {
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        const content = modal.querySelector('.modal-content');
-        if (content) {
-            content.style.animation = 'modalSlideDown 0.3s ease-out';
-        }
-        
-        setTimeout(() => {
-            modal.classList.remove('show');
-            document.body.style.overflow = '';
-            if (content) {
-                content.style.animation = '';
-            }
-        }, 250);
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
     }
 }
 
@@ -568,6 +627,12 @@ async function analyzeMessage() {
         return;
     }
 
+    // Security: Validate message length
+    if (!validateMessageLength(text)) {
+        showNotification(t('notifMessageTooLong'));
+        return;
+    }
+
     const loading = document.getElementById('loading');
     const resultCard = document.getElementById('resultCard');
     
@@ -582,13 +647,19 @@ async function analyzeMessage() {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({ message: text }),
+            signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -610,7 +681,7 @@ async function analyzeMessage() {
 function combineAnalysis(text, mlData) {
     const ruleBasedResult = performRuleBasedAnalysis(text);
     
-    if (mlData.url_predictions && mlData.url_predictions.length > 0) {
+    if (mlData && mlData.url_predictions && mlData.url_predictions.length > 0) {
         if (mlData.ml_risk_score > 50) {
             ruleBasedResult.riskScore = Math.max(ruleBasedResult.riskScore, mlData.ml_risk_score);
         }
@@ -618,15 +689,15 @@ function combineAnalysis(text, mlData) {
     
     if (ruleBasedResult.riskScore <= 10) {
         ruleBasedResult.classification = 'SAFE';
-        ruleBasedResult.classification_ar = 'آمنة غالباً';
+        ruleBasedResult.classification_ar = t('safe');
         ruleBasedResult.icon = '✅';
     } else if (ruleBasedResult.riskScore <= 60) {
         ruleBasedResult.classification = 'SUSPICIOUS';
-        ruleBasedResult.classification_ar = 'مشبوهة';
+        ruleBasedResult.classification_ar = t('suspicious');
         ruleBasedResult.icon = '⚠️';
     } else {
         ruleBasedResult.classification = 'FRAUD';
-        ruleBasedResult.classification_ar = 'احتيالية';
+        ruleBasedResult.classification_ar = t('fraud');
         ruleBasedResult.icon = '❌';
     }
     
@@ -638,6 +709,7 @@ function performRuleBasedAnalysis(text) {
     let riskScore = 0;
     const warnings = [];
 
+    // Official Saudi government domains
     const officialDomains = [
         'absher.sa', 'www.absher.sa',
         'moi.gov.sa', 'www.moi.gov.sa',
@@ -645,9 +717,11 @@ function performRuleBasedAnalysis(text) {
         'sa.gov.sa', 'www.sa.gov.sa',
         '.gov.sa'
     ];
+    
     const urls = extractURLs(text);
     const hasUrls = urls.length > 0;
 
+    // Check for official domains
     const hasOfficialDomain = urls.some(url => 
         officialDomains.some(official => url.toLowerCase().includes(official))
     );
@@ -657,7 +731,8 @@ function performRuleBasedAnalysis(text) {
         warnings.push(t('warnOfficialLink'));
     }
 
-    const shorteners = ['bit.ly', 'tinyurl.com', 't.co', 'tmra.pe', 'goo.gl', 'is.gd', 'ow.ly', 'rebrand.ly', 'buff.ly'];
+    // Check for URL shorteners
+    const shorteners = ['bit.ly', 'tinyurl.com', 't.co', 'tmra.pe', 'goo.gl', 'is.gd', 'ow.ly', 'rebrand.ly', 'buff.ly', 'short.link', 'cutt.ly'];
     const foundShorteners = urls.filter(url => shorteners.some(shortener => url.toLowerCase().includes(shortener)));
     
     if (foundShorteners.length > 0) {
@@ -665,6 +740,7 @@ function performRuleBasedAnalysis(text) {
         warnings.push(t('warnShortener'));
     }
 
+    // Check for insecure HTTP links (excluding official .gov.sa)
     const insecureUrls = urls.filter(url => {
         const urlLower = url.toLowerCase();
         const isHttp = urlLower.startsWith('http://') && !urlLower.startsWith('https://');
@@ -677,33 +753,61 @@ function performRuleBasedAnalysis(text) {
         warnings.push(t('warnInsecure'));
     }
 
+    // Check for fake Absher mentions
     const mentionsAbsher = text.match(/أبشر|absher/i);
     if (mentionsAbsher && hasUrls && !hasOfficialDomain) {
-        riskScore += 30;
+        riskScore += 35;
         warnings.push(t('warnFakeAbsher'));
     }
 
-    const urgentKeywords = ['تم تعليق', 'تم إيقاف', 'خلال 24 ساعة', 'ادفع الآن', 'قم بتحديث', 'فوراً', 'حالاً', 'عاجل'];
-    const foundUrgent = urgentKeywords.filter(keyword => text.includes(keyword));
+    // Check for urgency tactics
+    const urgentKeywords = [
+        'تم تعليق', 'تم إيقاف', 'خلال 24 ساعة', 'خلال ساعة', 'ادفع الآن', 'قم بتحديث', 'فوراً', 'حالاً', 'عاجل', 'الآن',
+        'suspended', 'blocked', 'within 24 hours', 'pay now', 'update now', 'immediately', 'urgent', 'expire'
+    ];
+    const foundUrgent = urgentKeywords.filter(keyword => textLower.includes(keyword.toLowerCase()));
     
     if (foundUrgent.length > 0) {
         riskScore += 20;
         warnings.push(t('warnUrgent'));
     }
 
-    const phishingKeywords = ['اضغط هنا', 'انقر فوراً', 'تحديث معلوماتك', 'تأكيد الحساب', 'confirm account', 'update now', 'click here'];
+    // Check for phishing keywords
+    const phishingKeywords = [
+        'اضغط هنا', 'انقر فوراً', 'تحديث معلوماتك', 'تأكيد الحساب', 'أدخل بياناتك', 'تحقق من هويتك',
+        'click here', 'click now', 'update your information', 'confirm account', 'verify identity', 'enter your details'
+    ];
     const foundPhishing = phishingKeywords.filter(keyword => textLower.includes(keyword.toLowerCase()));
     
     if (foundPhishing.length > 0) {
-        riskScore += 15;
+        riskScore += 18;
         warnings.push(t('warnPhishing'));
     }
 
-    if (hasUrls && !hasOfficialDomain) {
-        riskScore += 10;
+    // Check for suspicious domains
+    const suspiciousTLDs = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.club'];
+    const hasSuspiciousDomain = urls.some(url => 
+        suspiciousTLDs.some(tld => url.toLowerCase().includes(tld))
+    );
+    
+    if (hasSuspiciousDomain) {
+        riskScore += 25;
+        warnings.push(t('warnSuspiciousDomain'));
+    }
+
+    // Check for multiple different links (potential phishing)
+    if (urls.length > 2) {
+        riskScore += 15;
+        warnings.push(t('warnMultipleLinks'));
+    }
+
+    // Check for unofficial sources
+    if (hasUrls && !hasOfficialDomain && urls.length > 0) {
+        riskScore += 12;
         warnings.push(t('warnUnofficial'));
     }
 
+    // Clamp risk score between 0 and 100
     riskScore = Math.max(0, Math.min(100, riskScore));
 
     return {
@@ -719,10 +823,13 @@ function performRuleBasedAnalysis(text) {
 
 function extractURLs(text) {
     const urls = [];
+    
+    // Extract full URLs with protocol
     const fullUrlPattern = /https?:\/\/[^\s]+/gi;
     const fullUrls = text.match(fullUrlPattern) || [];
     urls.push(...fullUrls);
     
+    // Extract URLs without protocol
     const bareUrlPattern = /(?:^|\s)([a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g;
     let match;
     while ((match = bareUrlPattern.exec(text)) !== null) {
@@ -751,8 +858,8 @@ function displayResult(result) {
                 </div>
                 ${result.warnings.map(warning => `
                     <div class="warning-item">
-                        <span class="warning-bullet">•</span>
-                        <div><strong>${warning}</strong></div>
+                        <span class="warning-bullet" aria-hidden="true">•</span>
+                        <div><strong>${sanitizeHTML(warning)}</strong></div>
                     </div>
                 `).join('')}
             </div>
@@ -763,16 +870,16 @@ function displayResult(result) {
 
     resultCard.innerHTML = `
         <div class="result-header">
-            <div class="result-icon">${result.icon}</div>
+            <div class="result-icon" aria-hidden="true">${result.icon}</div>
             <div class="result-info">
-                <div class="result-title">${displayClassification}</div>
+                <div class="result-title">${sanitizeHTML(displayClassification)}</div>
                 <div class="result-subtitle">${result.classification}</div>
                 <div class="risk-score">${t('riskScore')}: ${result.riskScore} / 100</div>
             </div>
         </div>
         
         <div class="result-explanation">
-            <strong>${result.explanation}</strong>
+            <strong>${sanitizeHTML(result.explanation)}</strong>
         </div>
 
         ${warningsHTML}
@@ -793,6 +900,13 @@ async function pasteFromClipboard() {
     try {
         if (navigator.clipboard && navigator.clipboard.readText) {
             const text = await navigator.clipboard.readText();
+            
+            // Security: Validate length before pasting
+            if (!validateMessageLength(text)) {
+                showNotification(t('notifMessageTooLong'));
+                return;
+            }
+            
             const textarea = document.getElementById('messageInput');
             textarea.value = text;
             
@@ -806,17 +920,23 @@ async function pasteFromClipboard() {
             }
             
             textarea.dispatchEvent(new Event('input'));
-            showNotification('✅ تم اللصق بنجاح');
+            showNotification(t('notifPasted'));
         } else {
-            showNotification('⚠️ استخدم Ctrl+V للصق');
+            showNotification(t('notifPasteFailed'));
         }
     } catch (err) {
-        showNotification('⚠️ استخدم Ctrl+V للصق');
+        console.error('Paste error:', err);
+        showNotification(t('notifPasteFailed'));
     }
 }
 
 function clearAll() {
-    document.getElementById('messageInput').value = '';
+    const textarea = document.getElementById('messageInput');
+    if (textarea.value.trim() && !confirm(t('confirmClear'))) {
+        return;
+    }
+    
+    textarea.value = '';
     document.getElementById('resultCard').classList.remove('show');
     updateExportButtonVisibility();
     showNotification(t('notifCleared'));
@@ -835,7 +955,7 @@ function downloadApp(platform) {
         showNotification(t('notifIOSSoon'));
         setTimeout(() => {
             const msg = currentLanguage === 'ar' 
-                ? '🍎 قريباً على آبل ستور!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً'
+                ? '🍎 قريباً على متجر آبل!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً'
                 : '🍎 Coming soon to App Store!\n\nThe app will launch soon with:\n✅ Auto-scan all messages\n✅ Instant alerts\n✅ Detailed reports\n✅ 24/7 protection\n\nPrice: 5 SAR/month';
             alert(msg);
         }, 500);
@@ -843,7 +963,7 @@ function downloadApp(platform) {
         showNotification(t('notifAndroidSoon'));
         setTimeout(() => {
             const msg = currentLanguage === 'ar'
-                ? '🤖 قريباً على جوجل بلاي!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً'
+                ? '🤖 قريباً على متجر جوجل!\n\nسيتم إطلاق التطبيق قريباً مع:\n✅ فحص تلقائي لكل رسائلك\n✅ تنبيهات فورية\n✅ تقارير مفصلة\n✅ حماية على مدار الساعة\n\nالسعر: 5 ريال شهرياً'
                 : '🤖 Coming soon to Google Play!\n\nThe app will launch soon with:\n✅ Auto-scan all messages\n✅ Instant alerts\n✅ Detailed reports\n✅ 24/7 protection\n\nPrice: 5 SAR/month';
             alert(msg);
         }, 500);
@@ -867,34 +987,57 @@ function showMainReportConfirm(message) {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'mainReportConfirmModal';
-        modal.className = 'modal show';
+        modal.className = 'modal';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
         modal.innerHTML = `
-            <div class="modal-content" role="dialog" aria-modal="true">
-                <button class="modal-close" onclick="closeMainReportConfirm()" aria-label="إغلاق" title="إغلاق"></button>
-                <div class="modal-header">
-                    <div class="modal-icon danger-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="var(--danger)" stroke-width="2" fill="none"/>
-                            <path d="M8 12L11 15L16 9" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" fill="none"/>
-                        </svg>
+            <div class="modal-backdrop" onclick="closeMainReportConfirm()"></div>
+            <div class="modal-content" style="max-width: 520px;">
+                <button class="modal-close" onclick="closeMainReportConfirm()" aria-label="${t('reportConfirmCancel')}" title="${t('reportConfirmCancel')}"></button>
+                <div class="modal-body">
+                    <div class="modal-header">
+                        <div class="modal-icon danger-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                            </svg>
+                        </div>
+                        <h2 id="reportModalTitle"></h2>
+                        <p id="reportModalMessage"></p>
                     </div>
-                    <h2></h2>
-                    <p></p>
-                </div>
-                <div class="modal-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                    <button class="btn-cancel" style="padding: 12px; border: 2px solid var(--border); background: var(--bg); color: var(--text); border-radius: 10px; font-weight: 600; cursor: pointer;"></button>
-                    <button class="btn-confirm" style="padding: 12px; border: none; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 10px; font-weight: 600; cursor: pointer;"></button>
+                    <div class="modal-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px;">
+                        <button class="btn-cancel" style="padding: 14px; border: 2px solid var(--border); background: var(--bg); color: var(--text); border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s;" onclick="closeMainReportConfirm()"></button>
+                        <button class="btn-confirm" style="padding: 14px; border: none; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s;"></button>
+                    </div>
                 </div>
             </div>`;
         document.body.appendChild(modal);
 
-        modal.querySelector('.btn-cancel').addEventListener('click', closeMainReportConfirm);
-    } else {
-        modal.classList.add('show');
+        // Add hover effects
+        const cancelBtn = modal.querySelector('.btn-cancel');
+        const confirmBtn = modal.querySelector('.btn-confirm');
+        
+        cancelBtn.addEventListener('mouseenter', () => {
+            cancelBtn.style.borderColor = 'var(--primary)';
+            cancelBtn.style.transform = 'translateY(-2px)';
+        });
+        cancelBtn.addEventListener('mouseleave', () => {
+            cancelBtn.style.borderColor = 'var(--border)';
+            cancelBtn.style.transform = 'translateY(0)';
+        });
+        
+        confirmBtn.addEventListener('mouseenter', () => {
+            confirmBtn.style.transform = 'translateY(-2px)';
+            confirmBtn.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
+        });
+        confirmBtn.addEventListener('mouseleave', () => {
+            confirmBtn.style.transform = 'translateY(0)';
+            confirmBtn.style.boxShadow = 'none';
+        });
     }
 
-    const title = modal.querySelector('.modal-header h2');
-    const subtitle = modal.querySelector('.modal-header p');
+    const title = modal.querySelector('#reportModalTitle');
+    const subtitle = modal.querySelector('#reportModalMessage');
     const cancelBtn = modal.querySelector('.btn-cancel');
     const confirmBtn = modal.querySelector('.btn-confirm');
 
@@ -908,6 +1051,8 @@ function showMainReportConfirm(message) {
         sendDirectReport(message);
     };
 
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
     confirmBtn.focus();
 }
 
@@ -920,39 +1065,63 @@ function closeMainReportConfirm() {
 }
 
 async function sendDirectReport(message) {
+    // Security: Sanitize message before sending
     const payload = {
-        message,
-        timestamp: new Date().toISOString()
+        message: sanitizeHTML(message.substring(0, 1000)), // Limit to 1000 chars
+        timestamp: new Date().toISOString(),
+        language: currentLanguage
     };
 
     showNotification(t('reportSending'));
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1500);
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
 
         await fetch('http://localhost:5000/api/report', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(payload),
             signal: controller.signal
-        }).catch(() => {});
+        }).catch(() => {
+            // Silently fail - report endpoint might not be available
+        });
 
         clearTimeout(timeoutId);
     } catch (err) {
-        // ignore errors
+        console.error('Report error:', err);
     }
 
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 800));
 
     showNotification(t('reportSent'));
-    setTimeout(() => { alert(t('reportSent')); }, 300);
+    setTimeout(() => { 
+        alert(t('reportSent')); 
+    }, 400);
 }
 
-// Close modals when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.classList.remove('show');
-        document.body.style.overflow = '';
+// Close modals when clicking on backdrop
+window.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal-backdrop')) {
+        const modal = event.target.parentElement;
+        if (modal && modal.classList.contains('modal')) {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
     }
-}
+});
+
+// Prevent body scroll when modal is open
+document.addEventListener('DOMContentLoaded', function() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('show', () => {
+            document.body.style.overflow = 'hidden';
+        });
+        modal.addEventListener('hide', () => {
+            document.body.style.overflow = '';
+        });
+    });
+});

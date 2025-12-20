@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تنبَّه - Tanabbah | فحص الرسائل الاحتيالية</title>
+    <title>تنبَّه - Tanabbah | فحص الرسائل الاحتيالية</title>
     <meta name="description" content="احمِ نفسك من الاحتيال والتصيد الإلكتروني. فحص مجاني للرسائل المشبوهة">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:5000;">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z' fill='%23059669'/><path d='M9 12L11 14L15 10' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -14,20 +15,20 @@
         <div class="header">
             <div class="brand">
                 <div class="brand-logo">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36" aria-hidden="true">
                         <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" fill="#059669"/>
                         <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     </svg>
                 </div>
                 <div class="brand-info">
-                    <h1 class="brand-title">تنـبَّـه</h1>
+                    <h1 class="brand-title">تنـبَّـه</h1>
                     <div class="brand-tagline">Tanabbah Security</div>
                 </div>
             </div>
 
             <div class="header-actions">
                 <button class="header-btn" onclick="toggleDarkMode()" title="تغيير الإضاءة" aria-label="تغيير الإضاءة">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle cx="12" cy="12" r="5" fill="currentColor"/>
                         <path d="M12 1V3M12 21V23M23 12H21M3 12H1M20.485 3.515L19.07 4.93M4.93 19.07L3.515 20.485M20.485 20.485L19.07 19.07M4.93 4.93L3.515 3.515" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
@@ -35,7 +36,7 @@
                 </button>
                 
                 <button class="header-btn" onclick="viewHistory()" title="السجل" aria-label="عرض السجل">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
@@ -43,7 +44,7 @@
                 </button>
 
                 <button class="header-btn" onclick="exportResult()" id="exportBtn" style="display:none;" title="حفظ" aria-label="حفظ النتيجة">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M14 2H6C5.45 2 5 2.45 5 3V21C5 21.55 5.45 22 6 22H18C18.55 22 19 21.55 19 21V8L14 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M12 11V17M9 14L12 17L15 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
@@ -53,7 +54,7 @@
                 <div class="header-divider"></div>
 
                 <button class="header-btn" onclick="toggleLanguage()" title="تبديل اللغة" aria-label="تبديل اللغة">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" stroke-width="1.5"/>
                     </svg>
@@ -63,7 +64,7 @@
                 <div class="header-divider"></div>
 
                 <button class="header-btn report-btn" onclick="openReportModal()" title="إبلاغ" aria-label="إبلاغ عن رسالة احتيالية">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>
                     </svg>
@@ -71,7 +72,7 @@
                 </button>
 
                 <button class="header-btn premium-btn" onclick="openPremiumModal()" title="التطبيق" aria-label="تحميل التطبيق">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="currentColor"/>
                     </svg>
                     <span class="btn-label">التطبيق</span>
@@ -81,11 +82,11 @@
 
         <!-- Privacy Notice -->
         <div class="privacy-notice">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" fill="currentColor" opacity="0.2"/>
                 <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
             </svg>
-            <span>نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا</span>
+            <span id="privacyNoticeText">نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا</span>
         </div>
 
         <!-- Main Card -->
@@ -93,8 +94,8 @@
             <div class="input-panel">
                 <div class="card">
                     <div class="card-header">
-                        <h2>فحص الرسائل الاحتيالية</h2>
-                        <p>الصق الرسالة المشبوهة أدناه لفحصها فوراً</p>
+                        <h2 id="mainTitle">فحص الرسائل الاحتيالية</h2>
+                        <p id="mainSubtitle">الصق الرسالة المشبوهة أدناه لفحصها فوراً</p>
                     </div>
 
                     <textarea 
@@ -105,25 +106,26 @@
                         spellcheck="false"
                         autocomplete="off"
                         autocorrect="off"
+                        autocapitalize="off"
                         aria-label="أدخل الرسالة المشبوهة"></textarea>
 
                     <div class="button-row">
                         <button class="btn btn-paste" onclick="pasteFromClipboard()" aria-label="لصق من الحافظة">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <rect x="5" y="6" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
                                 <path d="M9 2H16C16.55 2 17 2.45 17 3V6H7V3C7 2.45 7.45 2 8 2H9" stroke="currentColor" stroke-width="1.5" fill="none"/>
                             </svg>
                             <span>لصق</span>
                         </button>
                         <button class="btn btn-clear" onclick="clearAll()" aria-label="مسح النص">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                 <rect x="5" y="6" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
                             </svg>
                             <span>مسح</span>
                         </button>
                         <button class="btn btn-analyze" onclick="analyzeMessage()" aria-label="فحص الرسالة">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
                                 <path d="M15 15L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -143,31 +145,31 @@
             <div class="tips-panel">
                 <div class="info-box security-tips">
                     <h3>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M12 1L5 4V10C5 17 12 22 12 22C12 22 19 17 19 10V4L12 1Z" stroke="currentColor" stroke-width="2" fill="none"/>
                             <path d="M9 11L11 13L15 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
                         </svg>
-                        نصائح الأمان
+                        <span id="tipsTitleText">نصائح الأمان</span>
                     </h3>
-                    <ul>
+                    <ul id="tipsList">
                         <li>
-                            <span class="tip-icon">🔐</span>
+                            <span class="tip-icon" aria-hidden="true">🔐</span>
                             <span>لا تشارك كلمات المرور أو أكواد التحقق</span>
                         </li>
                         <li>
-                            <span class="tip-icon">🔗</span>
+                            <span class="tip-icon" aria-hidden="true">🔗</span>
                             <span>تحقق من الروابط قبل النقر عليها</span>
                         </li>
                         <li>
-                            <span class="tip-icon">✅</span>
+                            <span class="tip-icon" aria-hidden="true">✅</span>
                             <span>النطاق الرسمي لأبشر: <strong>absher.sa</strong></span>
                         </li>
                         <li>
-                            <span class="tip-icon">🏛️</span>
+                            <span class="tip-icon" aria-hidden="true">🏛️</span>
                             <span>المواقع الحكومية تنتهي بـ: <strong>.gov.sa</strong></span>
                         </li>
                         <li>
-                            <span class="tip-icon">⏰</span>
+                            <span class="tip-icon" aria-hidden="true">⏰</span>
                             <span>احذر من الرسائل التي تطلب إجراء عاجل</span>
                         </li>
                     </ul>
@@ -175,11 +177,11 @@
 
                 <div class="info-box official-sites">
                     <h3>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
                             <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
                         </svg>
-                        المواقع الرسمية
+                        <span id="officialSitesTitleText">المواقع الرسمية</span>
                     </h3>
                     <ul class="official-links">
                         <li>
@@ -207,85 +209,96 @@
 
         <!-- Premium Modal -->
         <div class="modal" id="premiumModal" role="dialog" aria-modal="true" aria-labelledby="premiumModalTitle">
+            <div class="modal-backdrop" onclick="closePremiumModal()"></div>
             <div class="modal-content premium-modal-content">
                 <button class="modal-close" onclick="closePremiumModal()" aria-label="إغلاق" title="إغلاق"></button>
                 
-                <div class="modal-header">
-                    <div class="modal-icon premium-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="currentColor"/>
-                        </svg>
+                <div class="modal-body">
+                    <div class="modal-header">
+                        <div class="modal-icon premium-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <h2 id="premiumModalTitle">تطبيق الجوال المتقدم</h2>
+                        <p id="premiumModalSubtitle">حماية تلقائية من الاحتيال والرسائل المشبوهة</p>
                     </div>
-                    <h2 id="premiumModalTitle">تطبيق الجوال المتقدم</h2>
-                    <p>حماية تلقائية من الاحتيال والرسائل المشبوهة</p>
-                </div>
 
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🛡️</div>
-                        <h4>فحص تلقائي</h4>
-                        <p>لكل رسائلك</p>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon" aria-hidden="true">🛡️</div>
+                            <h4 id="feature1Title">فحص تلقائي</h4>
+                            <p id="feature1Desc">لكل رسائلك</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon" aria-hidden="true">⚡</div>
+                            <h4 id="feature2Title">نتيجة فورية</h4>
+                            <p id="feature2Desc">في ثوانٍ</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon" aria-hidden="true">🔔</div>
+                            <h4 id="feature3Title">تنبيهات لحظية</h4>
+                            <p id="feature3Desc">للرسائل الخطيرة</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon" aria-hidden="true">📊</div>
+                            <h4 id="feature4Title">تقارير مفصّلة</h4>
+                            <p id="feature4Desc">وإحصائيات</p>
+                        </div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
-                        <h4>نتيجة فورية</h4>
-                        <p>في ثوانٍ</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🔔</div>
-                        <h4>تنبيهات لحظية</h4>
-                        <p>للرسائل الخطيرة</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📊</div>
-                        <h4>تقارير مفصّلة</h4>
-                        <p>وإحصائيات</p>
-                    </div>
-                </div>
 
-                <div class="premium-price">
-                    <div class="price-large">5 ريال</div>
-                    <div class="price-period">شهرياً</div>
-                    <div class="price-save">💰 وفّر 40% بالاشتراك السنوي</div>
-                </div>
+                    <div class="premium-price">
+                        <div class="price-large" id="priceAmount">5 ريال</div>
+                        <div class="price-period" id="pricePeriod">شهرياً</div>
+                        <div class="price-save" id="priceSave">💰 وفّر 40% بالاشتراك السنوي</div>
+                    </div>
 
-                <div class="download-buttons">
-                    <button class="download-btn ios" onclick="downloadApp('ios')">
-                        🍎 <span id="iosText">App Store</span>
-                    </button>
-                    <button class="download-btn android" onclick="downloadApp('android')">
-                        🤖 <span id="androidText">Google Play</span>
-                    </button>
+                    <div class="download-buttons">
+                        <button class="download-btn ios" onclick="downloadApp('ios')">
+                            <span aria-hidden="true">🍎</span> <span id="iosText">App Store</span>
+                        </button>
+                        <button class="download-btn android" onclick="downloadApp('android')">
+                            <span aria-hidden="true">🤖</span> <span id="androidText">Google Play</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- History Modal -->
         <div class="modal" id="historyModal" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+            <div class="modal-backdrop" onclick="closeModal('historyModal')"></div>
             <div class="modal-content">
                 <button class="modal-close" onclick="closeModal('historyModal')" aria-label="إغلاق" title="إغلاق"></button>
                 
-                <div class="modal-header">
-                    <div class="modal-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
+                <div class="modal-body">
+                    <div class="modal-header">
+                        <div class="modal-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h2 id="historyModalTitle">رسائل تم فحصها سابقاً</h2>
+                        <p class="privacy-note" id="privacyNoteText">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            </svg>
+                            يتم حفظ السجل محلياً على جهازك فقط
+                        </p>
                     </div>
-                    <h2 id="historyModalTitle">رسائل تم فحصها سابقاً</h2>
-                    <p class="privacy-note">يتم حفظ السجل محلياً على جهازك فقط</p>
-                </div>
-                
-                <div id="historyList" class="history-list"></div>
-                
-                <div class="history-actions" id="historyActions" style="display:none;">
-                    <button class="btn-clear-history" onclick="clearHistory()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <rect x="5" y="6" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                        </svg>
-                        <span>حذف جميع السجلات</span>
-                    </button>
+                    
+                    <div id="historyList" class="history-list"></div>
+                    
+                    <div class="history-actions" id="historyActions" style="display:none;">
+                        <button class="btn-clear-history" onclick="clearHistory()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <rect x="5" y="6" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            </svg>
+                            <span>حذف جميع السجلات</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -293,11 +306,11 @@
         <!-- Footer -->
         <div class="footer">
             <p>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
                     <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.
+                <span id="footerText"><strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.</span>
             </p>
         </div>
     </div>
@@ -305,5 +318,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
