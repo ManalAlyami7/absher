@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أبشر الأمني – Absher Security</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z' fill='%234338ca'/><path d='M9 12L11 14L15 10' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+    <title>تنبَه - Tanabbah | فحص الرسائل الاحتيالية</title>
+    <meta name="description" content="احمِ نفسك من الاحتيال والتصيد الإلكتروني. فحص مجاني للرسائل المشبوهة">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z' fill='%23059669'/><path d='M9 12L11 14L15 10' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,14 +14,14 @@
         <div class="header">
             <div class="brand">
                 <div class="brand-logo">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-                        <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" fill="#4338ca"/>
-                        <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+                        <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" fill="#059669"/>
+                        <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     </svg>
                 </div>
                 <div class="brand-info">
-                    <h1 class="brand-title">أبشر الأمني</h1>
-                    <div class="brand-tagline">Absher Security</div>
+                    <h1 class="brand-title">تنبَه</h1>
+                    <div class="brand-tagline">Tanabbah Security</div>
                 </div>
             </div>
 
@@ -58,36 +59,35 @@
                     </svg>
                     <span class="btn-label" id="langBtnLabel">EN</span>
                 </button>
-
-                <div class="header-divider"></div>
-
-                <button class="header-btn report-btn" onclick="openReportModal()" title="إبلاغ">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="var(--danger)" stroke-width="1.5" fill="none"/>
-                        <path d="M8 12L11 15L16 9" stroke="var(--danger)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-                    </svg>
-                    <span class="btn-label">إبلاغ</span>
-                </button>
-
-                <button class="header-btn premium-btn" onclick="openPremiumModal()" title="التطبيق">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="var(--accent)"/>
-                    </svg>
-                    <span class="btn-label">التطبيق</span>
-                </button>
             </div>
+        </div>
+
+        <!-- Privacy Notice -->
+        <div class="privacy-notice">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" fill="currentColor" opacity="0.2"/>
+                <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+            <span>نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا</span>
         </div>
 
         <!-- Main Card -->
         <div class="main-layout">
             <div class="input-panel">
                 <div class="card">
-                    <label class="input-label">الصق الرسالة المشبوهة هنا:</label>
+                    <div class="card-header">
+                        <h2>فحص الرسائل الاحتيالية</h2>
+                        <p>الصق الرسالة المشبوهة أدناه لفحصها فوراً</p>
+                    </div>
+
                     <textarea 
                         id="messageInput" 
                         class="message-textarea"
                         dir="auto"
-                        placeholder="مثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط bit.ly/abs123 للتحديث خلال 24 ساعة..."></textarea>
+                        placeholder="مثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط bit.ly/abs123 للتحديث خلال 24 ساعة..."
+                        spellcheck="false"
+                        autocomplete="off"
+                        autocorrect="off"></textarea>
 
                     <div class="button-row">
                         <button class="btn btn-paste" onclick="pasteFromClipboard()">
@@ -105,7 +105,7 @@
                             <span>مسح</span>
                         </button>
                         <button class="btn btn-analyze" onclick="analyzeMessage()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                 <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
                                 <path d="M15 15L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -115,7 +115,7 @@
 
                     <div class="loading" id="loading">
                         <div class="spinner"></div>
-                        <p>جاري فحص الرسالة...</p>
+                        <p>جاري فحص الرسالة وتحليل المحتوى...</p>
                     </div>
 
                     <div class="result-card" id="resultCard"></div>
@@ -123,79 +123,71 @@
             </div>
 
             <div class="tips-panel">
-                <div class="info-box">
+                <div class="info-box security-tips">
                     <h3>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 1L5 4V10C5 17 12 22 12 22C12 22 19 17 19 10V4L12 1Z" stroke="var(--accent)" stroke-width="1.5" fill="none"/>
-                            <path d="M9 11L11 13L15 9" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 1L5 4V10C5 17 12 22 12 22C12 22 19 17 19 10V4L12 1Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M9 11L11 13L15 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
                         </svg>
                         نصائح الأمان
                     </h3>
                     <ul>
-                        <li>لا تشارك كلمة المرور أو رمز التحقق</li>
-                        <li>تحقق من الروابط قبل الضغط</li>
-                        <li>النطاق الرسمي: <strong>absher.sa</strong></li>
-                        <li>المواقع الحكومية تنتهي بـ: <strong>.gov.sa</strong></li>
+                        <li>
+                            <span class="tip-icon">🔐</span>
+                            <span>لا تشارك كلمات المرور أو أكواد التحقق</span>
+                        </li>
+                        <li>
+                            <span class="tip-icon">🔗</span>
+                            <span>تحقق من الروابط قبل النقر عليها</span>
+                        </li>
+                        <li>
+                            <span class="tip-icon">✅</span>
+                            <span>النطاق الرسمي لأبشر: <strong>absher.sa</strong></span>
+                        </li>
+                        <li>
+                            <span class="tip-icon">🏛️</span>
+                            <span>المواقع الحكومية تنتهي بـ: <strong>.gov.sa</strong></span>
+                        </li>
+                        <li>
+                            <span class="tip-icon">⏰</span>
+                            <span>احذر من الرسائل التي تطلب إجراء عاجل</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="info-box official-sites">
+                    <h3>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        </svg>
+                        المواقع الرسمية
+                    </h3>
+                    <ul class="official-links">
+                        <li>
+                            <a href="https://absher.sa" target="_blank" rel="noopener">
+                                <span>منصة أبشر</span>
+                                <span class="link-url">absher.sa</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://moi.gov.sa" target="_blank" rel="noopener">
+                                <span>وزارة الداخلية</span>
+                                <span class="link-url">moi.gov.sa</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://my.gov.sa" target="_blank" rel="noopener">
+                                <span>منصة حكومي</span>
+                                <span class="link-url">my.gov.sa</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Modals -->
-        <div class="modal" id="premiumModal">
-            <div class="modal-content premium-modal-content">
-                <button class="modal-close" onclick="closePremiumModal()" aria-label="إغلاق" title="إغلاق"></button>
-                
-                <div class="modal-header">
-                    <div class="modal-icon premium-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="var(--accent)"/>
-                        </svg>
-                    </div>
-                    <h2>تطبيق الجوال المتقدم</h2>
-                    <p>حماية تلقائية من الاحتيال والرسائل المشبوهة</p>
-                </div>
-
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🛡️</div>
-                        <h4>فحص تلقائي</h4>
-                        <p>لكل رسائلك</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
-                        <h4>نتيجة فورية</h4>
-                        <p>في ثوانٍ</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🔔</div>
-                        <h4>تنبيهات لحظية</h4>
-                        <p>للرسائل الخطيرة</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📊</div>
-                        <h4>تقارير مفصّلة</h4>
-                        <p>وإحصائيات</p>
-                    </div>
-                </div>
-
-                <div class="premium-price">
-                    <div class="price-large">5 ريال</div>
-                    <div class="price-period">شهرياً</div>
-                    <div class="price-save">💰 وفّر 40% بالاشتراك السنوي</div>
-                </div>
-
-                <div class="download-buttons">
-                    <button class="download-btn ios" onclick="downloadApp('ios')">
-                        🍎 <span id="iosText">App Store</span>
-                    </button>
-                    <button class="download-btn android" onclick="downloadApp('android')">
-                        🤖 <span id="androidText">Google Play</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
+        <!-- History Modal -->
         <div class="modal" id="historyModal">
             <div class="modal-content">
                 <button class="modal-close" onclick="closeModal('historyModal')" aria-label="إغلاق" title="إغلاق"></button>
@@ -203,11 +195,12 @@
                 <div class="modal-header">
                     <div class="modal-icon">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="2" fill="none"/>
-                            <path d="M12 6V12L16 14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <h2>رسائل تم فحصها سابقاً</h2>
+                    <p class="privacy-note">يتم حفظ السجل محلياً على جهازك فقط</p>
                 </div>
                 
                 <div id="historyList" class="history-list"></div>
@@ -217,13 +210,22 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                             <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                             <rect x="5" y="6" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                            <line x1="10" y1="10" x2="10" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <line x1="14" y1="10" x2="14" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                         <span>حذف جميع السجلات</span>
                     </button>
                 </div>
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.
+            </p>
         </div>
     </div>
 
