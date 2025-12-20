@@ -5,7 +5,6 @@
 }
 
 :root {
-    /* Official Saudi Government Colors */
     --primary: #059669;
     --primary-dark: #047857;
     --primary-light: #10b981;
@@ -15,7 +14,6 @@
     --warning: #f59e0b;
     --success: #10b981;
     
-    /* Neutral Colors */
     --bg: #f8fafc;
     --card-bg: #ffffff;
     --text: #0f172a;
@@ -546,6 +544,12 @@ body::before {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.warning-bullet {
+    font-size: 1.5rem;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
 /* Tips Panel */
 .tips-panel {
     display: flex;
@@ -705,6 +709,17 @@ body::before {
     }
 }
 
+@keyframes modalSlideDown {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+}
+
 .modal-close {
     position: absolute;
     top: 20px;
@@ -820,6 +835,38 @@ body::before {
     transform: translateX(6px);
 }
 
+.history-item-delete {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 28px;
+    height: 28px;
+    background: var(--danger);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+}
+
+[dir="ltr"] .history-item-delete {
+    left: auto;
+    right: 10px;
+}
+
+.history-item:hover .history-item-delete {
+    opacity: 1;
+}
+
+.history-item-delete:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
 .history-item-text {
     font-size: 1rem;
     color: var(--text);
@@ -828,6 +875,12 @@ body::before {
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 600;
+    padding-right: 40px;
+}
+
+[dir="ltr"] .history-item-text {
+    padding-right: 0;
+    padding-left: 40px;
 }
 
 .history-item-meta {
@@ -890,6 +943,29 @@ body::before {
     flex-shrink: 0;
     margin-top: 3px;
     opacity: 0.8;
+}
+
+/* Animations for notifications */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
 }
 
 /* Responsive */
@@ -965,14 +1041,4 @@ body::before {
 
 ::-webkit-scrollbar-track {
     background: var(--bg);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--primary);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-dark);
-}
+    border-radius: 10px
