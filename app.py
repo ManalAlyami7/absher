@@ -35,16 +35,15 @@ app.add_middleware(
 )
 
 # Initialize HuggingFace client
-HF_API_KEY = os.getenv("HF_API_KEY")  # Optional, but recommended for higher rate limits
+HF_API_KEY = os.getenv("HF_API_KEY")  # REQUIRED for LLM to work reliably
 llm_client = None
 
-# Best free models for phishing detection:
-# 1. meta-llama/Llama-3.2-3B-Instruct (Fast, good quality, FREE)
-# 2. Qwen/Qwen2.5-7B-Instruct (Better quality, still fast, FREE)
-# 3. mistralai/Mistral-7B-Instruct-v0.3 (Great balance, FREE)
+# BEST FREE MODELS FOR PHISHING DETECTION (in order of reliability):
+# 1. "HuggingFaceH4/zephyr-7b-beta" - Most reliable, always available
+# 2. "mistralai/Mistral-7B-Instruct-v0.3" - Best quality when available  
+# 3. "Qwen/Qwen2.5-7B-Instruct" - Fast alternative
 
-# Use a reliable free model that works well
-LLM_MODEL = os.getenv("LLM_MODEL", "mistralai/Mistral-7B-Instruct-v0.3")
+LLM_MODEL = "HuggingFaceH4/zephyr-7b-beta"  # Most reliable for free tier
 
 if HF_API_KEY:
     try:
@@ -337,16 +336,20 @@ async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LL
     Use HuggingFace LLM to analyze message for phishing indicators
     """
     if not llm_client:
+        print("⚠️ LLM client not initialized")
         return None
     
-    try:
-        # Prepare URLs list
-        urls_text = "\n".join([f"- {url}" for url in urls]) if urls else "None"
-        
-        # Create prompt for LLM
-        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-You are an expert cybersecurity analyst specializing in phishing detection for Saudi Arabia.
+    # List of models to try (in order of preference)
+    models_to_try = [
+        ("HuggingFaceH4/zephyr-7b-beta", "<|system|>", "</|system|>\n<|user|>", "</|user|>\n<|assistant|>"),
+        ("mistralai/Mistral-7B-Instruct-v0.3", "<s>[INST] ", " [/INST]", ""),
+        ("Qwen/Qwen2.5-7B-Instruct", "<|im_start|>system\n", "<|im_end|>\n<|im_start|>user\n", "<|im_end|>\n<|im_start|>assistant\n"),
+    ]
+    
+    # Prepare URLs list
+    urls_text = "\n".join([f"- {url}" for url in urls]) if urls else "None"
+    
+    system_message = """You are an expert cybersecurity analyst specializing in phishing detection for Saudi Arabia.
 
 Analyze messages for phishing indicators focusing on:
 1. Government impersonation (Absher, Najiz, MOI, etc.)
@@ -356,12 +359,9 @@ Analyze messages for phishing indicators focusing on:
 5. Arabic and English phishing patterns
 6. Requests for sensitive information
 
-Official Saudi domains: absher.sa, najiz.sa, *.gov.sa
+Official Saudi domains: absher.sa, najiz.sa, *.gov.sa"""
 
-Respond ONLY with valid JSON in this exact format (no other text):
-{{"is_phishing": true/false, "confidence": 0-100, "reasoning": "brief explanation", "red_flags": ["flag1", "flag2"], "context_score": 0-100}}<|eot_id|><|start_header_id|>user<|end_header_id|>
-
-Analyze this message:
+    user_message = f"""Analyze this message:
 
 MESSAGE:
 {message}
@@ -369,41 +369,60 @@ MESSAGE:
 URLS FOUND:
 {urls_text}
 
-Provide JSON analysis:<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+Respond ONLY with valid JSON in this exact format (no other text):
+{{"is_phishing": true/false, "confidence": 0-100, "reasoning": "brief explanation", "red_flags": ["flag1", "flag2"], "context_score": 0-100}}"""
 
-"""
-
-        # Call HuggingFace Inference API
-        response = llm_client.text_generation(
-            prompt,
-            model=LLM_MODEL,
-            max_new_tokens=512,
-            temperature=0.3,
-            top_p=0.9,
-            repetition_penalty=1.1,
-            return_full_text=False
-        )
-        
-        # Parse JSON response
-        # Extract JSON from response (handle cases where model adds extra text)
-        json_match = re.search(r'\{.*\}', response, re.DOTALL)
-        if json_match:
-            analysis_data = json.loads(json_match.group())
-        else:
-            raise ValueError("No JSON found in response")
-        
-        return LLMAnalysis(
-            is_phishing=analysis_data.get("is_phishing", False),
-            confidence=float(analysis_data.get("confidence", 50)),
-            reasoning=analysis_data.get("reasoning", "Analysis completed"),
-            red_flags=analysis_data.get("red_flags", []),
-            context_score=int(analysis_data.get("context_score", 50)),
-            model_used=LLM_MODEL
-        )
-        
-    except Exception as e:
-        print(f"⚠️ LLM analysis error: {e}")
-        return None
+    # Try each model
+    for model_name, sys_start, sys_end, assistant_start in models_to_try:
+        try:
+            # Build prompt based on model format
+            if sys_start == "<s>[INST] ":
+                prompt = f"{sys_start}{system_message}\n\n{user_message}{sys_end}"
+            else:
+                prompt = f"{sys_start}{system_message}{sys_end}{user_message}{assistant_start}"
+            
+            print(f"🔍 Trying LLM: {model_name}")
+            
+            # Call HuggingFace Inference API with timeout
+            response = llm_client.text_generation(
+                prompt,
+                model=model_name,
+                max_new_tokens=400,
+                temperature=0.3,
+                top_p=0.9,
+                repetition_penalty=1.1,
+                return_full_text=False,
+                do_sample=True
+            )
+            
+            print(f"✅ LLM Response received ({len(response)} chars): {response[:150]}...")
+            
+            # Parse JSON response
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response, re.DOTALL)
+            if json_match:
+                analysis_data = json.loads(json_match.group())
+                print(f"✅ JSON parsed successfully from {model_name}")
+                
+                return LLMAnalysis(
+                    is_phishing=analysis_data.get("is_phishing", False),
+                    confidence=float(analysis_data.get("confidence", 50)),
+                    reasoning=analysis_data.get("reasoning", "Analysis completed"),
+                    red_flags=analysis_data.get("red_flags", []),
+                    context_score=int(analysis_data.get("context_score", 50)),
+                    model_used=model_name
+                )
+            else:
+                print(f"⚠️ No valid JSON found in response from {model_name}")
+                print(f"Full response: {response}")
+                continue
+                
+        except Exception as e:
+            print(f"❌ Error with {model_name}: {type(e).__name__}: {e}")
+            continue
+    
+    # All models failed
+    print(f"❌ All LLM models failed. Falling back to ML-only analysis.")
+    return None
 
 
 # API Endpoints
@@ -425,11 +444,31 @@ async def root():
 async def health_check():
     """Detailed health check"""
     import sys
+    
+    # Test LLM quickly
+    llm_status = "disabled"
+    llm_error = None
+    if llm_client:
+        try:
+            # Quick test with tiny prompt
+            test_response = llm_client.text_generation(
+                "Hi",
+                model="HuggingFaceH4/zephyr-7b-beta",
+                max_new_tokens=5,
+                temperature=0.1
+            )
+            llm_status = "working"
+        except Exception as e:
+            llm_status = "error"
+            llm_error = str(e)
+    
     return {
         "status": "healthy",
         "model_loaded": MODEL_LOADED,
         "llm_enabled": llm_client is not None,
-        "llm_model": LLM_MODEL if llm_client else None,
+        "llm_status": llm_status,
+        "llm_error": llm_error,
+        "has_api_key": HF_API_KEY is not None and len(HF_API_KEY) > 0,
         "python_version": sys.version,
         "endpoints": ["/", "/health", "/api/analyze", "/api/report"]
     }
@@ -449,8 +488,15 @@ async def analyze_message(request: AnalyzeRequest):
         message = request.message
         enable_llm = request.enable_llm
         
+        print(f"\n{'='*60}")
+        print(f"📨 New Analysis Request")
+        print(f"{'='*60}")
+        print(f"Message: {message[:100]}...")
+        print(f"LLM Enabled: {enable_llm}")
+        
         # Extract URLs from message
         urls = extract_urls(message)
+        print(f"🔗 URLs Found: {len(urls)}")
         
         # ML: Predict each URL
         url_predictions = []
@@ -465,8 +511,9 @@ async def analyze_message(request: AnalyzeRequest):
                 if prediction.prediction == 1:
                     phishing_count += 1
                 total_phishing_probability += prediction.probability
+                print(f"  • {url}: {prediction.probability:.2%} phishing")
             except Exception as e:
-                print(f"Error predicting URL {url}: {e}")
+                print(f"⚠️ Error predicting URL {url}: {e}")
                 continue
         
         # Calculate ML risk score
@@ -476,10 +523,25 @@ async def analyze_message(request: AnalyzeRequest):
         else:
             ml_risk_score = 0.0
         
+        print(f"🤖 ML Risk Score: {ml_risk_score}%")
+        
         # LLM: Analyze message context
         llm_analysis = None
         if enable_llm and llm_client:
+            print(f"🧠 Starting LLM analysis...")
             llm_analysis = await analyze_message_with_llm(message, urls)
+            if llm_analysis:
+                print(f"✅ LLM Analysis Complete:")
+                print(f"   Is Phishing: {llm_analysis.is_phishing}")
+                print(f"   Confidence: {llm_analysis.confidence}%")
+                print(f"   Context Score: {llm_analysis.context_score}%")
+            else:
+                print(f"⚠️ LLM analysis returned None")
+        else:
+            if not enable_llm:
+                print(f"⏭️ LLM disabled by request")
+            else:
+                print(f"⏭️ LLM client not available")
         
         # Combine scores
         combined_risk_score = ml_risk_score
@@ -488,6 +550,11 @@ async def analyze_message(request: AnalyzeRequest):
             # Weight: 40% ML + 60% LLM (LLM is better at context)
             llm_score = llm_analysis.context_score if llm_analysis.is_phishing else (100 - llm_analysis.context_score)
             combined_risk_score = round((ml_risk_score * 0.4) + (llm_score * 0.6), 2)
+            print(f"🎯 Combined Risk Score: {combined_risk_score}% (ML: {ml_risk_score}%, LLM: {llm_score}%)")
+        else:
+            print(f"🎯 Final Risk Score: {combined_risk_score}% (ML only)")
+        
+        print(f"{'='*60}\n")
         
         return AnalyzeResponse(
             message=message,
@@ -500,6 +567,9 @@ async def analyze_message(request: AnalyzeRequest):
         )
         
     except Exception as e:
+        print(f"❌ Analysis failed: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 
@@ -537,6 +607,8 @@ if __name__ == "__main__":
     print(f"🤖 LLM status: {'✅ Enabled' if llm_client else '⚠️ Disabled'}")
     if llm_client:
         print(f"🔧 LLM Model: {LLM_MODEL}")
+    if not HF_API_KEY:
+        print(f"⚠️ WARNING: No HF_API_KEY set - LLM may be rate limited")
     print(f"🌐 Port: {port}")
     print(f"📚 API Docs: /docs")
     print(f"🧪 Health: /health")
