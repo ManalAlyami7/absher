@@ -43,21 +43,25 @@ llm_client = None
 # 2. Qwen/Qwen2.5-7B-Instruct (Better quality, still fast, FREE)
 # 3. mistralai/Mistral-7B-Instruct-v0.3 (Great balance, FREE)
 
-LLM_MODEL = os.getenv("LLM_MODEL", "mistralai/Mistral-7B-Instruct-v0.2")
+# Use a reliable free model that works well
+LLM_MODEL = os.getenv("LLM_MODEL", "mistralai/Mistral-7B-Instruct-v0.3")
 
 if HF_API_KEY:
     try:
         llm_client = InferenceClient(token=HF_API_KEY)
-        print(f"✅ HuggingFace LLM initialized: {LLM_MODEL}")
+        print(f"✅ HuggingFace LLM initialized with API key: {LLM_MODEL}")
     except Exception as e:
         print(f"⚠️ Failed to initialize HuggingFace: {e}")
+        llm_client = None
 else:
-    # Free tier without API key (rate limited)
+    # Free tier without API key (rate limited but should work)
     try:
         llm_client = InferenceClient()
-        print(f"✅ HuggingFace LLM initialized (free tier): {LLM_MODEL}")
+        print(f"⚠️ HuggingFace LLM initialized (free tier - rate limited): {LLM_MODEL}")
+        print(f"💡 Set HF_API_KEY environment variable for better reliability")
     except Exception as e:
         print(f"⚠️ LLM disabled: {e}")
+        llm_client = None
 
 # LAZY LOAD MODEL
 model = None
