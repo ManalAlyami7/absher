@@ -161,13 +161,27 @@ const translations = {
         analyze: 'فحص الرسالة',
         analyzing: 'جاري فحص الرسالة وتحليل المحتوى بالذكاء الاصطناعي...',
         
-        // Results
+        // Enhanced Results
         safe: 'آمنة غالباً',
         suspicious: 'مشبوهة',
         fraud: 'احتيالية',
         riskScore: 'درجة الخطر',
         details: 'التفاصيل والتحذيرات',
-        explanation: 'تم فحص الرسالة بنجاح وتحليل جميع العناصر المشبوهة',
+        mlScore: 'تحليل الروابط',
+        llmScore: 'تحليل المحتوى',
+        combinedScore: 'التقييم النهائي',
+        urlsAnalyzed: 'روابط تم فحصها',
+        explanation: 'تم فحص الرسالة بنجاح بالذكاء الاصطناعي',
+        noUrlsFound: 'لم يتم العثور على روابط',
+        
+        // LLM-specific translations
+        llmAnalysisTitle: 'تحليل الذكاء الاصطناعي المتقدم',
+        llmConfidence: 'مستوى الثقة',
+        llmReasoning: 'التحليل',
+        llmRedFlags: 'مؤشرات الخطر المكتشفة',
+        llmPhishing: 'رسالة احتيالية',
+        llmSafe: 'رسالة آمنة',
+        mlOnlyNote: 'تم التحليل باستخدام نموذج التعلم الآلي فقط',
         
         // Tips Section
         tipsTitle: 'نصائح الأمان',
@@ -223,7 +237,7 @@ const translations = {
         reportSent: '✅ تم إرسال البلاغ بنجاح إلى الجهات المختصة',
         reportFailed: '⚠️ فشل إرسال البلاغ. حاول لاحقاً',
         reportConfirmTitle: 'تأكيد الإبلاغ',
-        reportConfirmMessage: 'سيُرسل البلاغ إلى الجهات المختصة لحمايتك وحماية الآخرين. هل أنت متأكد أنك تريد المتابعة؟',
+        reportConfirmMessage: 'سيُرسل البلاغ إلى الجهات المختصة لحمايتك وحماية الآخرين. هل أنت متأكد؟',
         reportConfirmCancel: 'إلغاء',
         reportConfirmSend: 'إرسال البلاغ',
         
@@ -248,19 +262,33 @@ const translations = {
         // Main Section
         mainTitle: 'Fraud Message Scanner',
         mainSubtitle: 'Paste the suspicious message below to scan it instantly',
-        placeholder: 'Example: Your Absher account has been suspended. Click the link bit.ly/abs456 to update within 24 hours...',
+        placeholder: 'Example: Your Absher account has been suspended. Click bit.ly/abs456 to update within 24 hours...',
         paste: 'Paste',
         clear: 'Clear',
         analyze: 'Analyze Message',
         analyzing: 'Analyzing message with AI and scanning content...',
         
-        // Results
+        // Enhanced Results
         safe: 'Likely Safe',
         suspicious: 'Suspicious',
         fraud: 'Fraudulent',
         riskScore: 'Risk Score',
         details: 'Details & Warnings',
-        explanation: 'Message analyzed successfully and all suspicious elements checked',
+        mlScore: 'URL Analysis',
+        llmScore: 'Content Analysis',
+        combinedScore: 'Final Assessment',
+        urlsAnalyzed: 'URLs Analyzed',
+        explanation: 'Message analyzed successfully with AI',
+        noUrlsFound: 'No URLs found',
+        
+        // LLM-specific translations
+        llmAnalysisTitle: 'Advanced AI Analysis',
+        llmConfidence: 'Confidence Level',
+        llmReasoning: 'Analysis',
+        llmRedFlags: 'Detected Risk Indicators',
+        llmPhishing: 'Phishing Message',
+        llmSafe: 'Safe Message',
+        mlOnlyNote: 'Analyzed using ML model only',
         
         // Tips Section
         tipsTitle: 'Security Tips',
@@ -316,7 +344,7 @@ const translations = {
         reportSent: '✅ Report sent successfully to authorities',
         reportFailed: '⚠️ Failed to send report. Try again later',
         reportConfirmTitle: 'Confirm Report',
-        reportConfirmMessage: 'This report will be sent to the authorities to help protect you and others. Are you sure you want to proceed?',
+        reportConfirmMessage: 'This report will be sent to authorities to help protect you and others. Are you sure?',
         reportConfirmCancel: 'Cancel',
         reportConfirmSend: 'Send Report',
         
@@ -328,6 +356,31 @@ const translations = {
 // Utility function for translations
 function t(key) {
     return translations[currentLanguage][key] || key;
+}
+
+function translateLLMFlag(flag) {
+    const flagTranslations = {
+        'urgency': 'أسلوب الاستعجال والضغط',
+        'url': 'روابط مشبوهة',
+        'shortener': 'روابط مختصرة',
+        'government': 'انتحال صفة جهة حكومية',
+        'personal': 'طلب معلومات شخصية',
+        'threat': 'تهديدات وإنذارات',
+        'reward': 'وعود بجوائز ومكافآت',
+        'suspicious domain': 'نطاق مشبوه',
+        'insecure': 'اتصال غير آمن',
+        'impersonation': 'انتحال الهوية',
+        'social engineering': 'هندسة اجتماعية',
+        'data harvesting': 'محاولة سرقة بيانات'
+    };
+    
+    const lowerFlag = flag.toLowerCase();
+    for (const [key, value] of Object.entries(flagTranslations)) {
+        if (lowerFlag.includes(key)) {
+            return value;
+        }
+    }
+    return flag;
 }
 
 // Security: Sanitize input to prevent XSS
@@ -690,67 +743,65 @@ function performEnhancedAnalysis(text) {
 function combineMLWithEnhancedAnalysis(text, mlData) {
     const ruleBasedResult = performEnhancedAnalysis(text);
     
-    // Start with rule-based result
     let finalRiskScore = ruleBasedResult.riskScore;
     const warnings = [...ruleBasedResult.warnings];
+    let mlScore = 0;
+    let llmScore = 0;
+    let llmAnalysis = null;
     
-    // If no API data, return rule-based only
     if (!mlData) {
-        return ruleBasedResult;
+        return {
+            ...ruleBasedResult,
+            mlScore: 0,
+            llmScore: undefined,
+            llmAnalysis: null
+        };
     }
     
-    // 1. ML URL Analysis (only if URLs exist)
-    let mlUrlScore = 0;
+    // 1. ML URL Analysis
     if (mlData.url_predictions && mlData.url_predictions.length > 0) {
         mlData.url_predictions.forEach(pred => {
             const probability = pred.probability;
             
             if (probability >= ANALYSIS_CONFIG.ML_HIGH_CONFIDENCE) {
-                mlUrlScore += 35;
+                mlScore += 35;
                 warnings.push(
                     currentLanguage === 'ar'
-                        ? `🚨 الرابط ${pred.url} عالي الخطورة`
-                        : `🚨 URL ${pred.url} is high-risk`
+                        ? `🚨 الرابط ${pred.url} عالي الخطورة (${(probability * 100).toFixed(0)}%)`
+                        : `🚨 URL ${pred.url} is high-risk (${(probability * 100).toFixed(0)}%)`
                 );
             } else if (probability >= ANALYSIS_CONFIG.ML_MEDIUM_CONFIDENCE) {
-                mlUrlScore += 20;
-                warnings.push(
-                    currentLanguage === 'ar'
-                        ? `⚠️ الرابط ${pred.url} مشبوه`
-                        : `⚠️ URL ${pred.url} is suspicious`
-                );
+                mlScore += 20;
             } else if (probability >= ANALYSIS_CONFIG.ML_LOW_CONFIDENCE) {
-                mlUrlScore += 8;
+                mlScore += 8;
             }
         });
     }
     
-    // 2. LLM Context Analysis (works even without URLs!)
-    let llmContextScore = 0;
+    mlScore = Math.min(100, mlScore);
+    
+    // 2. LLM Context Analysis
     if (mlData.llm_analysis) {
         const llm = mlData.llm_analysis;
+        llmAnalysis = llm;
         
         if (llm.is_phishing) {
-            llmContextScore = llm.context_score;
+            llmScore = llm.context_score || 70;
             
-            // Add LLM red flags ONLY if they're unique and not already covered
             if (llm.red_flags && llm.red_flags.length > 0) {
-                // Keywords to detect duplicates
                 const existingKeywords = warnings.join(' ').toLowerCase();
                 
                 const uniqueFlags = llm.red_flags.filter(flag => {
                     const flagLower = flag.toLowerCase();
-                    // Skip if similar warning already exists
                     if (flagLower.includes('urgency') && existingKeywords.includes('استعجال')) return false;
                     if (flagLower.includes('url') && existingKeywords.includes('روابط')) return false;
                     if (flagLower.includes('shortener') && existingKeywords.includes('مختصرة')) return false;
                     if (flagLower.includes('government') && existingKeywords.includes('حكومية')) return false;
                     if (flagLower.includes('personal') && existingKeywords.includes('شخصية')) return false;
-                    return true; // Keep unique flags
+                    return true;
                 });
                 
-                // Add only unique LLM insights
-                uniqueFlags.slice(0, 2).forEach(flag => {
+                uniqueFlags.slice(0, 3).forEach(flag => {
                     const arabicFlag = translateLLMFlag(flag);
                     warnings.push(
                         currentLanguage === 'ar'
@@ -759,26 +810,30 @@ function combineMLWithEnhancedAnalysis(text, mlData) {
                     );
                 });
             }
+        } else {
+            llmScore = 100 - (llm.context_score || 30);
         }
     }
     
-    // 3. Use API's combined_risk_score if available (preferred)
+    // 3. Calculate final score
     if (mlData.combined_risk_score !== undefined) {
         finalRiskScore = Math.round(mlData.combined_risk_score);
     } else {
-        // Fallback: Manual combination
-        // Rule-based: 40%, ML: 30%, LLM: 30%
+        const weights = {
+            rules: 0.3,
+            ml: 0.3,
+            llm: 0.4
+        };
+        
         finalRiskScore = Math.round(
-            (ruleBasedResult.riskScore * 0.4) +
-            (mlUrlScore * 0.3) +
-            (llmContextScore * 0.3)
+            (ruleBasedResult.riskScore * weights.rules) +
+            (mlScore * weights.ml) +
+            (llmScore * weights.llm)
         );
     }
     
-    // Clamp final score
     finalRiskScore = Math.max(0, Math.min(100, finalRiskScore));
     
-    // Determine final classification
     let classification, classification_ar, icon;
     
     if (finalRiskScore <= ANALYSIS_CONFIG.SAFE_THRESHOLD) {
@@ -795,13 +850,11 @@ function combineMLWithEnhancedAnalysis(text, mlData) {
         icon = '❌';
     }
     
-    // Add debug info
     console.log('🔍 Analysis Summary:');
-    console.log('  Rule-based Score:', ruleBasedResult.riskScore);
-    console.log('  ML URL Score:', mlUrlScore);
-    console.log('  LLM Context Score:', llmContextScore);
-    console.log('  Final Score:', finalRiskScore);
-    console.log('  Classification:', classification);
+    console.log('  Rule-based:', ruleBasedResult.riskScore);
+    console.log('  ML Score:', mlScore);
+    console.log('  LLM Score:', llmScore);
+    console.log('  Final:', finalRiskScore);
     
     return {
         classification,
@@ -809,8 +862,11 @@ function combineMLWithEnhancedAnalysis(text, mlData) {
         riskScore: finalRiskScore,
         icon,
         explanation: ruleBasedResult.explanation,
-        warnings: warnings.slice(0, 8), // Limit to top 8 warnings
-        urlsFound: ruleBasedResult.urlsFound
+        warnings: warnings.slice(0, 8),
+        urlsFound: ruleBasedResult.urlsFound,
+        mlScore: Math.round(mlScore),
+        llmScore: llmScore > 0 ? Math.round(llmScore) : undefined,
+        llmAnalysis: llmAnalysis
     };
 }
 
@@ -1228,20 +1284,20 @@ async function analyzeMessage() {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // ✅ 15 ثانية للـ LLM
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 seconds for LLM
 
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            message: text,
-            enable_llm: true  // ✅ تفعيل LLM
-        }),
-        signal: controller.signal
-    });
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                message: text,
+                enable_llm: true  // Enable LLM analysis
+            }),
+            signal: controller.signal
+        });
 
         clearTimeout(timeoutId);
 
@@ -1250,18 +1306,126 @@ async function analyzeMessage() {
         }
 
         const data = await response.json();
-        const result = combineMLWithEnhancedAnalysis(text, data);
+        console.log('📊 API Response:', data);
+        
+        // Extract data from API response
+        const mlRiskScore = data.ml_risk_score || 0;
+        const combinedRiskScore = data.combined_risk_score || mlRiskScore;
+        const llmAnalysis = data.llm_analysis;
+        const urlsFound = data.urls_found || 0;
+        
+        // Perform rule-based analysis
+        const ruleBasedResult = performEnhancedAnalysis(text);
+        
+        // Build warnings array
+        const warnings = [...ruleBasedResult.warnings];
+        
+        // Add ML URL warnings
+        if (data.url_predictions && data.url_predictions.length > 0) {
+            data.url_predictions.forEach(pred => {
+                const probability = pred.probability;
+                if (probability >= 0.75) {
+                    warnings.push(
+                        currentLanguage === 'ar'
+                            ? `🚨 الرابط ${pred.url} عالي الخطورة (${(probability * 100).toFixed(0)}%)`
+                            : `🚨 URL ${pred.url} is high-risk (${(probability * 100).toFixed(0)}%)`
+                    );
+                }
+            });
+        }
+        
+        // Add unique LLM warnings
+        if (llmAnalysis && llmAnalysis.red_flags && llmAnalysis.red_flags.length > 0) {
+            const existingKeywords = warnings.join(' ').toLowerCase();
+            
+            const uniqueFlags = llmAnalysis.red_flags.filter(flag => {
+                const flagLower = flag.toLowerCase();
+                if (flagLower.includes('urgency') && existingKeywords.includes('استعجال')) return false;
+                if (flagLower.includes('url') && existingKeywords.includes('روابط')) return false;
+                if (flagLower.includes('shortener') && existingKeywords.includes('مختصرة')) return false;
+                if (flagLower.includes('government') && existingKeywords.includes('حكومية')) return false;
+                if (flagLower.includes('personal') && existingKeywords.includes('شخصية')) return false;
+                return true;
+            });
+            
+            uniqueFlags.slice(0, 3).forEach(flag => {
+                const arabicFlag = translateLLMFlag(flag);
+                warnings.push(
+                    currentLanguage === 'ar'
+                        ? `🧠 ${arabicFlag}`
+                        : `🧠 ${flag}`
+                );
+            });
+        }
+        
+        // Determine classification based on combined score
+        let classification, classification_ar, icon;
+        const finalScore = Math.round(combinedRiskScore);
+        
+        if (finalScore <= 25) {
+            classification = 'SAFE';
+            classification_ar = t('safe');
+            icon = '✅';
+        } else if (finalScore <= 65) {
+            classification = 'SUSPICIOUS';
+            classification_ar = t('suspicious');
+            icon = '⚠️';
+        } else {
+            classification = 'FRAUD';
+            classification_ar = t('fraud');
+            icon = '❌';
+        }
+        
+        // Calculate LLM score for display
+        let llmScore = undefined;
+        if (llmAnalysis) {
+            llmScore = llmAnalysis.is_phishing 
+                ? llmAnalysis.context_score 
+                : (100 - llmAnalysis.context_score);
+        }
+        
+        // Build result object
+        const result = {
+            classification,
+            classification_ar,
+            riskScore: finalScore,
+            icon,
+            explanation: currentLanguage === 'ar'
+                ? `تم فحص الرسالة بالذكاء الاصطناعي وتحليل ${warnings.length} مؤشر أمني`
+                : `Message analyzed with AI and ${warnings.length} security indicators checked`,
+            warnings: warnings.slice(0, 8),
+            urlsFound: urlsFound,
+            mlScore: Math.round(mlRiskScore),
+            llmScore: llmScore !== undefined ? Math.round(llmScore) : undefined,
+            llmAnalysis: llmAnalysis
+        };
+        
+        console.log('🎯 Final Result:', result);
         displayResult(result);
         
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Analysis error:', error);
+        
+        // Fallback to rule-based analysis
         const result = performEnhancedAnalysis(text);
+        result.mlScore = 0;
+        result.llmScore = undefined;
+        result.llmAnalysis = null;
+        
         displayResult(result);
+        
+        // Show error notification
+        if (error.name === 'AbortError') {
+            showNotification(
+                currentLanguage === 'ar'
+                    ? '⏱️ انتهى الوقت. تم استخدام التحليل المحلي'
+                    : '⏱️ Timeout. Using local analysis'
+            );
+        }
     } finally {
         loading.classList.remove('show');
     }
 }
-
 function displayResult(result) {
     const resultCard = document.getElementById('resultCard');
     
@@ -1269,12 +1433,124 @@ function displayResult(result) {
     if (result.classification === 'SUSPICIOUS') colorClass = 'suspicious';
     if (result.classification === 'FRAUD') colorClass = 'fraud';
 
+    const displayClassification = currentLanguage === 'ar' ? result.classification_ar : result.classification;
+
+    // Build score breakdown section
+    let scoreBreakdownHTML = '';
+    if (result.mlScore !== undefined || result.llmScore !== undefined) {
+        scoreBreakdownHTML = `
+            <div class="score-breakdown">
+                <div class="score-breakdown-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>${t('details')}</span>
+                </div>
+                <div class="score-items">
+                    ${result.urlsFound > 0 ? `
+                    <div class="score-item">
+                        <div class="score-item-label">
+                            <span class="score-icon">🔗</span>
+                            <span>${t('mlScore')}</span>
+                        </div>
+                        <div class="score-item-value">
+                            <div class="score-bar">
+                                <div class="score-bar-fill" style="width: ${result.mlScore}%"></div>
+                            </div>
+                            <span class="score-number">${result.mlScore}%</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${result.llmScore !== undefined ? `
+                    <div class="score-item">
+                        <div class="score-item-label">
+                            <span class="score-icon">🧠</span>
+                            <span>${t('llmScore')}</span>
+                        </div>
+                        <div class="score-item-value">
+                            <div class="score-bar">
+                                <div class="score-bar-fill" style="width: ${result.llmScore}%"></div>
+                            </div>
+                            <span class="score-number">${result.llmScore}%</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                    <div class="score-item combined">
+                        <div class="score-item-label">
+                            <span class="score-icon">⚡</span>
+                            <span>${t('combinedScore')}</span>
+                        </div>
+                        <div class="score-item-value">
+                            <div class="score-bar">
+                                <div class="score-bar-fill combined" style="width: ${result.riskScore}%"></div>
+                            </div>
+                            <span class="score-number">${result.riskScore}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Build LLM analysis section if available
+    let llmAnalysisHTML = '';
+    if (result.llmAnalysis) {
+        const llm = result.llmAnalysis;
+        llmAnalysisHTML = `
+            <div class="llm-analysis-section">
+                <div class="llm-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h3>${t('llmAnalysisTitle')}</h3>
+                </div>
+                <div class="llm-confidence">
+                    <span class="llm-label">${t('llmConfidence')}:</span>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${llm.confidence}%"></div>
+                    </div>
+                    <span class="confidence-value">${llm.confidence}%</span>
+                </div>
+                <div class="llm-reasoning">
+                    <strong>${t('llmReasoning')}:</strong>
+                    <p>${sanitizeHTML(llm.reasoning)}</p>
+                </div>
+                ${llm.red_flags && llm.red_flags.length > 0 ? `
+                <div class="llm-red-flags">
+                    <strong>${t('llmRedFlags')}:</strong>
+                    <ul>
+                        ${llm.red_flags.slice(0, 5).map(flag => `
+                            <li>
+                                <span class="flag-bullet">•</span>
+                                ${sanitizeHTML(currentLanguage === 'ar' ? translateLLMFlag(flag) : flag)}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                <div class="llm-model-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Model: ${llm.model_used || 'AI'}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // Build warnings section
     let warningsHTML = '';
-    if (result.warnings.length > 0) {
+    if (result.warnings && result.warnings.length > 0) {
         warningsHTML = `
             <div class="warnings-section">
                 <div class="warnings-title">
-                    🔍 ${t('details')}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>${t('details')}</span>
                 </div>
                 ${result.warnings.map(warning => `
                     <div class="warning-item">
@@ -1285,6 +1561,66 @@ function displayResult(result) {
             </div>
         `;
     }
+
+    // URLs analyzed badge
+    const urlsBadge = result.urlsFound > 0 
+        ? `<div class="urls-badge">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                   <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                   <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+               </svg>
+               ${result.urlsFound} ${t('urlsAnalyzed')}
+           </div>`
+        : `<div class="urls-badge no-urls">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                   <path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+               </svg>
+               ${t('noUrlsFound')}
+           </div>`;
+
+    resultCard.innerHTML = `
+        <div class="result-header">
+            <div class="result-icon" aria-hidden="true">${result.icon}</div>
+            <div class="result-info">
+                <div class="result-title">${sanitizeHTML(displayClassification)}</div>
+                <div class="result-subtitle">${result.classification}</div>
+                <div class="risk-score-container">
+                    <div class="risk-score">${t('riskScore')}: ${result.riskScore}/100</div>
+                    ${urlsBadge}
+                </div>
+            </div>
+        </div>
+        
+        <div class="result-explanation">
+            <strong>${sanitizeHTML(result.explanation)}</strong>
+        </div>
+
+        ${scoreBreakdownHTML}
+        ${llmAnalysisHTML}
+        ${warningsHTML}
+        
+        ${!result.llmAnalysis && result.urlsFound === 0 ? `
+        <div class="analysis-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>${t('mlOnlyNote')}</span>
+        </div>
+        ` : ''}
+    `;
+
+    resultCard.className = `result-card ${colorClass} show`;
+    
+    const textarea = document.getElementById('messageInput');
+    addToHistory(textarea.value, result);
+    updateExportButtonVisibility();
+
+    setTimeout(() => {
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+}
 
     const displayClassification = currentLanguage === 'ar' ? result.classification_ar : result.classification;
 
@@ -1314,7 +1650,7 @@ function displayResult(result) {
     setTimeout(() => {
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
-}
+
 
 async function pasteFromClipboard() {
     try {
