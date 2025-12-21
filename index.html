@@ -5,39 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تنبَّه - Tanabbah | فحص الرسائل الاحتيالية</title>
     <meta name="description" content="احمِ نفسك من الاحتيال والتصيد الإلكتروني. فحص مجاني للرسائل المشبوهة">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:5000 https://tanabbah-production-a91f.up.railway.app;">
     
-    <!-- Attribution Metadata - Original Concept & Enhanced Development -->
-    <!-- Original Concept: Naif Saleh -->
-    <!-- Enhanced Development & Implementation: Manal Alyami -->
+    <!-- Attribution -->
     <meta name="original-concept" content="Naif Saleh">
     <meta name="developer" content="Manal Alyami">
-    <meta name="enhanced-by" content="Manal Alyami">
-    <meta name="implementation-author" content="Manal Alyami">
-    <meta name="copyright" content="© 2025 - Concept: Naif Saleh | Development: Manal Alyami">
     <meta name="version" content="2.0.0">
-    <meta name="build-date" content="2025-01-08">
     
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z' fill='%23059669'/><path d='M9 12L11 14L15 10' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="components.css">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
     <!-- 
         ========================================
         Tanabbah Security Platform
-        ========================================
         Original Concept: Naif Saleh
         Enhanced Development: Manal Alyami
-        © 2025 All Rights Reserved
         ========================================
     -->
+    
     <div class="container">
         <!-- Header -->
-        <div class="header">
+        <header class="header">
             <div class="brand">
                 <div class="brand-logo">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" width="36" height="36" aria-hidden="true">
                         <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" fill="#059669"/>
                         <path d="M9 12L11 14L15 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     </svg>
@@ -49,25 +44,30 @@
             </div>
 
             <div class="header-actions">
-                <button class="header-btn" onclick="toggleDarkMode()" title="تغيير الإضاءة" aria-label="تغيير الإضاءة">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <button class="header-btn" onclick="toggleDarkMode()" 
+                        title="تغيير الإضاءة" aria-label="تغيير الإضاءة">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="5" fill="currentColor"/>
-                        <path d="M12 1V3M12 21V23M23 12H21M3 12H1M20.485 3.515L19.07 4.93M4.93 19.07L3.515 20.485M20.485 20.485L19.07 19.07M4.93 4.93L3.515 3.515" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M12 1V3M12 21V23M23 12H21M3 12H1M20.485 3.515L19.07 4.93M4.93 19.07L3.515 20.485M20.485 20.485L19.07 19.07M4.93 4.93L3.515 3.515" 
+                              stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
                     <span class="btn-label">الإضاءة</span>
                 </button>
                 
-                <button class="header-btn" onclick="viewHistory()" title="السجل" aria-label="عرض السجل">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <button class="header-btn" onclick="viewHistory()" 
+                        title="السجل" aria-label="عرض السجل">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
                     <span class="btn-label">السجل</span>
                 </button>
 
-                <button class="header-btn" onclick="exportResult()" id="exportBtn" style="display:none;" title="حفظ" aria-label="حفظ النتيجة">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M14 2H6C5.45 2 5 2.45 5 3V21C5 21.55 5.45 22 6 22H18C18.55 22 19 21.55 19 21V8L14 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                <button class="header-btn" onclick="exportResult()" id="exportBtn" 
+                        style="display:none;" title="حفظ" aria-label="حفظ النتيجة">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M14 2H6C5.45 2 5 2.45 5 3V21C5 21.55 5.45 22 6 22H18C18.55 22 19 21.55 19 21V8L14 2Z" 
+                              stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M12 11V17M9 14L12 17L15 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
                     <span class="btn-label">حفظ</span>
@@ -75,44 +75,44 @@
 
                 <div class="header-divider"></div>
 
-                <button class="header-btn" onclick="toggleLanguage()" title="تبديل اللغة" aria-label="تبديل اللغة">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <button class="header-btn" onclick="toggleLanguage()" 
+                        title="تبديل اللغة" aria-label="تبديل اللغة">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" 
+                              stroke="currentColor" stroke-width="1.5"/>
                     </svg>
                     <span class="btn-label" id="langBtnLabel">EN</span>
                 </button>
 
                 <div class="header-divider"></div>
 
-                <button class="header-btn report-btn" onclick="openReportModal()" title="إبلاغ" aria-label="إبلاغ عن رسالة احتيالية">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                <button class="header-btn report-btn" onclick="openReportModal()" 
+                        title="إبلاغ" aria-label="إبلاغ عن رسالة احتيالية">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" 
+                              stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>
                     </svg>
                     <span class="btn-label">إبلاغ</span>
                 </button>
-
-                <button class="header-btn premium-btn" onclick="openPremiumModal()" title="التطبيق" aria-label="تحميل التطبيق">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="currentColor"/>
-                    </svg>
-                    <span class="btn-label">التطبيق</span>
-                </button>
             </div>
-        </div>
+        </header>
 
         <!-- Privacy Notice -->
         <div class="privacy-notice">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" fill="currentColor" opacity="0.2"/>
-                <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" 
+                      fill="currentColor" opacity="0.2"/>
+                <path d="M12 1L3 5V11C3 17 7.5 21.5 12 23C16.5 21.5 21 17 21 11V5L12 1Z" 
+                      stroke="currentColor" stroke-width="1.5" fill="none"/>
             </svg>
             <span id="privacyNoticeText">نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا</span>
         </div>
 
-        <!-- Main Card -->
-        <div class="main-layout">
+        <!-- Main Content -->
+        <main class="main-layout">
+            <!-- Input Panel -->
             <div class="input-panel">
                 <div class="card">
                     <div class="card-header">
@@ -127,27 +127,34 @@
                         placeholder="مثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط bit.ly/abs123 للتحديث خلال 24 ساعة..."
                         spellcheck="false"
                         autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
                         aria-label="أدخل الرسالة المشبوهة"></textarea>
 
                     <div class="button-row">
-                        <button class="btn btn-paste" onclick="pasteFromClipboard()" aria-label="لصق من الحافظة">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <rect x="5" y="6" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                                <path d="M9 2H16C16.55 2 17 2.45 17 3V6H7V3C7 2.45 7.45 2 8 2H9" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <button class="btn btn-paste" onclick="pasteFromClipboard()" 
+                                aria-label="لصق من الحافظة">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <rect x="5" y="6" width="14" height="14" rx="1" 
+                                      stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                <path d="M9 2H16C16.55 2 17 2.45 17 3V6H7V3C7 2.45 7.45 2 8 2H9" 
+                                      stroke="currentColor" stroke-width="1.5" fill="none"/>
                             </svg>
                             <span>لصق</span>
                         </button>
-                        <button class="btn btn-clear" onclick="clearAll()" aria-label="مسح النص">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                <rect x="5" y="6" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        
+                        <button class="btn btn-clear" onclick="clearAll()" 
+                                aria-label="مسح النص">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" 
+                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <rect x="5" y="6" width="14" height="13" rx="1" 
+                                      stroke="currentColor" stroke-width="1.5" fill="none"/>
                             </svg>
                             <span>مسح</span>
                         </button>
-                        <button class="btn btn-analyze" onclick="analyzeMessage()" aria-label="فحص الرسالة">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        
+                        <button class="btn btn-analyze" onclick="analyzeMessage()" 
+                                aria-label="فحص الرسالة">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                 <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
                                 <path d="M15 15L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -155,21 +162,27 @@
                         </button>
                     </div>
 
+                    <!-- Loading Indicator -->
                     <div class="loading" id="loading" role="status" aria-live="polite">
                         <div class="spinner"></div>
                         <p>جاري فحص الرسالة وتحليل المحتوى بالذكاء الاصطناعي...</p>
                     </div>
 
-                    <div class="result-card" id="resultCard" role="region" aria-live="polite" aria-label="نتيجة الفحص"></div>
+                    <!-- Result Display -->
+                    <div class="result-card" id="resultCard" 
+                         role="region" aria-live="polite" aria-label="نتيجة الفحص"></div>
                 </div>
             </div>
 
-            <div class="tips-panel">
+            <!-- Tips Panel -->
+            <aside class="tips-panel">
                 <div class="info-box security-tips">
                     <h3>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M12 1L5 4V10C5 17 12 22 12 22C12 22 19 17 19 10V4L12 1Z" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <path d="M9 11L11 13L15 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 1L5 4V10C5 17 12 22 12 22C12 22 19 17 19 10V4L12 1Z" 
+                                  stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M9 11L11 13L15 9" stroke="currentColor" 
+                                  stroke-width="2" stroke-linecap="round" fill="none"/>
                         </svg>
                         <span id="tipsTitleText">نصائح الأمان</span>
                     </h3>
@@ -199,9 +212,11 @@
 
                 <div class="info-box official-sites">
                     <h3>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="18" height="18" rx="2" 
+                                  stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" 
+                                  stroke-width="2" stroke-linecap="round" fill="none"/>
                         </svg>
                         <span id="officialSitesTitleText">المواقع الرسمية</span>
                     </h3>
@@ -226,43 +241,58 @@
                         </li>
                     </ul>
                 </div>
+            </aside>
+        </main>
+
+        <!-- History Modal -->
+        <div class="modal" id="historyModal" role="dialog" aria-labelledby="historyModalTitle">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="historyModalTitle">رسائل تم فحصها سابقاً</h2>
+                    <button class="modal-close" onclick="closeModal('historyModal')" 
+                            aria-label="إغلاق">&times;</button>
+                </div>
+                <div id="historyList" class="history-list"></div>
+                <div id="historyActions" class="modal-actions">
+                    <button class="btn btn-danger" onclick="clearHistory()">حذف جميع السجلات</button>
+                </div>
             </div>
         </div>
 
-        <!-- Modals (Premium, History, Report) -->
-        <!-- [Previous modal code remains the same] -->
+        <!-- Report Modal -->
+        <div class="modal" id="reportModal" role="dialog" aria-labelledby="reportModalTitle">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="reportModalTitle">إبلاغ عن رسالة احتيالية</h2>
+                    <button class="modal-close" onclick="closeModal('reportModal')" 
+                            aria-label="إغلاق">&times;</button>
+                </div>
+                <p>سيتم إرسال الرسالة إلى الجهات المختصة للتحقيق.</p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="sendReport()">إرسال البلاغ</button>
+                    <button class="btn btn-secondary" onclick="closeModal('reportModal')">إلغاء</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Footer -->
-        <div class="footer">
+        <!-- Footer -->
+        <footer class="footer">
             <p>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                    <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 8V12M12 16H12.01" stroke="currentColor" 
+                        stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span id="footerText"><strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.</span>
+                <span id="footerText"></span>
             </p>
-        </div>
+        </footer>
     </div>
 
-    <script src="utils.js"></script>
-    <script src="ui.js"></script>
-    <script src="api.js"></script>
-    <script src="script.js"></script>
-    
-    <!-- Attribution Protection -->
-    <script>
-    // Copyright Protection Mechanism - Manal Alyami
-    (function() {
-        const _0x4d2a = {
-            concept: 'Naif Saleh',
-            dev: 'Manal Alyami',
-            enhanced: 'Manal Alyami',
-            v: '2.0.0',
-            y: 2025
-        };
-        Object.freeze(_0x4d2a);
-        window._tanabbah_credits = _0x4d2a;
-    })();
-    </script>
+    <!-- JavaScript Files - Load in correct order -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

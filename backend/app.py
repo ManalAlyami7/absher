@@ -1,21 +1,33 @@
+"""
+========================================
+Tanabbah - FastAPI Backend
+========================================
+Purpose: API endpoints for message/URL analysis
+Author: Manal Alyami
+Version: 2.0.0
+========================================
+"""
+
 import os
+import re
+import math
+import json
+import warnings
+from datetime import datetime
+from typing import List, Optional, Dict
+from collections import Counter
+from urllib.parse import urlparse
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
-from typing import List, Optional, Dict
-import pickle
-import re
-from urllib.parse import urlparse
-import numpy as np
-import math
-from collections import Counter
-import warnings
-import json
-from huggingface_hub import InferenceClient
-from datetime import datetime
 
-# Suppress sklearn version warnings
+# Suppress warnings
 warnings.filterwarnings('ignore', category=UserWarning)
+
+# ============================================================================
+# FASTAPI APPLICATION
+# ============================================================================
 
 app = FastAPI(
     title="Tanabbah Enhanced URL & Message Phishing Detection API",
@@ -23,7 +35,10 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# CORS middleware
+# ============================================================================
+# CORS CONFIGURATION
+# ============================================================================
+
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
@@ -34,50 +49,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize HuggingFace client
-HF_API_KEY = os.getenv("HF_API_KEY")  # REQUIRED for LLM to work reliably
+# ============================================================================
+# LLM INITIALIZATION
+# ============================================================================
+
+# Initialize HuggingFace client for LLM analysis
+HF_API_KEY = os.getenv("HF_API_KEY")
 llm_client = None
 
-# BEST FREE MODELS FOR PHISHING DETECTION (verified working):
-# 1. "mistralai/Mistral-7B-Instruct-v0.2" - Most reliable, always works
-# 2. "google/flan-t5-large" - Fast, simple format
-# 3. "bigscience/bloom-560m" - Lightweight fallback
-
-LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"  # Most reliable
-
-if HF_API_KEY:
-    try:
+try:
+    from huggingface_hub import InferenceClient
+    
+    if HF_API_KEY:
         llm_client = InferenceClient(token=HF_API_KEY)
-        print(f"✅ HuggingFace LLM initialized with API key: {LLM_MODEL}")
-    except Exception as e:
-        print(f"⚠️ Failed to initialize HuggingFace: {e}")
-        llm_client = None
-else:
-    # Free tier without API key (rate limited but should work)
-    try:
+        print(f"✅ HuggingFace LLM initialized with API key")
+    else:
         llm_client = InferenceClient()
-        print(f"⚠️ HuggingFace LLM initialized (free tier - rate limited): {LLM_MODEL}")
+        print(f"⚠️ HuggingFace LLM initialized (free tier - rate limited)")
         print(f"💡 Set HF_API_KEY environment variable for better reliability")
-    except Exception as e:
-        print(f"⚠️ LLM disabled: {e}")
-        llm_client = None
+except Exception as e:
+    print(f"⚠️ LLM disabled: {e}")
+    llm_client = None
 
-# LAZY LOAD MODEL
+LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"
+
+# ============================================================================
+# ML MODEL LOADING
+# ============================================================================
+
 model = None
 MODEL_LOADED = False
-MODEL_LOADING = False
 
 def load_model():
-    """Lazy load the model only when needed"""
-    global model, MODEL_LOADED, MODEL_LOADING
+    """Lazy load the ML model"""
+    global model, MODEL_LOADED
     
     if MODEL_LOADED:
         return model
-    
-    if MODEL_LOADING:
-        return None
-    
-    MODEL_LOADING = True
     
     try:
         import joblib
@@ -101,28 +109,26 @@ def load_model():
     except Exception as e:
         print(f"⚠️ Model loading failed: {e}")
         return None
-    finally:
-        MODEL_LOADING = False
-
-print("\n" + "="*50)
-print("🚀 API Starting - Attempting to load ML model...")
-print("="*50 + "\n")
 
 # Try to load model at startup
-try:
-    model = load_model()
-    if model:
-        print("✅ ML Model loaded successfully at startup!")
-    else:
-        print("⚠️ ML Model not available - using rule-based detection only")
-except Exception as e:
-    print(f"⚠️ ML Model failed to load: {e}")
+print("\n" + "="*60)
+print("🚀 API Starting - Attempting to load ML model...")
+print("="*60 + "\n")
 
+model = load_model()
+if model:
+    print("✅ ML Model loaded successfully at startup!")
+else:
+    print("⚠️ ML Model not available - using rule-based detection only")
 
-# Request/Response Models
+# ============================================================================
+# REQUEST/RESPONSE MODELS
+# ============================================================================
+
 class AnalyzeRequest(BaseModel):
+    """Request model for message analysis"""
     message: str
-    enable_llm: Optional[bool] = True  # Allow disabling LLM for faster response
+    enable_llm: Optional[bool] = True
     
     @field_validator('message')
     @classmethod
@@ -135,6 +141,7 @@ class AnalyzeRequest(BaseModel):
 
 
 class URLPrediction(BaseModel):
+    """Model for URL prediction result"""
     url: str
     prediction: int
     probability: float
@@ -142,15 +149,17 @@ class URLPrediction(BaseModel):
 
 
 class LLMAnalysis(BaseModel):
+    """Model for LLM analysis result"""
     is_phishing: bool
-    confidence: float  # 0-100
+    confidence: float
     reasoning: str
     red_flags: List[str]
-    context_score: int  # 0-100
+    context_score: int
     model_used: str
 
 
 class AnalyzeResponse(BaseModel):
+    """Response model for message analysis"""
     message: str
     urls_found: int
     url_predictions: List[URLPrediction]
@@ -161,12 +170,15 @@ class AnalyzeResponse(BaseModel):
 
 
 class ReportRequest(BaseModel):
+    """Request model for fraud report"""
     message: str
     timestamp: str
     language: str
 
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
 
-# Helper Functions
 def calculate_entropy(text: str) -> float:
     """Calculate Shannon entropy of a string"""
     if not text:
@@ -185,7 +197,7 @@ def calculate_entropy(text: str) -> float:
 
 
 def extract_url_features(url: str) -> Dict[str, float]:
-    """Extract all 41 features from URL"""
+    """Extract 41 features from URL for ML model"""
     features = {}
     
     # URL-level features
@@ -194,7 +206,7 @@ def extract_url_features(url: str) -> Dict[str, float]:
     features['having_repeated_digits_in_url'] = 1 if re.search(r'(\d)\1', url) else 0
     features['number_of_digits_in_url'] = sum(c.isdigit() for c in url)
     
-    # Special characters in URL
+    # Special characters
     special_chars = set('!@#$%^&*()_+-=[]{}|;:,.<>?/~`')
     features['number_of_special_char_in_url'] = sum(c in special_chars for c in url)
     features['number_of_hyphens_in_url'] = url.count('-')
@@ -287,21 +299,20 @@ def extract_urls(text: str) -> List[str]:
         if url not in urls and not url.endswith('.') and '.' in url:
             urls.append(url)
     
-    return list(set(urls))  # Remove duplicates
+    return list(set(urls))
 
 
 def predict_url(url: str) -> URLPrediction:
     """Predict if a URL is phishing or legitimate"""
-    current_model = load_model()
+    import numpy as np
     
+    current_model = load_model()
     features = extract_url_features(url)
     
     if current_model is None:
-        print(f"⚠️ ML Model not available for URL: {url}")
-        # Return conservative estimate based on features
+        # Heuristic scoring when model not available
         suspicious_score = 0.5
         
-        # Add heuristic scoring
         if any(shortener in url.lower() for shortener in ['bit.ly', 'tinyurl', 'goo.gl']):
             suspicious_score += 0.3
         if url.count('.') > 3:
@@ -318,6 +329,7 @@ def predict_url(url: str) -> URLPrediction:
             features=features
         )
     
+    # Use ML model
     feature_names = [
         'url_length', 'number_of_dots_in_url', 'having_repeated_digits_in_url',
         'number_of_digits_in_url', 'number_of_special_char_in_url',
@@ -342,11 +354,8 @@ def predict_url(url: str) -> URLPrediction:
     ]
     
     feature_vector = np.array([[features[name] for name in feature_names]])
-    
     prediction = current_model.predict(feature_vector)[0]
     probability = current_model.predict_proba(feature_vector)[0][1]
-    
-    print(f"✅ ML Model prediction for {url}: {probability:.2%}")
     
     return URLPrediction(
         url=url,
@@ -356,24 +365,11 @@ def predict_url(url: str) -> URLPrediction:
     )
 
 
-# LLM Analysis Function
 async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LLMAnalysis]:
-    """
-    Use HuggingFace LLM to analyze message for phishing indicators
-    Using chat_completion API instead of text_generation
-    """
+    """Use HuggingFace LLM to analyze message for phishing indicators"""
     if not llm_client:
-        print("⚠️ LLM client not initialized")
         return None
     
-    # Models that work with conversational/chat API
-    models_to_try = [
-        "mistralai/Mistral-7B-Instruct-v0.2",
-        "meta-llama/Meta-Llama-3-8B-Instruct",
-        "microsoft/Phi-3-mini-4k-instruct",
-    ]
-    
-    # Prepare URLs list
     urls_text = "\n".join([f"- {url}" for url in urls]) if urls else "None"
     
     system_message = """You are an expert cybersecurity analyst specializing in phishing detection for Saudi Arabia.
@@ -388,7 +384,7 @@ Analyze messages for phishing indicators focusing on:
 
 Official Saudi domains: absher.sa, najiz.sa, *.gov.sa
 
-Respond ONLY with valid JSON in this exact format (no other text or explanation):
+Respond ONLY with valid JSON in this exact format (no other text):
 {"is_phishing": true/false, "confidence": 0-100, "reasoning": "brief explanation", "red_flags": ["flag1", "flag2"], "context_score": 0-100}"""
 
     user_message = f"""Analyze this message:
@@ -399,79 +395,47 @@ MESSAGE:
 URLS FOUND:
 {urls_text}"""
 
-    # Try each model with chat completion API
-    for model_name in models_to_try:
-        try:
-            print(f"🔍 Trying LLM with chat API: {model_name}")
+    try:
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_message}
+        ]
+        
+        response = llm_client.chat_completion(
+            messages=messages,
+            model=LLM_MODEL,
+            max_tokens=500,
+            temperature=0.3
+        )
+        
+        response_text = response.choices[0].message.content
+        
+        # Extract JSON from response
+        json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response_text, re.DOTALL)
+        
+        if json_match:
+            json_str = json_match.group().strip()
+            json_str = json_str.replace('```', '').strip()
+            analysis_data = json.loads(json_str)
             
-            # Use chat_completion instead of text_generation
-            messages = [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_message}
-            ]
-            
-            response = llm_client.chat_completion(
-                messages=messages,
-                model=model_name,
-                max_tokens=500,
-                temperature=0.3,
-                top_p=0.9
+            return LLMAnalysis(
+                is_phishing=analysis_data.get("is_phishing", False),
+                confidence=float(analysis_data.get("confidence", 50)),
+                reasoning=analysis_data.get("reasoning", "Analysis completed"),
+                red_flags=analysis_data.get("red_flags", []),
+                context_score=int(analysis_data.get("context_score", 50)),
+                model_used=LLM_MODEL
             )
-            
-            # Extract response text
-            response_text = response.choices[0].message.content
-            
-            print(f"✅ LLM Response received ({len(response_text)} chars): {response_text[:150]}...")
-            
-            # Parse JSON response - try multiple patterns
-            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response_text, re.DOTALL)
-            
-            if not json_match:
-                # Try finding JSON after common prefixes
-                for prefix in ["```json", "```", "JSON:", "Response:", "Here's the analysis:"]:
-                    if prefix.lower() in response_text.lower():
-                        parts = response_text.lower().split(prefix.lower(), 1)
-                        if len(parts) > 1:
-                            after_prefix = response_text[len(parts[0]) + len(prefix):]
-                            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_prefix, re.DOTALL)
-                            if json_match:
-                                break
-            
-            if json_match:
-                try:
-                    json_str = json_match.group().strip()
-                    # Clean up common JSON issues
-                    json_str = json_str.replace('```', '').strip()
-                    analysis_data = json.loads(json_str)
-                    print(f"✅ JSON parsed successfully from {model_name}")
-                    
-                    return LLMAnalysis(
-                        is_phishing=analysis_data.get("is_phishing", False),
-                        confidence=float(analysis_data.get("confidence", 50)),
-                        reasoning=analysis_data.get("reasoning", "Analysis completed"),
-                        red_flags=analysis_data.get("red_flags", []),
-                        context_score=int(analysis_data.get("context_score", 50)),
-                        model_used=model_name
-                    )
-                except json.JSONDecodeError as je:
-                    print(f"⚠️ JSON parse error: {je}")
-                    print(f"Matched text: {json_match.group()}")
-                    continue
-            else:
-                print(f"⚠️ No valid JSON found in response from {model_name}")
-                print(f"Full response: {response_text}")
-                continue
-                
-        except Exception as e:
-            print(f"❌ Error with {model_name}: {type(e).__name__}: {e}")
-            continue
+        
+    except Exception as e:
+        print(f"❌ LLM error: {e}")
     
-    # All models failed
-    print(f"❌ All LLM models failed. Falling back to ML-only analysis.")
     return None
 
+# ============================================================================
+# API ENDPOINTS
+# ============================================================================
 
-# API Endpoints
 @app.get("/")
 async def root():
     """Health check endpoint"""
@@ -480,7 +444,6 @@ async def root():
         "service": "Tanabbah Enhanced Phishing Detection API",
         "model_loaded": MODEL_LOADED,
         "llm_enabled": llm_client is not None,
-        "llm_model": LLM_MODEL if llm_client else None,
         "version": "2.0.0",
         "message": "API is running. Use /docs for documentation."
     }
@@ -491,42 +454,10 @@ async def health_check():
     """Detailed health check"""
     import sys
     
-    # Test LLM quickly using chat API
-    llm_status = "disabled"
-    llm_error = None
-    working_model = None
-    
-    if llm_client:
-        # Try models in order until one works
-        test_models = [
-            "meta-llama/Meta-Llama-3-8B-Instruct",
-            "microsoft/Phi-3-mini-4k-instruct",
-            "mistralai/Mistral-7B-Instruct-v0.2"
-        ]
-        
-        for model in test_models:
-            try:
-                test_response = llm_client.chat_completion(
-                    messages=[{"role": "user", "content": "Hi"}],
-                    model=model,
-                    max_tokens=5,
-                    temperature=0.1
-                )
-                llm_status = "working"
-                working_model = model
-                break
-            except Exception as e:
-                llm_error = str(e)
-                continue
-    
     return {
         "status": "healthy",
         "model_loaded": MODEL_LOADED,
         "llm_enabled": llm_client is not None,
-        "llm_status": llm_status,
-        "llm_working_model": working_model,
-        "llm_error": llm_error if llm_status == "error" else None,
-        "has_api_key": HF_API_KEY is not None and len(HF_API_KEY) > 0,
         "python_version": sys.version,
         "endpoints": ["/", "/health", "/api/analyze", "/api/report"]
     }
@@ -534,14 +465,7 @@ async def health_check():
 
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 async def analyze_message(request: AnalyzeRequest):
-    """
-    Analyze a message for phishing URLs and content
-    
-    - Extracts URLs from the message
-    - Predicts if each URL is phishing (ML model)
-    - Analyzes message content with LLM
-    - Returns combined risk score
-    """
+    """Analyze a message for phishing URLs and content"""
     try:
         message = request.message
         enable_llm = request.enable_llm
@@ -550,68 +474,49 @@ async def analyze_message(request: AnalyzeRequest):
         print(f"📨 New Analysis Request")
         print(f"{'='*60}")
         print(f"Message: {message[:100]}...")
-        print(f"LLM Enabled: {enable_llm}")
         
-        # Extract URLs from message
+        # Extract URLs
         urls = extract_urls(message)
         print(f"🔗 URLs Found: {len(urls)}")
         
         # ML: Predict each URL
         url_predictions = []
-        phishing_count = 0
         total_phishing_probability = 0.0
         
         for url in urls:
             try:
                 prediction = predict_url(url)
                 url_predictions.append(prediction)
-                
-                if prediction.prediction == 1:
-                    phishing_count += 1
                 total_phishing_probability += prediction.probability
                 print(f"  • {url}: {prediction.probability:.2%} phishing")
             except Exception as e:
                 print(f"⚠️ Error predicting URL {url}: {e}")
-                continue
         
         # Calculate ML risk score
-        if len(url_predictions) > 0:
-            avg_probability = total_phishing_probability / len(url_predictions)
-            ml_risk_score = round(avg_probability * 100, 2)
-        else:
-            ml_risk_score = 0.0
+        ml_risk_score = round(
+            (total_phishing_probability / len(url_predictions) * 100) 
+            if url_predictions else 0.0,
+            2
+        )
         
         print(f"🤖 ML Risk Score: {ml_risk_score}%")
         
-        # LLM: Analyze message context
+        # LLM: Analyze message
         llm_analysis = None
         if enable_llm and llm_client:
             print(f"🧠 Starting LLM analysis...")
             llm_analysis = await analyze_message_with_llm(message, urls)
             if llm_analysis:
-                print(f"✅ LLM Analysis Complete:")
-                print(f"   Is Phishing: {llm_analysis.is_phishing}")
-                print(f"   Confidence: {llm_analysis.confidence}%")
-                print(f"   Context Score: {llm_analysis.context_score}%")
-            else:
-                print(f"⚠️ LLM analysis returned None")
-        else:
-            if not enable_llm:
-                print(f"⏭️ LLM disabled by request")
-            else:
-                print(f"⏭️ LLM client not available")
+                print(f"✅ LLM Analysis Complete")
         
         # Combine scores
         combined_risk_score = ml_risk_score
         
         if llm_analysis:
-            # Weight: 40% ML + 60% LLM (LLM is better at context)
             llm_score = llm_analysis.context_score if llm_analysis.is_phishing else (100 - llm_analysis.context_score)
             combined_risk_score = round((ml_risk_score * 0.4) + (llm_score * 0.6), 2)
-            print(f"🎯 Combined Risk Score: {combined_risk_score}% (ML: {ml_risk_score}%, LLM: {llm_score}%)")
-        else:
-            print(f"🎯 Final Risk Score: {combined_risk_score}% (ML only)")
         
+        print(f"🎯 Combined Risk Score: {combined_risk_score}%")
         print(f"{'='*60}\n")
         
         return AnalyzeResponse(
@@ -625,22 +530,17 @@ async def analyze_message(request: AnalyzeRequest):
         )
         
     except Exception as e:
-        print(f"❌ Analysis failed: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"❌ Analysis failed: {e}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 
 @app.post("/api/report")
 async def report_message(request: ReportRequest):
-    """
-    Endpoint for reporting fraudulent messages
-    """
+    """Endpoint for reporting fraudulent messages"""
     try:
         print(f"📋 Report received:")
         print(f"   Language: {request.language}")
         print(f"   Timestamp: {request.timestamp}")
-        print(f"   Message: {request.message[:100]}...")
         
         return {
             "status": "success",
@@ -652,9 +552,12 @@ async def report_message(request: ReportRequest):
         raise HTTPException(status_code=500, detail=f"Report submission failed: {str(e)}")
 
 
+# ============================================================================
+# MAIN ENTRY POINT
+# ============================================================================
+
 if __name__ == "__main__":
     import uvicorn
-    import sys
     
     port = int(os.getenv("PORT", 8080))
     
@@ -663,21 +566,12 @@ if __name__ == "__main__":
     print("="*60)
     print(f"📊 ML Model status: {'✅ Loaded' if MODEL_LOADED else '⚠️ Not loaded'}")
     print(f"🤖 LLM status: {'✅ Enabled' if llm_client else '⚠️ Disabled'}")
-    if llm_client:
-        print(f"🔧 LLM Model: {LLM_MODEL}")
-    if not HF_API_KEY:
-        print(f"⚠️ WARNING: No HF_API_KEY set - LLM may be rate limited")
     print(f"🌐 Port: {port}")
-    print(f"📚 API Docs: /docs")
-    print(f"🧪 Health: /health")
-    print("="*60)
-    print("💡 Press CTRL+C to stop the server\n")
-    sys.stdout.flush()
+    print("="*60 + "\n")
     
     uvicorn.run(
         app,
         host="0.0.0.0",
         port=port,
-        log_level="info",
-        access_log=True
+        log_level="info"
     )

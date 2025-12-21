@@ -1,10 +1,10 @@
 /**
  * ========================================
- * Tanabbah - Utility Functions Module
+ * Tanabbah - Utility Functions
  * ========================================
- * Original Concept: Naif Saleh
- * Enhanced Development: Manal Alyami
- * © 2025 All Rights Reserved
+ * Purpose: Helper functions, storage, validation, translations
+ * Author: Manal Alyami
+ * Version: 2.0.0
  * ========================================
  */
 
@@ -132,18 +132,14 @@ function removeFromStorage(key) {
 const translations = {
     ar: {
         // Header & Brand
-        brandTitle: 'تنـبَّـه',
-        brandSubtitle: 'Tanabbah Security',
+        language: 'EN',
         darkMode: 'الإضاءة',
         history: 'السجل',
         save: 'حفظ',
-        language: 'EN',
         report: 'إبلاغ',
-        app: 'التطبيق',
         
         // Privacy
         privacyNotice: 'نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا',
-        privacyNoteHistory: 'يتم حفظ السجل محلياً على جهازك فقط',
         
         // Main Section
         mainTitle: 'فحص الرسائل الاحتيالية',
@@ -159,7 +155,6 @@ const translations = {
         suspicious: 'مشبوهة',
         fraud: 'احتيالية',
         riskScore: 'درجة الخطر',
-        details: 'التفاصيل والتحذيرات',
         explanation: 'تم فحص الرسالة بنجاح بالذكاء الاصطناعي',
         
         // Tips Section
@@ -175,7 +170,7 @@ const translations = {
         // Official Sites
         officialSitesTitle: 'المواقع الرسمية',
         
-        // History Modal
+        // History
         historyTitle: 'رسائل تم فحصها سابقاً',
         noHistory: 'لم يتم فحص أي رسائل بعد',
         deleteHistory: 'حذف جميع السجلات',
@@ -202,18 +197,14 @@ const translations = {
     },
     en: {
         // Header & Brand
-        brandTitle: 'Tanabbah',
-        brandSubtitle: 'تنبَه الأمني',
+        language: 'عربي',
         darkMode: 'Theme',
         history: 'History',
         save: 'Export',
-        language: 'عربي',
         report: 'Report',
-        app: 'App',
         
         // Privacy
         privacyNotice: 'We do not save or store the messages you check. Your privacy matters to us',
-        privacyNoteHistory: 'History is saved locally on your device only',
         
         // Main Section
         mainTitle: 'Fraud Message Scanner',
@@ -229,7 +220,6 @@ const translations = {
         suspicious: 'Suspicious',
         fraud: 'Fraudulent',
         riskScore: 'Risk Score',
-        details: 'Details & Warnings',
         explanation: 'Message analyzed successfully with AI',
         
         // Tips Section
@@ -245,7 +235,7 @@ const translations = {
         // Official Sites
         officialSitesTitle: 'Official Websites',
         
-        // History Modal
+        // History
         historyTitle: 'Previously Analyzed Messages',
         noHistory: 'No messages analyzed yet',
         deleteHistory: 'Delete All History',
@@ -278,7 +268,8 @@ const translations = {
  * @returns {string} Translated text
  */
 function t(key) {
-    return translations[currentLanguage][key] || key;
+    // currentLanguage is defined in script.js
+    return translations[window.currentLanguage || 'ar'][key] || key;
 }
 
 /**
@@ -321,7 +312,7 @@ function translateLLMFlag(flag) {
  */
 function getTimestamp() {
     return new Date().toLocaleString(
-        currentLanguage === 'ar' ? 'ar-SA' : 'en-US'
+        window.currentLanguage === 'ar' ? 'ar-SA' : 'en-US'
     );
 }
 
@@ -378,4 +369,21 @@ function initCopyrightProtection() {
 // Run copyright protection on load
 if (typeof window !== 'undefined') {
     initCopyrightProtection();
+}
+
+// Export functions for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        CONFIG,
+        sanitizeHTML,
+        validateMessageLength,
+        extractURLs,
+        saveToStorage,
+        loadFromStorage,
+        removeFromStorage,
+        t,
+        translateLLMFlag,
+        getTimestamp,
+        initCopyrightProtection
+    };
 }

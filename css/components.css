@@ -1,15 +1,15 @@
-/*
+/**
  * ========================================
- * Tanabbah - Result Card Components
+ * Tanabbah - Component Stylesheet
  * ========================================
- * Original Concept: Naif Saleh
- * Enhanced Development: Manal Alyami
- * © 2025 All Rights Reserved
+ * Purpose: Result cards, modals, notifications
+ * Author: Manal Alyami
+ * Version: 2.0.0
  * ========================================
  */
 
 /* ============================================================================
-   INCLUSIVE RESULT CARD - USER-FRIENDLY DESIGN
+   RESULT CARD COMPONENT
    ============================================================================ */
 
 .result-card {
@@ -38,10 +38,26 @@
     }
 }
 
-/* ============================================================================
-   RESULT HEADER - Clear Visual Status
-   ============================================================================ */
+/* Result Card Status Colors */
+.result-card.safe {
+    --status-color: #059669;
+    --status-color-light: #10b981;
+    --status-bg: rgba(5, 150, 105, 0.05);
+}
 
+.result-card.suspicious {
+    --status-color: #f59e0b;
+    --status-color-light: #fbbf24;
+    --status-bg: rgba(245, 158, 11, 0.05);
+}
+
+.result-card.fraud {
+    --status-color: #ef4444;
+    --status-color-light: #f87171;
+    --status-bg: rgba(239, 68, 68, 0.05);
+}
+
+/* Result Header */
 .result-header {
     padding: 36px 40px 28px;
     display: flex;
@@ -62,25 +78,6 @@
         var(--status-color, var(--primary)) 0%, 
         var(--status-color-light, var(--primary-light)) 100%
     );
-}
-
-/* Status-specific colors */
-.result-card.safe {
-    --status-color: #059669;
-    --status-color-light: #10b981;
-    --status-bg: rgba(5, 150, 105, 0.05);
-}
-
-.result-card.suspicious {
-    --status-color: #f59e0b;
-    --status-color-light: #fbbf24;
-    --status-bg: rgba(245, 158, 11, 0.05);
-}
-
-.result-card.fraud {
-    --status-color: #ef4444;
-    --status-color-light: #f87171;
-    --status-bg: rgba(239, 68, 68, 0.05);
 }
 
 .result-icon {
@@ -124,10 +121,7 @@
     letter-spacing: 0.5px;
 }
 
-/* ============================================================================
-   RISK LEVEL INDICATOR - Easy to Understand
-   ============================================================================ */
-
+/* Risk Level Indicator */
 .risk-level-container {
     background: var(--status-bg);
     border: 2px solid var(--status-color);
@@ -203,10 +197,7 @@
     font-weight: 600;
 }
 
-/* ============================================================================
-   PLAIN-LANGUAGE SUMMARY
-   ============================================================================ */
-
+/* Result Summary */
 .result-summary {
     padding: 28px 40px;
     background: var(--bg);
@@ -230,10 +221,7 @@
     font-weight: 600;
 }
 
-/* ============================================================================
-   KEY FINDINGS - Visual Badges
-   ============================================================================ */
-
+/* Key Findings */
 .key-findings {
     padding: 28px 40px;
     border-bottom: 1px solid var(--border-light);
@@ -293,10 +281,7 @@
     font-size: 1.3rem;
 }
 
-/* ============================================================================
-   WARNINGS SECTION - Clear & Actionable
-   ============================================================================ */
-
+/* Warnings Section */
 .warnings-section {
     padding: 28px 40px;
     border-bottom: 1px solid var(--border-light);
@@ -344,10 +329,7 @@
     flex-shrink: 0;
 }
 
-/* ============================================================================
-   RECOMMENDATIONS - Next Steps
-   ============================================================================ */
-
+/* Recommendations Section */
 .recommendations-section {
     padding: 28px 40px;
     background: var(--status-bg);
@@ -379,134 +361,258 @@
 }
 
 /* ============================================================================
-   TECHNICAL DETAILS - Collapsible
+   MODAL COMPONENT
    ============================================================================ */
 
-.tech-details-toggle {
-    padding: 20px 40px;
-    text-align: center;
-    border-top: 1px solid var(--border-light);
-    background: var(--bg-secondary);
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--overlay);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
 }
 
-.toggle-details-btn {
-    background: transparent;
-    border: 2px solid var(--border);
-    color: var(--text-muted);
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--text);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
     transition: all 0.3s ease;
 }
 
-.toggle-details-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+.modal-close:hover {
+    background: var(--bg);
+    color: var(--danger);
 }
 
-.toggle-details-btn svg {
-    transition: transform 0.3s ease;
-}
-
-.toggle-details-btn.active svg {
-    transform: rotate(180deg);
-}
-
-.tech-details-panel {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tech-details-panel.show {
-    max-height: 2000px;
-}
-
-.tech-details-content {
-    padding: 28px 40px;
-    background: var(--bg-secondary);
-}
-
-.tech-section {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.tech-section:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.tech-section-title {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 12px;
+.modal-actions {
     display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.tech-score-display {
-    display: flex;
-    align-items: center;
     gap: 12px;
-    margin: 8px 0;
+    margin-top: 24px;
+    justify-content: flex-end;
 }
 
-.tech-bar {
-    flex: 1;
-    height: 8px;
-    background: var(--border-light);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.tech-bar-fill {
-    height: 100%;
+.btn-primary {
     background: var(--primary);
-    border-radius: 4px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white;
 }
 
-.tech-score-value {
-    font-weight: 800;
-    font-size: 0.95rem;
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.btn-secondary {
+    background: var(--bg);
     color: var(--text);
-    min-width: 45px;
-    text-align: right;
+    border: 2px solid var(--border);
 }
 
-[dir="ltr"] .tech-score-value {
-    text-align: left;
+.btn-danger {
+    background: var(--danger);
+    color: white;
 }
 
-.tech-info-list {
-    list-style: none;
-    margin: 10px 0 0 0;
-    padding: 0;
+.btn-danger:hover {
+    background: #a31f24;
 }
 
-.tech-info-list li {
+/* ============================================================================
+   HISTORY LIST
+   ============================================================================ */
+
+.history-list {
     display: flex;
-    align-items: start;
-    gap: 10px;
-    padding: 6px 0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: var(--text-secondary);
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
-.tech-bullet {
-    font-weight: 900;
-    color: var(--primary);
+.history-item {
+    padding: 16px 20px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.history-item:hover {
+    border-color: var(--primary);
+    background: var(--card-bg);
+    transform: translateX(-4px);
+}
+
+[dir="ltr"] .history-item:hover {
+    transform: translateX(4px);
+}
+
+.history-item-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+[dir="ltr"] .history-item-delete {
+    right: auto;
+    left: 8px;
+}
+
+.history-item:hover .history-item-delete {
+    opacity: 1;
+}
+
+.history-item-delete:hover {
+    background: #a31f24;
+    transform: scale(1.1);
+}
+
+.history-item-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.history-item-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* ============================================================================
+   NOTIFICATION SYSTEM
+   ============================================================================ */
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    font-weight: 600;
+    max-width: 350px;
+    word-wrap: break-word;
+    animation: slideInRight 0.3s ease;
+}
+
+[dir="ltr"] .notification {
+    right: auto;
+    left: 20px;
+    animation: slideInLeft 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification.success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.notification.error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.notification.warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.notification.info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
 /* ============================================================================
@@ -536,13 +642,28 @@
     .result-summary,
     .key-findings,
     .warnings-section,
-    .recommendations-section,
-    .tech-details-content {
+    .recommendations-section {
         padding: 24px 24px;
     }
 
     .findings-grid {
         grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 28px 20px;
+    }
+
+    .notification {
+        top: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+    }
+
+    [dir="ltr"] .notification {
+        left: 10px;
+        right: auto;
     }
 }
 
@@ -559,5 +680,17 @@
 
     .risk-score-large {
         font-size: 2rem;
+    }
+
+    .history-item {
+        padding: 12px 16px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .modal-actions .btn {
+        width: 100%;
     }
 }
