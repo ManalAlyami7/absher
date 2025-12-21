@@ -1,10 +1,12 @@
 // Security: Use environment variable or config for API URL in production
-const API_URL = 'http://localhost:5000/api/analyze';
+const API_URL = 'https://tanabbah-production-a91f.up.railway.app/api/analyze';
 const HISTORY_KEY = 'tanabbah_history';
 const DARK_MODE_KEY = 'tanabbah_dark';
 const LANGUAGE_KEY = 'tanabbah_lang';
 const MAX_HISTORY = 20;
 const MAX_MESSAGE_LENGTH = 5000;
+const REPORT_URL = API_URL.replace('/analyze', '/report');
+
 
 let analysisHistory = [];
 let currentLanguage = 'ar';
@@ -1065,9 +1067,8 @@ function closeMainReportConfirm() {
 }
 
 async function sendDirectReport(message) {
-    // Security: Sanitize message before sending
     const payload = {
-        message: sanitizeHTML(message.substring(0, 1000)), // Limit to 1000 chars
+        message: sanitizeHTML(message.substring(0, 1000)),
         timestamp: new Date().toISOString(),
         language: currentLanguage
     };
@@ -1078,7 +1079,7 @@ async function sendDirectReport(message) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        await fetch('http://localhost:5000/api/report', {
+        await fetch(REPORT_URL, {  // Changed from hardcoded localhost
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json'
