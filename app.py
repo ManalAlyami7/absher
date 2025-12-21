@@ -105,8 +105,18 @@ def load_model():
         MODEL_LOADING = False
 
 print("\n" + "="*50)
-print("🚀 API Starting - Model will load on first use")
+print("🚀 API Starting - Attempting to load ML model...")
 print("="*50 + "\n")
+
+# Try to load model at startup
+try:
+    model = load_model()
+    if model:
+        print("✅ ML Model loaded successfully at startup!")
+    else:
+        print("⚠️ ML Model not available - using rule-based detection only")
+except Exception as e:
+    print(f"⚠️ ML Model failed to load: {e}")
 
 
 # Request/Response Models
@@ -284,15 +294,29 @@ def predict_url(url: str) -> URLPrediction:
     """Predict if a URL is phishing or legitimate"""
     current_model = load_model()
     
+    features = extract_url_features(url)
+    
     if current_model is None:
+        print(f"⚠️ ML Model not available for URL: {url}")
+        # Return conservative estimate based on features
+        suspicious_score = 0.5
+        
+        # Add heuristic scoring
+        if any(shortener in url.lower() for shortener in ['bit.ly', 'tinyurl', 'goo.gl']):
+            suspicious_score += 0.3
+        if url.count('.') > 3:
+            suspicious_score += 0.2
+        if any(char in url for char in ['@', '%']):
+            suspicious_score += 0.1
+            
+        suspicious_score = min(1.0, suspicious_score)
+        
         return URLPrediction(
             url=url,
-            prediction=0,
-            probability=0.5,
-            features={}
+            prediction=1 if suspicious_score > 0.6 else 0,
+            probability=round(suspicious_score, 4),
+            features=features
         )
-    
-    features = extract_url_features(url)
     
     feature_names = [
         'url_length', 'number_of_dots_in_url', 'having_repeated_digits_in_url',
@@ -321,6 +345,8 @@ def predict_url(url: str) -> URLPrediction:
     
     prediction = current_model.predict(feature_vector)[0]
     probability = current_model.predict_proba(feature_vector)[0][1]
+    
+    print(f"✅ ML Model prediction for {url}: {probability:.2%}")
     
     return URLPrediction(
         url=url,
@@ -468,26 +494,38 @@ async def health_check():
     # Test LLM quickly using chat API
     llm_status = "disabled"
     llm_error = None
+    working_model = None
+    
     if llm_client:
-        try:
-            # Quick test with chat completion
-            test_response = llm_client.chat_completion(
-                messages=[{"role": "user", "content": "Say hello"}],
-                model="mistralai/Mistral-7B-Instruct-v0.2",
-                max_tokens=10,
-                temperature=0.1
-            )
-            llm_status = "working"
-        except Exception as e:
-            llm_status = "error"
-            llm_error = str(e)
+        # Try models in order until one works
+        test_models = [
+            "meta-llama/Meta-Llama-3-8B-Instruct",
+            "microsoft/Phi-3-mini-4k-instruct",
+            "mistralai/Mistral-7B-Instruct-v0.2"
+        ]
+        
+        for model in test_models:
+            try:
+                test_response = llm_client.chat_completion(
+                    messages=[{"role": "user", "content": "Hi"}],
+                    model=model,
+                    max_tokens=5,
+                    temperature=0.1
+                )
+                llm_status = "working"
+                working_model = model
+                break
+            except Exception as e:
+                llm_error = str(e)
+                continue
     
     return {
         "status": "healthy",
         "model_loaded": MODEL_LOADED,
         "llm_enabled": llm_client is not None,
         "llm_status": llm_status,
-        "llm_error": llm_error,
+        "llm_working_model": working_model,
+        "llm_error": llm_error if llm_status == "error" else None,
         "has_api_key": HF_API_KEY is not None and len(HF_API_KEY) > 0,
         "python_version": sys.version,
         "endpoints": ["/", "/health", "/api/analyze", "/api/report"]
