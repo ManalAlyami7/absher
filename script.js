@@ -733,12 +733,28 @@ function combineMLWithEnhancedAnalysis(text, mlData) {
         if (llm.is_phishing) {
             llmContextScore = llm.context_score;
             
-            // Add LLM red flags as warnings (simplified)
+            // Add LLM red flags ONLY if they're unique and not already covered
             if (llm.red_flags && llm.red_flags.length > 0) {
-                llm.red_flags.slice(0, 2).forEach(flag => {
+                // Keywords to detect duplicates
+                const existingKeywords = warnings.join(' ').toLowerCase();
+                
+                const uniqueFlags = llm.red_flags.filter(flag => {
+                    const flagLower = flag.toLowerCase();
+                    // Skip if similar warning already exists
+                    if (flagLower.includes('urgency') && existingKeywords.includes('استعجال')) return false;
+                    if (flagLower.includes('url') && existingKeywords.includes('روابط')) return false;
+                    if (flagLower.includes('shortener') && existingKeywords.includes('مختصرة')) return false;
+                    if (flagLower.includes('government') && existingKeywords.includes('حكومية')) return false;
+                    if (flagLower.includes('personal') && existingKeywords.includes('شخصية')) return false;
+                    return true; // Keep unique flags
+                });
+                
+                // Add only unique LLM insights
+                uniqueFlags.slice(0, 2).forEach(flag => {
+                    const arabicFlag = translateLLMFlag(flag);
                     warnings.push(
                         currentLanguage === 'ar'
-                            ? `🧠 ${flag}`
+                            ? `🧠 ${arabicFlag}`
                             : `🧠 ${flag}`
                     );
                 });
