@@ -334,16 +334,17 @@ def predict_url(url: str) -> URLPrediction:
 async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LLMAnalysis]:
     """
     Use HuggingFace LLM to analyze message for phishing indicators
+    Using chat_completion API instead of text_generation
     """
     if not llm_client:
         print("⚠️ LLM client not initialized")
         return None
     
-    # List of models to try (verified to work with text-generation)
+    # Models that work with conversational/chat API
     models_to_try = [
-        ("mistralai/Mistral-7B-Instruct-v0.2", "<s>[INST] ", " [/INST]", ""),
-        ("google/flan-t5-large", "", "", ""),  # Simple format
-        ("bigscience/bloom-560m", "", "", ""),  # Lightweight fallback
+        "mistralai/Mistral-7B-Instruct-v0.2",
+        "meta-llama/Meta-Llama-3-8B-Instruct",
+        "microsoft/Phi-3-mini-4k-instruct",
     ]
     
     # Prepare URLs list
@@ -359,7 +360,10 @@ Analyze messages for phishing indicators focusing on:
 5. Arabic and English phishing patterns
 6. Requests for sensitive information
 
-Official Saudi domains: absher.sa, najiz.sa, *.gov.sa"""
+Official Saudi domains: absher.sa, najiz.sa, *.gov.sa
+
+Respond ONLY with valid JSON in this exact format (no other text or explanation):
+{"is_phishing": true/false, "confidence": 0-100, "reasoning": "brief explanation", "red_flags": ["flag1", "flag2"], "context_score": 0-100}"""
 
     user_message = f"""Analyze this message:
 
@@ -367,56 +371,52 @@ MESSAGE:
 {message}
 
 URLS FOUND:
-{urls_text}
+{urls_text}"""
 
-Respond ONLY with valid JSON in this exact format (no other text):
-{{"is_phishing": true/false, "confidence": 0-100, "reasoning": "brief explanation", "red_flags": ["flag1", "flag2"], "context_score": 0-100}}"""
-
-    # Try each model
-    for model_name, sys_start, sys_end, assistant_start in models_to_try:
+    # Try each model with chat completion API
+    for model_name in models_to_try:
         try:
-            # Build prompt based on model format
-            if "mistral" in model_name.lower() or "[INST]" in sys_start:
-                # Mistral format
-                prompt = f"{sys_start}{system_message}\n\n{user_message}{sys_end}"
-            elif "flan" in model_name.lower() or "bloom" in model_name.lower():
-                # Simple format for T5/BLOOM
-                prompt = f"Task: Analyze this message for phishing.\n\n{system_message}\n\n{user_message}\n\nJSON Response:"
-            else:
-                # Generic format
-                prompt = f"{sys_start}{system_message}{sys_end}{user_message}{assistant_start}"
+            print(f"🔍 Trying LLM with chat API: {model_name}")
             
-            print(f"🔍 Trying LLM: {model_name}")
+            # Use chat_completion instead of text_generation
+            messages = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ]
             
-            # Call HuggingFace Inference API
-            response = llm_client.text_generation(
-                prompt,
+            response = llm_client.chat_completion(
+                messages=messages,
                 model=model_name,
-                max_new_tokens=500,
+                max_tokens=500,
                 temperature=0.3,
-                top_p=0.9,
-                repetition_penalty=1.1,
-                return_full_text=False,
-                do_sample=True
+                top_p=0.9
             )
             
-            print(f"✅ LLM Response received ({len(response)} chars): {response[:150]}...")
+            # Extract response text
+            response_text = response.choices[0].message.content
+            
+            print(f"✅ LLM Response received ({len(response_text)} chars): {response_text[:150]}...")
             
             # Parse JSON response - try multiple patterns
-            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response, re.DOTALL)
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response_text, re.DOTALL)
             
             if not json_match:
                 # Try finding JSON after common prefixes
-                for prefix in ["```json", "```", "JSON:", "Response:"]:
-                    if prefix in response:
-                        after_prefix = response.split(prefix, 1)[1]
-                        json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_prefix, re.DOTALL)
-                        if json_match:
-                            break
+                for prefix in ["```json", "```", "JSON:", "Response:", "Here's the analysis:"]:
+                    if prefix.lower() in response_text.lower():
+                        parts = response_text.lower().split(prefix.lower(), 1)
+                        if len(parts) > 1:
+                            after_prefix = response_text[len(parts[0]) + len(prefix):]
+                            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_prefix, re.DOTALL)
+                            if json_match:
+                                break
             
             if json_match:
                 try:
-                    analysis_data = json.loads(json_match.group())
+                    json_str = json_match.group().strip()
+                    # Clean up common JSON issues
+                    json_str = json_str.replace('```', '').strip()
+                    analysis_data = json.loads(json_str)
                     print(f"✅ JSON parsed successfully from {model_name}")
                     
                     return LLMAnalysis(
@@ -433,7 +433,7 @@ Respond ONLY with valid JSON in this exact format (no other text):
                     continue
             else:
                 print(f"⚠️ No valid JSON found in response from {model_name}")
-                print(f"Full response: {response}")
+                print(f"Full response: {response_text}")
                 continue
                 
         except Exception as e:
@@ -465,16 +465,16 @@ async def health_check():
     """Detailed health check"""
     import sys
     
-    # Test LLM quickly
+    # Test LLM quickly using chat API
     llm_status = "disabled"
     llm_error = None
     if llm_client:
         try:
-            # Quick test with Mistral (most reliable)
-            test_response = llm_client.text_generation(
-                "<s>[INST] Say hello [/INST]",
+            # Quick test with chat completion
+            test_response = llm_client.chat_completion(
+                messages=[{"role": "user", "content": "Say hello"}],
                 model="mistralai/Mistral-7B-Instruct-v0.2",
-                max_new_tokens=10,
+                max_tokens=10,
                 temperature=0.1
             )
             llm_status = "working"
