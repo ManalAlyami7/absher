@@ -38,12 +38,12 @@ app.add_middleware(
 HF_API_KEY = os.getenv("HF_API_KEY")  # REQUIRED for LLM to work reliably
 llm_client = None
 
-# BEST FREE MODELS FOR PHISHING DETECTION (in order of reliability):
-# 1. "HuggingFaceH4/zephyr-7b-beta" - Most reliable, always available
-# 2. "mistralai/Mistral-7B-Instruct-v0.3" - Best quality when available  
-# 3. "Qwen/Qwen2.5-7B-Instruct" - Fast alternative
+# BEST FREE MODELS FOR PHISHING DETECTION (verified working):
+# 1. "mistralai/Mistral-7B-Instruct-v0.2" - Most reliable, always works
+# 2. "google/flan-t5-large" - Fast, simple format
+# 3. "bigscience/bloom-560m" - Lightweight fallback
 
-LLM_MODEL = "HuggingFaceH4/zephyr-7b-beta"  # Most reliable for free tier
+LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"  # Most reliable
 
 if HF_API_KEY:
     try:
@@ -339,11 +339,11 @@ async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LL
         print("⚠️ LLM client not initialized")
         return None
     
-    # List of models to try (in order of preference)
+    # List of models to try (verified to work with text-generation)
     models_to_try = [
-        ("HuggingFaceH4/zephyr-7b-beta", "<|system|>", "</|system|>\n<|user|>", "</|user|>\n<|assistant|>"),
-        ("mistralai/Mistral-7B-Instruct-v0.3", "<s>[INST] ", " [/INST]", ""),
-        ("Qwen/Qwen2.5-7B-Instruct", "<|im_start|>system\n", "<|im_end|>\n<|im_start|>user\n", "<|im_end|>\n<|im_start|>assistant\n"),
+        ("mistralai/Mistral-7B-Instruct-v0.2", "<s>[INST] ", " [/INST]", ""),
+        ("google/flan-t5-large", "", "", ""),  # Simple format
+        ("bigscience/bloom-560m", "", "", ""),  # Lightweight fallback
     ]
     
     # Prepare URLs list
@@ -376,18 +376,23 @@ Respond ONLY with valid JSON in this exact format (no other text):
     for model_name, sys_start, sys_end, assistant_start in models_to_try:
         try:
             # Build prompt based on model format
-            if sys_start == "<s>[INST] ":
+            if "mistral" in model_name.lower() or "[INST]" in sys_start:
+                # Mistral format
                 prompt = f"{sys_start}{system_message}\n\n{user_message}{sys_end}"
+            elif "flan" in model_name.lower() or "bloom" in model_name.lower():
+                # Simple format for T5/BLOOM
+                prompt = f"Task: Analyze this message for phishing.\n\n{system_message}\n\n{user_message}\n\nJSON Response:"
             else:
+                # Generic format
                 prompt = f"{sys_start}{system_message}{sys_end}{user_message}{assistant_start}"
             
             print(f"🔍 Trying LLM: {model_name}")
             
-            # Call HuggingFace Inference API with timeout
+            # Call HuggingFace Inference API
             response = llm_client.text_generation(
                 prompt,
                 model=model_name,
-                max_new_tokens=400,
+                max_new_tokens=500,
                 temperature=0.3,
                 top_p=0.9,
                 repetition_penalty=1.1,
@@ -397,20 +402,35 @@ Respond ONLY with valid JSON in this exact format (no other text):
             
             print(f"✅ LLM Response received ({len(response)} chars): {response[:150]}...")
             
-            # Parse JSON response
+            # Parse JSON response - try multiple patterns
             json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response, re.DOTALL)
+            
+            if not json_match:
+                # Try finding JSON after common prefixes
+                for prefix in ["```json", "```", "JSON:", "Response:"]:
+                    if prefix in response:
+                        after_prefix = response.split(prefix, 1)[1]
+                        json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_prefix, re.DOTALL)
+                        if json_match:
+                            break
+            
             if json_match:
-                analysis_data = json.loads(json_match.group())
-                print(f"✅ JSON parsed successfully from {model_name}")
-                
-                return LLMAnalysis(
-                    is_phishing=analysis_data.get("is_phishing", False),
-                    confidence=float(analysis_data.get("confidence", 50)),
-                    reasoning=analysis_data.get("reasoning", "Analysis completed"),
-                    red_flags=analysis_data.get("red_flags", []),
-                    context_score=int(analysis_data.get("context_score", 50)),
-                    model_used=model_name
-                )
+                try:
+                    analysis_data = json.loads(json_match.group())
+                    print(f"✅ JSON parsed successfully from {model_name}")
+                    
+                    return LLMAnalysis(
+                        is_phishing=analysis_data.get("is_phishing", False),
+                        confidence=float(analysis_data.get("confidence", 50)),
+                        reasoning=analysis_data.get("reasoning", "Analysis completed"),
+                        red_flags=analysis_data.get("red_flags", []),
+                        context_score=int(analysis_data.get("context_score", 50)),
+                        model_used=model_name
+                    )
+                except json.JSONDecodeError as je:
+                    print(f"⚠️ JSON parse error: {je}")
+                    print(f"Matched text: {json_match.group()}")
+                    continue
             else:
                 print(f"⚠️ No valid JSON found in response from {model_name}")
                 print(f"Full response: {response}")
@@ -450,11 +470,11 @@ async def health_check():
     llm_error = None
     if llm_client:
         try:
-            # Quick test with tiny prompt
+            # Quick test with Mistral (most reliable)
             test_response = llm_client.text_generation(
-                "Hi",
-                model="HuggingFaceH4/zephyr-7b-beta",
-                max_new_tokens=5,
+                "<s>[INST] Say hello [/INST]",
+                model="mistralai/Mistral-7B-Instruct-v0.2",
+                max_new_tokens=10,
                 temperature=0.1
             )
             llm_status = "working"
