@@ -392,7 +392,7 @@ if __name__ == "__main__":
     import sys
     
     # Get port from environment variable (Railway sets this)
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", 8080))
     
     print("\n" + "="*60)
     print("🚀 Starting Tanabbah API Server...")
