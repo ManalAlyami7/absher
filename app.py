@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
@@ -19,10 +20,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware for frontend integration
+# CORS middleware - update origins for production
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,21 +33,22 @@ app.add_middleware(
 
 # Load the trained model
 try:
-    with open('rf_model.pkl', 'rb') as f:
-        # Use encoding='latin1' to handle version differences
-        model = pickle.load(f)
-    print("✅ Model loaded successfully")
-except FileNotFoundError:
-    print("⚠️ Warning: rf_model.pkl not found. Please ensure the model file exists.")
-    model = None
-except Exception as e:
-    print(f"⚠️ Error loading model: {e}")
-    print("🔄 Attempting alternative loading method...")
+    import joblib
+    # Try joblib first (recommended for sklearn)
+    model = joblib.load('rf_model.pkl')
+    print("✅ Model loaded successfully with joblib")
+except Exception as e1:
+    print(f"⚠️ Joblib loading failed: {e1}")
     try:
-        import joblib
-        model = joblib.load('rf_model.pkl')
-        print("✅ Model loaded successfully with joblib")
-    except:
+        # Fallback to pickle
+        with open('rf_model.pkl', 'rb') as f:
+            model = pickle.load(f)
+        print("✅ Model loaded successfully with pickle")
+    except FileNotFoundError:
+        print("⚠️ Warning: rf_model.pkl not found.")
+        model = None
+    except Exception as e2:
+        print(f"⚠️ Pickle loading failed: {e2}")
         print("❌ Failed to load model. API will run without ML predictions.")
         model = None
 
@@ -364,21 +368,24 @@ if __name__ == "__main__":
     import uvicorn
     import sys
     
+    # Get port from environment variable (Railway sets this)
+    port = int(os.getenv("PORT", 5000))
+    
     print("\n" + "="*60)
     print("🚀 Starting Tanabbah API Server...")
     print("="*60)
     print(f"📊 Model status: {'✅ Loaded' if model else '⚠️ Not loaded'}")
-    print(f"🌐 Server: http://localhost:5000")
-    print(f"📚 API Docs: http://localhost:5000/docs")
-    print(f"🧪 Try it: http://localhost:5000/health")
+    print(f"🌐 Port: {port}")
+    print(f"📚 API Docs: /docs")
+    print(f"🧪 Health: /health")
     print("="*60)
     print("💡 Press CTRL+C to stop the server\n")
     sys.stdout.flush()
     
     uvicorn.run(
         app,
-        host="127.0.0.1",
-        port=5000,
+        host="0.0.0.0",
+        port=port,
         log_level="info",
         access_log=True
     )
