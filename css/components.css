@@ -382,6 +382,15 @@
     display: flex;
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .modal-content {
     background: var(--card-bg);
     border-radius: 20px;
@@ -419,6 +428,9 @@
     font-weight: 900;
     color: var(--text);
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .modal-close {
@@ -440,6 +452,10 @@
 .modal-close:hover {
     background: var(--bg);
     color: var(--danger);
+}
+
+.modal-body {
+    margin-bottom: 24px;
 }
 
 .modal-actions {
@@ -471,6 +487,17 @@
 
 .btn-danger:hover {
     background: #a31f24;
+}
+
+/* Report Info Box */
+.report-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 2px solid var(--border-light);
 }
 
 /* ============================================================================
@@ -552,6 +579,105 @@
 }
 
 /* ============================================================================
+   PREMIUM MODAL STYLES
+   ============================================================================ */
+
+.premium-modal .modal-content {
+    max-width: 500px;
+}
+
+.premium-content {
+    padding: 20px 0;
+}
+
+.premium-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.premium-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.premium-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 2px solid var(--border-light);
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.premium-feature:hover {
+    border-color: var(--primary);
+    background: var(--card-bg);
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+}
+
+.app-download-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-app-store,
+.btn-google-play {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 700;
+    width: 100%;
+}
+
+.btn-app-store:hover,
+.btn-google-play:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-app-store svg,
+.btn-google-play svg {
+    flex-shrink: 0;
+}
+
+.premium-btn {
+    background: linear-gradient(135deg, var(--accent) 0%, #b87820 100%);
+    border: none;
+    color: white;
+    font-weight: 800;
+    box-shadow: 0 4px 16px rgba(205, 143, 42, 0.3);
+}
+
+.premium-btn:hover {
+    background: linear-gradient(135deg, #b87820 0%, var(--accent) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(205, 143, 42, 0.45);
+}
+
+/* ============================================================================
    NOTIFICATION SYSTEM
    ============================================================================ */
 
@@ -596,6 +722,17 @@
     to {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
     }
 }
 
@@ -665,6 +802,18 @@
         left: 10px;
         right: auto;
     }
+
+    .premium-features {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .modal-actions .btn {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -684,13 +833,5 @@
 
     .history-item {
         padding: 12px 16px;
-    }
-
-    .modal-actions {
-        flex-direction: column;
-    }
-
-    .modal-actions .btn {
-        width: 100%;
     }
 }

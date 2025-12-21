@@ -88,6 +88,7 @@ function setupKeyboardShortcuts() {
         if (e.key === 'Escape') {
             closeModal('historyModal');
             closeModal('reportModal');
+            closePremiumModal();
         }
         
         // Ctrl+Enter to analyze
@@ -221,9 +222,6 @@ function toggleLanguage() {
 /**
  * Update UI text based on current language
  */
-/**
- * Update UI text based on current language
- */
 function updateUILanguage() {
     // Update text elements (using textContent)
     const textUpdates = {
@@ -265,6 +263,7 @@ function updateUILanguage() {
     // Update tips list
     updateTipsList();
 }
+
 /**
  * Update tips list with current language
  */
@@ -449,6 +448,36 @@ async function sendReport() {
     } catch (err) {
         showNotification(t('reportFailed'), 'error');
     }
+}
+
+// ============================================================================
+// PREMIUM MODAL FUNCTIONS
+// ============================================================================
+
+/**
+ * Open premium/app download modal
+ */
+function openPremiumModal() {
+    openModal('premiumModal');
+}
+
+/**
+ * Close premium modal
+ */
+function closePremiumModal() {
+    closeModal('premiumModal');
+}
+
+/**
+ * Handle app download
+ * @param {string} platform - 'ios' or 'android'
+ */
+function downloadApp(platform) {
+    const message = platform === 'ios' 
+        ? (window.currentLanguage === 'ar' ? '📱 قريباً على App Store' : '📱 Coming soon to App Store')
+        : (window.currentLanguage === 'ar' ? '📱 قريباً على Google Play' : '📱 Coming soon to Google Play');
+    
+    showNotification(message, 'info');
 }
 
 // ============================================================================
