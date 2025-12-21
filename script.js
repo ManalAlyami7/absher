@@ -694,53 +694,99 @@ function combineMLWithEnhancedAnalysis(text, mlData) {
         return ruleBasedResult;
     }
     
+    // Combine Rule-based + ML + LLM scores
+    let finalRiskScore = ruleBasedResult.riskScore;
+    const warnings = [...ruleBasedResult.warnings];
+    
+    // 1. ML URL Analysis
     const mlPredictions = mlData.url_predictions;
-    let mlBoost = 0;
-    const mlWarnings = [];
+    let mlUrlScore = 0;
     
     mlPredictions.forEach(pred => {
         const probability = pred.probability;
         
         if (probability >= ANALYSIS_CONFIG.ML_HIGH_CONFIDENCE) {
-            mlBoost += 35;
-            mlWarnings.push(
+            mlUrlScore += 35;
+            warnings.push(
                 currentLanguage === 'ar'
-                    ? `🤖 الذكاء الاصطناعي: الرابط ${pred.url} عالي الخطورة (${Math.round(probability * 100)}%)`
-                    : `🤖 AI: URL ${pred.url} is high-risk (${Math.round(probability * 100)}%)`
+                    ? `🚨 الرابط ${pred.url} عالي الخطورة`
+                    : `🚨 URL ${pred.url} is high-risk`
             );
         } else if (probability >= ANALYSIS_CONFIG.ML_MEDIUM_CONFIDENCE) {
-            mlBoost += 20;
-            mlWarnings.push(
+            mlUrlScore += 20;
+            warnings.push(
                 currentLanguage === 'ar'
-                    ? `🤖 الذكاء الاصطناعي: الرابط ${pred.url} مشبوه (${Math.round(probability * 100)}%)`
-                    : `🤖 AI: URL ${pred.url} is suspicious (${Math.round(probability * 100)}%)`
+                    ? `⚠️ الرابط ${pred.url} مشبوه`
+                    : `⚠️ URL ${pred.url} is suspicious`
             );
         } else if (probability >= ANALYSIS_CONFIG.ML_LOW_CONFIDENCE) {
-            mlBoost += 8;
+            mlUrlScore += 8;
         }
     });
     
-    ruleBasedResult.riskScore += mlBoost;
-    ruleBasedResult.warnings.push(...mlWarnings);
-    
-    // Re-clamp and re-classify
-    ruleBasedResult.riskScore = Math.max(0, Math.min(100, ruleBasedResult.riskScore));
-    
-    if (ruleBasedResult.riskScore <= ANALYSIS_CONFIG.SAFE_THRESHOLD) {
-        ruleBasedResult.classification = 'SAFE';
-        ruleBasedResult.classification_ar = t('safe');
-        ruleBasedResult.icon = '✅';
-    } else if (ruleBasedResult.riskScore <= ANALYSIS_CONFIG.SUSPICIOUS_THRESHOLD) {
-        ruleBasedResult.classification = 'SUSPICIOUS';
-        ruleBasedResult.classification_ar = t('suspicious');
-        ruleBasedResult.icon = '⚠️';
-    } else {
-        ruleBasedResult.classification = 'FRAUD';
-        ruleBasedResult.classification_ar = t('fraud');
-        ruleBasedResult.icon = '❌';
+    // 2. LLM Context Analysis
+    let llmContextScore = 0;
+    if (mlData.llm_analysis) {
+        const llm = mlData.llm_analysis;
+        
+        if (llm.is_phishing) {
+            llmContextScore = llm.context_score;
+            
+            // Add LLM red flags as warnings (simplified)
+            if (llm.red_flags && llm.red_flags.length > 0) {
+                llm.red_flags.slice(0, 2).forEach(flag => {
+                    warnings.push(
+                        currentLanguage === 'ar'
+                            ? `🚨 ${flag}`
+                            : `🚨 ${flag}`
+                    );
+                });
+            }
+        }
     }
     
-    return ruleBasedResult;
+    // 3. Combined Final Score (weighted average)
+    // Rule-based: 40%, ML: 30%, LLM: 30%
+    finalRiskScore = Math.round(
+        (ruleBasedResult.riskScore * 0.4) +
+        (mlUrlScore * 0.3) +
+        (llmContextScore * 0.3)
+    );
+    
+    // Use API's combined_risk_score if available (it already combines all)
+    if (mlData.combined_risk_score !== undefined) {
+        finalRiskScore = Math.round(mlData.combined_risk_score);
+    }
+    
+    // Clamp final score
+    finalRiskScore = Math.max(0, Math.min(100, finalRiskScore));
+    
+    // Determine final classification
+    let classification, classification_ar, icon;
+    
+    if (finalRiskScore <= ANALYSIS_CONFIG.SAFE_THRESHOLD) {
+        classification = 'SAFE';
+        classification_ar = t('safe');
+        icon = '✅';
+    } else if (finalRiskScore <= ANALYSIS_CONFIG.SUSPICIOUS_THRESHOLD) {
+        classification = 'SUSPICIOUS';
+        classification_ar = t('suspicious');
+        icon = '⚠️';
+    } else {
+        classification = 'FRAUD';
+        classification_ar = t('fraud');
+        icon = '❌';
+    }
+    
+    return {
+        classification,
+        classification_ar,
+        riskScore: finalRiskScore,
+        icon,
+        explanation: ruleBasedResult.explanation,
+        warnings: warnings.slice(0, 8), // Limit to top 8 warnings
+        urlsFound: ruleBasedResult.urlsFound
+    };
 }
 
 function extractURLs(text) {
@@ -1158,16 +1204,19 @@ async function analyzeMessage() {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+       const timeoutId = setTimeout(() => controller.abort(), 15000); // ✅ 15 ثانية للـ LLM
 
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message: text }),
-            signal: controller.signal
-        });
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            message: text,
+            enable_llm: true  // ✅ تفعيل LLM
+        }),
+        signal: controller.signal
+    });
 
         clearTimeout(timeoutId);
 
