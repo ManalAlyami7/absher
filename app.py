@@ -43,7 +43,7 @@ llm_client = None
 # 2. Qwen/Qwen2.5-7B-Instruct (Better quality, still fast, FREE)
 # 3. mistralai/Mistral-7B-Instruct-v0.3 (Great balance, FREE)
 
-LLM_MODEL = os.getenv("LLM_MODEL", "meta-llama/Llama-3.2-3B-Instruct")
+LLM_MODEL = os.getenv("LLM_MODEL", "mistralai/Mistral-7B-Instruct-v0.2")
 
 if HF_API_KEY:
     try:
