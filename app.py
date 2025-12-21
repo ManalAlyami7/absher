@@ -31,48 +31,51 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load the trained model
-model = None  # Initialize as None
+# LAZY LOAD MODEL - Don't load on startup, load on first use
+model = None
 MODEL_LOADED = False
+MODEL_LOADING = False
 
-try:
-    import joblib
+def load_model():
+    """Lazy load the model only when needed"""
+    global model, MODEL_LOADED, MODEL_LOADING
     
-    # Check if model file exists
-    if not os.path.exists('rf_model.pkl'):
-        print("⚠️ Model file 'rf_model.pkl' not found. Running without ML predictions.")
-    else:
-        file_size = os.path.getsize('rf_model.pkl')
-        print(f"📊 Model file size: {file_size / 1024:.2f} KB")
+    if MODEL_LOADED:
+        return model
+    
+    if MODEL_LOADING:
+        return None
+    
+    MODEL_LOADING = True
+    
+    try:
+        import joblib
         
-        if file_size < 1024:  # Less than 1 KB - likely a Git LFS pointer
-            print("⚠️ Model file appears to be a Git LFS pointer, not the actual model.")
-            print("💡 Please run 'git lfs pull' and redeploy.")
-        else:
-            try:
-                # Try joblib first (recommended for sklearn)
-                model = joblib.load('rf_model.pkl')
-                MODEL_LOADED = True
-                print("✅ Model loaded successfully with joblib")
-            except Exception as e:
-                print(f"⚠️ Joblib loading failed: {e}")
-                try:
-                    # Fallback to pickle
-                    with open('rf_model.pkl', 'rb') as f:
-                        model = pickle.load(f)
-                    MODEL_LOADED = True
-                    print("✅ Model loaded successfully with pickle")
-                except Exception as e2:
-                    print(f"⚠️ Pickle loading failed: {e2}")
-                    print("❌ Running without ML predictions.")
-                    
-except Exception as e:
-    print(f"❌ Unexpected error loading model: {e}")
-    print("🔄 API will run without ML predictions.")
+        if not os.path.exists('rf_model.pkl'):
+            print("⚠️ Model file not found. Using rule-based detection only.")
+            return None
+        
+        file_size = os.path.getsize('rf_model.pkl')
+        print(f"📊 Loading model ({file_size / 1024:.2f} KB)...")
+        
+        if file_size < 1024:
+            print("⚠️ Model appears to be a Git LFS pointer.")
+            return None
+        
+        model = joblib.load('rf_model.pkl')
+        MODEL_LOADED = True
+        print("✅ Model loaded successfully!")
+        return model
+        
+    except Exception as e:
+        print(f"⚠️ Model loading failed: {e}")
+        return None
+    finally:
+        MODEL_LOADING = False
 
-print(f"\n{'='*50}")
-print(f"🤖 Model Status: {'✅ LOADED' if MODEL_LOADED else '⚠️ NOT LOADED (Rule-based only)'}")
-print(f"{'='*50}\n")
+print("\n" + "="*50)
+print("🚀 API Starting - Model will load on first use")
+print("="*50 + "\n")
 
 
 # Request/Response Models
@@ -236,7 +239,10 @@ def extract_urls(text: str) -> List[str]:
 
 def predict_url(url: str) -> URLPrediction:
     """Predict if a URL is phishing or legitimate"""
-    if model is None:
+    # Lazy load model on first use
+    current_model = load_model()
+    
+    if current_model is None:
         # Fallback prediction if model not loaded
         return URLPrediction(
             url=url,
@@ -275,8 +281,8 @@ def predict_url(url: str) -> URLPrediction:
     feature_vector = np.array([[features[name] for name in feature_names]])
     
     # Make prediction
-    prediction = model.predict(feature_vector)[0]
-    probability = model.predict_proba(feature_vector)[0][1]  # Probability of phishing
+    prediction = current_model.predict(feature_vector)[0]
+    probability = current_model.predict_proba(feature_vector)[0][1]  # Probability of phishing
     
     return URLPrediction(
         url=url,
