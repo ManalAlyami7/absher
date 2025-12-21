@@ -10,17 +10,20 @@ import numpy as np
 import math
 from collections import Counter
 import warnings
+import json
+from huggingface_hub import InferenceClient
+from datetime import datetime
 
 # Suppress sklearn version warnings
 warnings.filterwarnings('ignore', category=UserWarning)
 
 app = FastAPI(
-    title="Tanabbah URL Phishing Detection API",
-    description="API for detecting phishing URLs using Machine Learning",
-    version="1.0.0"
+    title="Tanabbah Enhanced URL & Message Phishing Detection API",
+    description="API for detecting phishing using ML + LLM",
+    version="2.0.0"
 )
 
-# CORS middleware - update origins for production
+# CORS middleware
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
@@ -31,7 +34,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# LAZY LOAD MODEL - Don't load on startup, load on first use
+# Initialize HuggingFace client
+HF_API_KEY = os.getenv("HF_API_KEY")  # Optional, but recommended for higher rate limits
+llm_client = None
+
+# Best free models for phishing detection:
+# 1. meta-llama/Llama-3.2-3B-Instruct (Fast, good quality, FREE)
+# 2. Qwen/Qwen2.5-7B-Instruct (Better quality, still fast, FREE)
+# 3. mistralai/Mistral-7B-Instruct-v0.3 (Great balance, FREE)
+
+LLM_MODEL = os.getenv("LLM_MODEL", "meta-llama/Llama-3.2-3B-Instruct")
+
+if HF_API_KEY:
+    try:
+        llm_client = InferenceClient(token=HF_API_KEY)
+        print(f"✅ HuggingFace LLM initialized: {LLM_MODEL}")
+    except Exception as e:
+        print(f"⚠️ Failed to initialize HuggingFace: {e}")
+else:
+    # Free tier without API key (rate limited)
+    try:
+        llm_client = InferenceClient()
+        print(f"✅ HuggingFace LLM initialized (free tier): {LLM_MODEL}")
+    except Exception as e:
+        print(f"⚠️ LLM disabled: {e}")
+
+# LAZY LOAD MODEL
 model = None
 MODEL_LOADED = False
 MODEL_LOADING = False
@@ -81,6 +109,7 @@ print("="*50 + "\n")
 # Request/Response Models
 class AnalyzeRequest(BaseModel):
     message: str
+    enable_llm: Optional[bool] = True  # Allow disabling LLM for faster response
     
     @field_validator('message')
     @classmethod
@@ -94,9 +123,18 @@ class AnalyzeRequest(BaseModel):
 
 class URLPrediction(BaseModel):
     url: str
-    prediction: int  # 0: legitimate, 1: phishing
+    prediction: int
     probability: float
     features: Dict[str, float]
+
+
+class LLMAnalysis(BaseModel):
+    is_phishing: bool
+    confidence: float  # 0-100
+    reasoning: str
+    red_flags: List[str]
+    context_score: int  # 0-100
+    model_used: str
 
 
 class AnalyzeResponse(BaseModel):
@@ -104,6 +142,8 @@ class AnalyzeResponse(BaseModel):
     urls_found: int
     url_predictions: List[URLPrediction]
     ml_risk_score: float
+    llm_analysis: Optional[LLMAnalysis]
+    combined_risk_score: float
     status: str
 
 
@@ -239,11 +279,9 @@ def extract_urls(text: str) -> List[str]:
 
 def predict_url(url: str) -> URLPrediction:
     """Predict if a URL is phishing or legitimate"""
-    # Lazy load model on first use
     current_model = load_model()
     
     if current_model is None:
-        # Fallback prediction if model not loaded
         return URLPrediction(
             url=url,
             prediction=0,
@@ -251,10 +289,8 @@ def predict_url(url: str) -> URLPrediction:
             features={}
         )
     
-    # Extract features
     features = extract_url_features(url)
     
-    # Prepare feature vector in correct order
     feature_names = [
         'url_length', 'number_of_dots_in_url', 'having_repeated_digits_in_url',
         'number_of_digits_in_url', 'number_of_special_char_in_url',
@@ -280,9 +316,8 @@ def predict_url(url: str) -> URLPrediction:
     
     feature_vector = np.array([[features[name] for name in feature_names]])
     
-    # Make prediction
     prediction = current_model.predict(feature_vector)[0]
-    probability = current_model.predict_proba(feature_vector)[0][1]  # Probability of phishing
+    probability = current_model.predict_proba(feature_vector)[0][1]
     
     return URLPrediction(
         url=url,
@@ -292,15 +327,92 @@ def predict_url(url: str) -> URLPrediction:
     )
 
 
+# LLM Analysis Function
+async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LLMAnalysis]:
+    """
+    Use HuggingFace LLM to analyze message for phishing indicators
+    """
+    if not llm_client:
+        return None
+    
+    try:
+        # Prepare URLs list
+        urls_text = "\n".join([f"- {url}" for url in urls]) if urls else "None"
+        
+        # Create prompt for LLM
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+You are an expert cybersecurity analyst specializing in phishing detection for Saudi Arabia.
+
+Analyze messages for phishing indicators focusing on:
+1. Government impersonation (Absher, Najiz, MOI, etc.)
+2. Urgency and pressure tactics
+3. Suspicious URLs and link manipulation
+4. Social engineering techniques
+5. Arabic and English phishing patterns
+6. Requests for sensitive information
+
+Official Saudi domains: absher.sa, najiz.sa, *.gov.sa
+
+Respond ONLY with valid JSON in this exact format (no other text):
+{{"is_phishing": true/false, "confidence": 0-100, "reasoning": "brief explanation", "red_flags": ["flag1", "flag2"], "context_score": 0-100}}<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+Analyze this message:
+
+MESSAGE:
+{message}
+
+URLS FOUND:
+{urls_text}
+
+Provide JSON analysis:<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+"""
+
+        # Call HuggingFace Inference API
+        response = llm_client.text_generation(
+            prompt,
+            model=LLM_MODEL,
+            max_new_tokens=512,
+            temperature=0.3,
+            top_p=0.9,
+            repetition_penalty=1.1,
+            return_full_text=False
+        )
+        
+        # Parse JSON response
+        # Extract JSON from response (handle cases where model adds extra text)
+        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        if json_match:
+            analysis_data = json.loads(json_match.group())
+        else:
+            raise ValueError("No JSON found in response")
+        
+        return LLMAnalysis(
+            is_phishing=analysis_data.get("is_phishing", False),
+            confidence=float(analysis_data.get("confidence", 50)),
+            reasoning=analysis_data.get("reasoning", "Analysis completed"),
+            red_flags=analysis_data.get("red_flags", []),
+            context_score=int(analysis_data.get("context_score", 50)),
+            model_used=LLM_MODEL
+        )
+        
+    except Exception as e:
+        print(f"⚠️ LLM analysis error: {e}")
+        return None
+
+
 # API Endpoints
 @app.get("/")
 async def root():
     """Health check endpoint"""
     return {
         "status": "online",
-        "service": "Tanabbah URL Phishing Detection API",
+        "service": "Tanabbah Enhanced Phishing Detection API",
         "model_loaded": MODEL_LOADED,
-        "version": "1.0.0",
+        "llm_enabled": llm_client is not None,
+        "llm_model": LLM_MODEL if llm_client else None,
+        "version": "2.0.0",
         "message": "API is running. Use /docs for documentation."
     }
 
@@ -312,6 +424,8 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": MODEL_LOADED,
+        "llm_enabled": llm_client is not None,
+        "llm_model": LLM_MODEL if llm_client else None,
         "python_version": sys.version,
         "endpoints": ["/", "/health", "/api/analyze", "/api/report"]
     }
@@ -320,19 +434,21 @@ async def health_check():
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 async def analyze_message(request: AnalyzeRequest):
     """
-    Analyze a message for phishing URLs
+    Analyze a message for phishing URLs and content
     
     - Extracts URLs from the message
-    - Predicts if each URL is phishing or legitimate
-    - Returns overall risk score
+    - Predicts if each URL is phishing (ML model)
+    - Analyzes message content with LLM
+    - Returns combined risk score
     """
     try:
         message = request.message
+        enable_llm = request.enable_llm
         
         # Extract URLs from message
         urls = extract_urls(message)
         
-        # Predict each URL
+        # ML: Predict each URL
         url_predictions = []
         phishing_count = 0
         total_phishing_probability = 0.0
@@ -349,18 +465,33 @@ async def analyze_message(request: AnalyzeRequest):
                 print(f"Error predicting URL {url}: {e}")
                 continue
         
-        # Calculate overall ML risk score
+        # Calculate ML risk score
         if len(url_predictions) > 0:
             avg_probability = total_phishing_probability / len(url_predictions)
             ml_risk_score = round(avg_probability * 100, 2)
         else:
             ml_risk_score = 0.0
         
+        # LLM: Analyze message context
+        llm_analysis = None
+        if enable_llm and llm_client:
+            llm_analysis = await analyze_message_with_llm(message, urls)
+        
+        # Combine scores
+        combined_risk_score = ml_risk_score
+        
+        if llm_analysis:
+            # Weight: 40% ML + 60% LLM (LLM is better at context)
+            llm_score = llm_analysis.context_score if llm_analysis.is_phishing else (100 - llm_analysis.context_score)
+            combined_risk_score = round((ml_risk_score * 0.4) + (llm_score * 0.6), 2)
+        
         return AnalyzeResponse(
             message=message,
             urls_found=len(urls),
             url_predictions=url_predictions,
             ml_risk_score=ml_risk_score,
+            llm_analysis=llm_analysis,
+            combined_risk_score=combined_risk_score,
             status="success"
         )
         
@@ -372,14 +503,8 @@ async def analyze_message(request: AnalyzeRequest):
 async def report_message(request: ReportRequest):
     """
     Endpoint for reporting fraudulent messages
-    
-    In production, this would:
-    - Store reports in database
-    - Send to authorities
-    - Track patterns
     """
     try:
-        # For now, just log the report
         print(f"📋 Report received:")
         print(f"   Language: {request.language}")
         print(f"   Timestamp: {request.timestamp}")
@@ -399,13 +524,15 @@ if __name__ == "__main__":
     import uvicorn
     import sys
     
-    # Get port from environment variable (Railway sets this)
     port = int(os.getenv("PORT", 8080))
     
     print("\n" + "="*60)
-    print("🚀 Starting Tanabbah API Server...")
+    print("🚀 Starting Tanabbah Enhanced API Server...")
     print("="*60)
-    print(f"📊 Model status: {'✅ Loaded' if MODEL_LOADED else '⚠️ Not loaded'}")
+    print(f"📊 ML Model status: {'✅ Loaded' if MODEL_LOADED else '⚠️ Not loaded'}")
+    print(f"🤖 LLM status: {'✅ Enabled' if llm_client else '⚠️ Disabled'}")
+    if llm_client:
+        print(f"🔧 LLM Model: {LLM_MODEL}")
     print(f"🌐 Port: {port}")
     print(f"📚 API Docs: /docs")
     print(f"🧪 Health: /health")

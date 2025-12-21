@@ -7,9 +7,133 @@ const MAX_HISTORY = 20;
 const MAX_MESSAGE_LENGTH = 5000;
 const REPORT_URL = API_URL.replace('/analyze', '/report');
 
-
 let analysisHistory = [];
 let currentLanguage = 'ar';
+
+// ============================================================================
+// ENHANCED ANALYSIS CONFIGURATION
+// ============================================================================
+
+const ANALYSIS_CONFIG = {
+    // Risk score thresholds
+    SAFE_THRESHOLD: 25,
+    SUSPICIOUS_THRESHOLD: 65,
+    
+    // ML confidence levels
+    ML_HIGH_CONFIDENCE: 0.75,
+    ML_MEDIUM_CONFIDENCE: 0.50,
+    ML_LOW_CONFIDENCE: 0.30,
+    
+    // Weight multipliers
+    WEIGHTS: {
+        URL_SHORTENER: 30,
+        FAKE_GOVERNMENT: 45,
+        INSECURE_PROTOCOL: 25,
+        URGENCY_TACTICS: 22,
+        SUSPICIOUS_DOMAIN: 35,
+        PHISHING_KEYWORDS: 20,
+        MULTIPLE_REDIRECTS: 28,
+        UNOFFICIAL_SOURCE: 15,
+        SUSPICIOUS_TLD: 30,
+        IP_ADDRESS_URL: 40,
+        EXCESSIVE_SUBDOMAIN: 25,
+        UNICODE_HOMOGRAPH: 45,
+        DATA_HARVESTING: 35
+    }
+};
+
+const OFFICIAL_DOMAINS = [
+    'absher.sa', 'www.absher.sa',
+    'moi.gov.sa', 'www.moi.gov.sa', 
+    'my.gov.sa', 'www.my.gov.sa',
+    'sa.gov.sa', 'www.sa.gov.sa',
+    'najiz.sa', 'www.najiz.sa',
+    'elm.sa', 'www.elm.sa',
+    'spa.gov.sa', 'www.spa.gov.sa',
+    'mc.gov.sa', 'www.mc.gov.sa',
+    'moh.gov.sa', 'www.moh.gov.sa',
+    'moe.gov.sa', 'www.moe.gov.sa',
+    'hrsd.gov.sa', 'www.hrsd.gov.sa',
+    'zatca.gov.sa', 'www.zatca.gov.sa',
+    'gosi.gov.sa', 'www.gosi.gov.sa'
+];
+
+const URL_SHORTENERS = [
+    'bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly',
+    'short.link', 'rebrand.ly', 'buff.ly', 'adf.ly', 
+    'bitly.com', 'is.gd', 'cutt.ly', 'tiny.cc', 'rb.gy',
+    'bl.ink', 'lnkd.in', 'soo.gd', 'clicky.me', 's.id',
+    'shorturl.at', 'tiny.one', 'v.gd', 'x.co', 'tr.im',
+    'tinyurl.cc', 'snip.ly', 'short.io'
+];
+
+const SUSPICIOUS_TLDS = [
+    '.tk', '.ml', '.ga', '.cf', '.gq',
+    '.xyz', '.top', '.club', '.online',
+    '.work', '.click', '.link', '.live',
+    '.info', '.bid', '.win', '.stream'
+];
+
+const PHISHING_PATTERNS = {
+    arabic: {
+        urgency: [
+            'تم تعليق', 'تم إيقاف', 'تم حظر', 'سيتم إغلاق',
+            'خلال 24 ساعة', 'خلال ساعة', 'فوراً', 'حالاً', 
+            'عاجل', 'الآن', 'قبل فوات الأوان', 'آخر فرصة',
+            'انتهت صلاحية', 'تنتهي اليوم', 'محاولة أخيرة'
+        ],
+        action: [
+            'اضغط هنا', 'انقر فوراً', 'قم بالتحديث', 'أدخل بياناتك',
+            'تحقق من هويتك', 'أكد حسابك', 'تأكيد الحساب', 'قم بالتفعيل',
+            'سجل الدخول', 'أعد تسجيل', 'تحديث معلوماتك'
+        ],
+        threat: [
+            'سيتم حذف', 'فقدان الوصول', 'إلغاء الخدمة', 'رسوم إضافية',
+            'عقوبة قانونية', 'إجراء قانوني', 'تم رصد نشاط مشبوه',
+            'محاولة اختراق', 'الحساب معرض للخطر'
+        ],
+        reward: [
+            'ربحت', 'فزت', 'مكافأة', 'جائزة', 'عرض حصري',
+            'خصم خاص', 'هدية مجانية', 'استرداد نقدي'
+        ],
+        verification: [
+            'تحقق من', 'تأكيد', 'مراجعة', 'تحديث بياناتك',
+            'استكمال التسجيل', 'إعادة التفعيل'
+        ]
+    },
+    english: {
+        urgency: [
+            'suspended', 'blocked', 'locked', 'will be closed',
+            'within 24 hours', 'expires today', 'urgent', 'immediately',
+            'act now', 'last chance', 'final notice', 'expires soon'
+        ],
+        action: [
+            'click here', 'click now', 'update now', 'verify account',
+            'confirm identity', 'enter details', 'login now', 're-register',
+            'update information', 'activate account'
+        ],
+        threat: [
+            'will be deleted', 'lose access', 'service cancellation',
+            'additional fees', 'legal action', 'suspicious activity detected',
+            'account compromised', 'security breach'
+        ],
+        reward: [
+            'you won', 'congratulations', 'prize', 'reward', 'exclusive offer',
+            'special discount', 'free gift', 'cash back', 'claim now'
+        ],
+        verification: [
+            'verify', 'confirm', 'review', 'update your details',
+            'complete registration', 'reactivate'
+        ]
+    }
+};
+
+const GOVERNMENT_SERVICES = [
+    'أبشر', 'absher', 'ناجز', 'najiz', 'وزارة', 'ministry',
+    'هيئة', 'authority', 'مؤسسة', 'institution', 'حكومة', 'government',
+    'الضمان', 'gosi', 'الزكاة', 'zatca', 'الجوازات', 'passport',
+    'المرور', 'traffic', 'الأحوال', 'civil affairs'
+];
 
 // Enhanced translations with more comprehensive coverage
 const translations = {
@@ -35,7 +159,7 @@ const translations = {
         paste: 'لصق',
         clear: 'مسح',
         analyze: 'فحص الرسالة',
-        analyzing: 'جاري فحص الرسالة وتحليل المحتوى...',
+        analyzing: 'جاري فحص الرسالة وتحليل المحتوى بالذكاء الاصطناعي...',
         
         // Results
         safe: 'آمنة غالباً',
@@ -103,17 +227,6 @@ const translations = {
         reportConfirmCancel: 'إلغاء',
         reportConfirmSend: 'إرسال البلاغ',
         
-        // Warnings
-        warnOfficialLink: '✅ يحتوي على رابط من موقع حكومي رسمي',
-        warnShortener: '🚨 يحتوي على روابط مختصرة مشبوهة',
-        warnInsecure: '⚠️ يحتوي على روابط غير آمنة (http)',
-        warnFakeAbsher: '🚨 يذكر أبشر لكن الرابط ليس من النطاق الرسمي',
-        warnUrgent: '🚨 يستخدم أساليب الضغط والاستعجال',
-        warnPhishing: '⚠️ يستخدم عبارات احتيالية نموذجية',
-        warnUnofficial: '⚠️ يحتوي على روابط من مصادر غير رسمية',
-        warnSuspiciousDomain: '🚨 يحتوي على نطاقات مشبوهة',
-        warnMultipleLinks: '⚠️ يحتوي على عدة روابط مختلفة',
-        
         // Footer
         footerText: '<strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.'
     },
@@ -139,7 +252,7 @@ const translations = {
         paste: 'Paste',
         clear: 'Clear',
         analyze: 'Analyze Message',
-        analyzing: 'Analyzing message and scanning content...',
+        analyzing: 'Analyzing message with AI and scanning content...',
         
         // Results
         safe: 'Likely Safe',
@@ -207,17 +320,6 @@ const translations = {
         reportConfirmCancel: 'Cancel',
         reportConfirmSend: 'Send Report',
         
-        // Warnings
-        warnOfficialLink: '✅ Contains official government link',
-        warnShortener: '🚨 Contains suspicious shortened URLs',
-        warnInsecure: '⚠️ Contains insecure links (http)',
-        warnFakeAbsher: '🚨 Mentions Absher but link is not official',
-        warnUrgent: '🚨 Uses pressure and urgency tactics',
-        warnPhishing: '⚠️ Uses typical phishing phrases',
-        warnUnofficial: '⚠️ Contains links from unofficial sources',
-        warnSuspiciousDomain: '🚨 Contains suspicious domains',
-        warnMultipleLinks: '⚠️ Contains multiple different links',
-        
         // Footer
         footerText: '<strong>Tanabbah</strong> is an independent app not affiliated with any government entity. Its purpose is to raise awareness and protect users from online fraud.'
     }
@@ -240,7 +342,430 @@ function validateMessageLength(message) {
     return message.length <= MAX_MESSAGE_LENGTH;
 }
 
-// Initialize on page load
+// ============================================================================
+// ENHANCED URL ANALYSIS
+// ============================================================================
+
+function analyzeURLAdvanced(url) {
+    const analysis = {
+        riskScore: 0,
+        flags: []
+    };
+    
+    const urlLower = url.toLowerCase();
+    
+    // 1. IP address detection
+    const ipPattern = /^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
+    if (ipPattern.test(url)) {
+        analysis.riskScore += ANALYSIS_CONFIG.WEIGHTS.IP_ADDRESS_URL;
+        analysis.flags.push(
+            currentLanguage === 'ar' 
+                ? '🚨 يستخدم عنوان IP بدلاً من اسم نطاق (علامة تصيد قوية)'
+                : '🚨 Uses IP address instead of domain name (strong phishing indicator)'
+        );
+    }
+    
+    // 2. Suspicious port numbers
+    const suspiciousPorts = [':8080', ':8888', ':3000', ':5000', ':8443'];
+    if (suspiciousPorts.some(port => urlLower.includes(port))) {
+        analysis.riskScore += 18;
+        analysis.flags.push(
+            currentLanguage === 'ar'
+                ? '⚠️ يستخدم منفذ شبكة غير قياسي'
+                : '⚠️ Uses non-standard network port'
+        );
+    }
+    
+    // 3. Excessive subdomains
+    const domainParts = urlLower.split('/')[2]?.split('.') || [];
+    if (domainParts.length > 4) {
+        analysis.riskScore += ANALYSIS_CONFIG.WEIGHTS.EXCESSIVE_SUBDOMAIN;
+        analysis.flags.push(
+            currentLanguage === 'ar'
+                ? '🚨 عدد مفرط من النطاقات الفرعية (محاولة إخفاء النطاق الحقيقي)'
+                : '🚨 Excessive subdomains (attempt to hide real domain)'
+        );
+    }
+    
+    // 4. Unicode/homograph attacks
+    const hasUnicode = /[^\x00-\x7F]/.test(url) && !/[\u0600-\u06FF]/.test(url);
+    if (hasUnicode) {
+        analysis.riskScore += ANALYSIS_CONFIG.WEIGHTS.UNICODE_HOMOGRAPH;
+        analysis.flags.push(
+            currentLanguage === 'ar'
+                ? '🚨 يحتوي على أحرف Unicode مشبوهة (هجوم تشابه الأحرف)'
+                : '🚨 Contains suspicious Unicode characters (homograph attack)'
+        );
+    }
+    
+    // 5. Data harvesting patterns
+    const harvestingPatterns = [
+        'login', 'signin', 'account', 'verify', 'confirm', 
+        'secure', 'update', 'suspended', 'billing'
+    ];
+    const matchedPatterns = harvestingPatterns.filter(p => urlLower.includes(p));
+    if (matchedPatterns.length >= 2) {
+        analysis.riskScore += ANALYSIS_CONFIG.WEIGHTS.DATA_HARVESTING;
+        analysis.flags.push(
+            currentLanguage === 'ar'
+                ? '🚨 عبارات متعددة لجمع البيانات في الرابط'
+                : '🚨 Multiple data-harvesting phrases in URL'
+        );
+    }
+    
+    // 6. Long URLs
+    if (url.length > 100) {
+        analysis.riskScore += 15;
+        analysis.flags.push(
+            currentLanguage === 'ar'
+                ? '⚠️ رابط طويل بشكل غير عادي'
+                : '⚠️ Unusually long URL'
+        );
+    }
+    
+    // 7. @ symbol
+    if (url.includes('@')) {
+        analysis.riskScore += 30;
+        analysis.flags.push(
+            currentLanguage === 'ar'
+                ? '🚨 يحتوي على @ (يخفي النطاق الحقيقي)'
+                : '🚨 Contains @ symbol (hides real domain)'
+        );
+    }
+    
+    // 8. Excessive hyphens
+    const hyphenCount = (url.match(/-/g) || []).length;
+    if (hyphenCount > 3) {
+        analysis.riskScore += 20;
+        analysis.flags.push(
+            currentLanguage === 'ar'
+                ? '⚠️ عدد كبير من الشرطات (محاولة تقليد نطاق معروف)'
+                : '⚠️ Excessive hyphens (typosquatting attempt)'
+        );
+    }
+    
+    return analysis;
+}
+
+// ============================================================================
+// ENHANCED MESSAGE ANALYSIS
+// ============================================================================
+
+function performEnhancedAnalysis(text) {
+    const textLower = text.toLowerCase();
+    let riskScore = 0;
+    const warnings = [];
+    
+    // Extract URLs
+    const urls = extractURLs(text);
+    const hasUrls = urls.length > 0;
+    
+    // URL Analysis
+    let hasOfficialDomain = false;
+    
+    if (hasUrls) {
+        urls.forEach(url => {
+            // Check official domains
+            if (OFFICIAL_DOMAINS.some(official => url.toLowerCase().includes(official))) {
+                hasOfficialDomain = true;
+                return;
+            }
+            
+            // Advanced URL analysis
+            const urlAnalysis = analyzeURLAdvanced(url);
+            riskScore += urlAnalysis.riskScore;
+            warnings.push(...urlAnalysis.flags);
+            
+            // URL shortener check
+            if (URL_SHORTENERS.some(shortener => url.toLowerCase().includes(shortener))) {
+                riskScore += ANALYSIS_CONFIG.WEIGHTS.URL_SHORTENER;
+                warnings.push(
+                    currentLanguage === 'ar'
+                        ? '🚨 يحتوي على روابط مختصرة مشبوهة (تخفي الوجهة الحقيقية)'
+                        : '🚨 Contains suspicious shortened URLs (hides real destination)'
+                );
+            }
+            
+            // Insecure HTTP check
+            if (url.toLowerCase().startsWith('http://') && 
+                !url.toLowerCase().includes('.gov.sa')) {
+                riskScore += ANALYSIS_CONFIG.WEIGHTS.INSECURE_PROTOCOL;
+                warnings.push(
+                    currentLanguage === 'ar'
+                        ? '⚠️ يحتوي على روابط غير آمنة (http بدون تشفير)'
+                        : '⚠️ Contains insecure links (http without encryption)'
+                );
+            }
+            
+            // Suspicious TLD check
+            if (SUSPICIOUS_TLDS.some(tld => url.toLowerCase().endsWith(tld))) {
+                riskScore += ANALYSIS_CONFIG.WEIGHTS.SUSPICIOUS_TLD;
+                warnings.push(
+                    currentLanguage === 'ar'
+                        ? '🚨 يحتوي على نطاقات مشبوهة معروفة بالاحتيال'
+                        : '🚨 Contains suspicious domains known for fraud'
+                );
+            }
+        });
+    }
+    
+    // Bonus for official domains
+    if (hasOfficialDomain) {
+        riskScore -= 30;
+        warnings.push(
+            currentLanguage === 'ar'
+                ? '✅ يحتوي على رابط من موقع حكومي رسمي معتمد'
+                : '✅ Contains link from verified official government website'
+        );
+    }
+    
+    // Government impersonation
+    const mentionsGovernment = GOVERNMENT_SERVICES.some(keyword => 
+        textLower.includes(keyword.toLowerCase())
+    );
+    
+    if (mentionsGovernment && hasUrls && !hasOfficialDomain) {
+        riskScore += ANALYSIS_CONFIG.WEIGHTS.FAKE_GOVERNMENT;
+        warnings.push(
+            currentLanguage === 'ar'
+                ? '🚨 يذكر خدمات حكومية لكن الرابط ليس من النطاق الرسمي (تصيد احتيالي)'
+                : '🚨 Mentions government services but link is not from official domain (impersonation)'
+        );
+    }
+    
+    // Urgency tactics
+    let urgencyMatches = 0;
+    PHISHING_PATTERNS.arabic.urgency.forEach(pattern => {
+        if (textLower.includes(pattern)) urgencyMatches++;
+    });
+    PHISHING_PATTERNS.english.urgency.forEach(pattern => {
+        if (textLower.includes(pattern)) urgencyMatches++;
+    });
+    
+    if (urgencyMatches > 0) {
+        const urgencyPenalty = Math.min(urgencyMatches * 12, ANALYSIS_CONFIG.WEIGHTS.URGENCY_TACTICS);
+        riskScore += urgencyPenalty;
+        warnings.push(
+            currentLanguage === 'ar'
+                ? `🚨 يستخدم أساليب الضغط والاستعجال (${urgencyMatches} مؤشر)`
+                : `🚨 Uses pressure and urgency tactics (${urgencyMatches} indicators)`
+        );
+    }
+    
+    // Phishing keywords
+    let phishingIndicators = 0;
+    Object.values(PHISHING_PATTERNS.arabic).forEach(patterns => {
+        patterns.forEach(pattern => {
+            if (textLower.includes(pattern)) phishingIndicators++;
+        });
+    });
+    Object.values(PHISHING_PATTERNS.english).forEach(patterns => {
+        patterns.forEach(pattern => {
+            if (textLower.includes(pattern)) phishingIndicators++;
+        });
+    });
+    
+    if (phishingIndicators >= 3) {
+        const phishingPenalty = Math.min(phishingIndicators * 8, ANALYSIS_CONFIG.WEIGHTS.PHISHING_KEYWORDS);
+        riskScore += phishingPenalty;
+        warnings.push(
+            currentLanguage === 'ar'
+                ? `⚠️ يحتوي على عبارات احتيالية نموذجية (${phishingIndicators} عبارة)`
+                : `⚠️ Contains typical phishing phrases (${phishingIndicators} phrases)`
+        );
+    }
+    
+    // Multiple links
+    if (urls.length > 2) {
+        riskScore += ANALYSIS_CONFIG.WEIGHTS.MULTIPLE_REDIRECTS;
+        warnings.push(
+            currentLanguage === 'ar'
+                ? '⚠️ يحتوي على عدة روابط مختلفة (سلسلة إعادة توجيه)'
+                : '⚠️ Contains multiple different links (redirect chain)'
+        );
+    }
+    
+    // Unofficial sources
+    if (hasUrls && !hasOfficialDomain) {
+        riskScore += ANALYSIS_CONFIG.WEIGHTS.UNOFFICIAL_SOURCE;
+        warnings.push(
+            currentLanguage === 'ar'
+                ? '⚠️ يحتوي على روابط من مصادر غير رسمية'
+                : '⚠️ Contains links from unofficial sources'
+        );
+    }
+    
+    // Personal information requests
+    const personalInfoKeywords = [
+        'رقم الهوية', 'كلمة المرور', 'رقم السري', 'الرقم السري',
+        'البطاقة', 'رقم الحساب', 'كود التحقق',
+        'national id', 'password', 'pin', 'card number', 
+        'account number', 'verification code', 'otp'
+    ];
+    
+    if (personalInfoKeywords.some(keyword => textLower.includes(keyword.toLowerCase()))) {
+        riskScore += 25;
+        warnings.push(
+            currentLanguage === 'ar'
+                ? '🚨 يطلب معلومات شخصية حساسة'
+                : '🚨 Requests sensitive personal information'
+        );
+    }
+    
+    // Mixed language check
+    const hasArabic = /[\u0600-\u06FF]/.test(text);
+    const hasEnglish = /[a-zA-Z]/.test(text);
+    
+    if (hasArabic && hasEnglish) {
+        const arabicRatio = (text.match(/[\u0600-\u06FF]/g) || []).length / text.length;
+        const englishRatio = (text.match(/[a-zA-Z]/g) || []).length / text.length;
+        
+        if (Math.abs(arabicRatio - englishRatio) < 0.2 && arabicRatio > 0.2) {
+            riskScore += 12;
+            warnings.push(
+                currentLanguage === 'ar'
+                    ? '⚠️ خليط غير طبيعي بين العربية والإنجليزية'
+                    : '⚠️ Unnatural mix of Arabic and English'
+            );
+        }
+    }
+    
+    // Spelling errors in government terms
+    const misspelledTerms = [
+        { wrong: 'ابشر', correct: 'أبشر' },
+        { wrong: 'ناجيز', correct: 'ناجز' },
+        { wrong: 'وزاره', correct: 'وزارة' }
+    ];
+    
+    misspelledTerms.forEach(term => {
+        if (text.includes(term.wrong)) {
+            riskScore += 15;
+            warnings.push(
+                currentLanguage === 'ar'
+                    ? `⚠️ أخطاء إملائية في أسماء رسمية: "${term.wrong}" بدلاً من "${term.correct}"`
+                    : `⚠️ Spelling errors in official names: "${term.wrong}" instead of "${term.correct}"`
+            );
+        }
+    });
+    
+    // Clamp risk score
+    riskScore = Math.max(0, Math.min(100, riskScore));
+    
+    // Determine classification
+    let classification, classification_ar, icon;
+    
+    if (riskScore <= ANALYSIS_CONFIG.SAFE_THRESHOLD) {
+        classification = 'SAFE';
+        classification_ar = t('safe');
+        icon = '✅';
+    } else if (riskScore <= ANALYSIS_CONFIG.SUSPICIOUS_THRESHOLD) {
+        classification = 'SUSPICIOUS';
+        classification_ar = t('suspicious');
+        icon = '⚠️';
+    } else {
+        classification = 'FRAUD';
+        classification_ar = t('fraud');
+        icon = '❌';
+    }
+    
+    const explanation = currentLanguage === 'ar'
+        ? `تم فحص الرسالة بالذكاء الاصطناعي وتحليل ${warnings.length} مؤشر أمني`
+        : `Message analyzed with AI and ${warnings.length} security indicators checked`;
+    
+    return {
+        classification,
+        classification_ar,
+        riskScore,
+        icon,
+        explanation,
+        warnings: warnings.slice(0, 10),
+        urlsFound: urls.length
+    };
+}
+
+// ============================================================================
+// ML INTEGRATION
+// ============================================================================
+
+function combineMLWithEnhancedAnalysis(text, mlData) {
+    const ruleBasedResult = performEnhancedAnalysis(text);
+    
+    if (!mlData || !mlData.url_predictions || mlData.url_predictions.length === 0) {
+        return ruleBasedResult;
+    }
+    
+    const mlPredictions = mlData.url_predictions;
+    let mlBoost = 0;
+    const mlWarnings = [];
+    
+    mlPredictions.forEach(pred => {
+        const probability = pred.probability;
+        
+        if (probability >= ANALYSIS_CONFIG.ML_HIGH_CONFIDENCE) {
+            mlBoost += 35;
+            mlWarnings.push(
+                currentLanguage === 'ar'
+                    ? `🤖 الذكاء الاصطناعي: الرابط ${pred.url} عالي الخطورة (${Math.round(probability * 100)}%)`
+                    : `🤖 AI: URL ${pred.url} is high-risk (${Math.round(probability * 100)}%)`
+            );
+        } else if (probability >= ANALYSIS_CONFIG.ML_MEDIUM_CONFIDENCE) {
+            mlBoost += 20;
+            mlWarnings.push(
+                currentLanguage === 'ar'
+                    ? `🤖 الذكاء الاصطناعي: الرابط ${pred.url} مشبوه (${Math.round(probability * 100)}%)`
+                    : `🤖 AI: URL ${pred.url} is suspicious (${Math.round(probability * 100)}%)`
+            );
+        } else if (probability >= ANALYSIS_CONFIG.ML_LOW_CONFIDENCE) {
+            mlBoost += 8;
+        }
+    });
+    
+    ruleBasedResult.riskScore += mlBoost;
+    ruleBasedResult.warnings.push(...mlWarnings);
+    
+    // Re-clamp and re-classify
+    ruleBasedResult.riskScore = Math.max(0, Math.min(100, ruleBasedResult.riskScore));
+    
+    if (ruleBasedResult.riskScore <= ANALYSIS_CONFIG.SAFE_THRESHOLD) {
+        ruleBasedResult.classification = 'SAFE';
+        ruleBasedResult.classification_ar = t('safe');
+        ruleBasedResult.icon = '✅';
+    } else if (ruleBasedResult.riskScore <= ANALYSIS_CONFIG.SUSPICIOUS_THRESHOLD) {
+        ruleBasedResult.classification = 'SUSPICIOUS';
+        ruleBasedResult.classification_ar = t('suspicious');
+        ruleBasedResult.icon = '⚠️';
+    } else {
+        ruleBasedResult.classification = 'FRAUD';
+        ruleBasedResult.classification_ar = t('fraud');
+        ruleBasedResult.icon = '❌';
+    }
+    
+    return ruleBasedResult;
+}
+
+function extractURLs(text) {
+    const urls = [];
+    
+    const fullUrlPattern = /https?:\/\/[^\s]+/gi;
+    const fullUrls = text.match(fullUrlPattern) || [];
+    urls.push(...fullUrls);
+    
+    const bareUrlPattern = /(?:^|\s)([a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g;
+    let match;
+    while ((match = bareUrlPattern.exec(text)) !== null) {
+        const url = match[1];
+        if (!urls.includes(url) && !url.endsWith('.') && url.includes('.')) {
+            urls.push(url);
+        }
+    }
+    
+    return urls;
+}
+
+// ============================================================================
+// INITIALIZATION & UI
+// ============================================================================
+
 window.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupTextareaAutoDirection();
@@ -248,7 +773,6 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
-    // Load language preference
     const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
     if (savedLanguage && (savedLanguage === 'ar' || savedLanguage === 'en')) {
         currentLanguage = savedLanguage;
@@ -257,12 +781,10 @@ function initializeApp() {
         html.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
     }
 
-    // Load dark mode preference
     if (localStorage.getItem(DARK_MODE_KEY) === 'true') {
         document.body.classList.add('dark-mode');
     }
 
-    // Load analysis history with validation
     try {
         const saved = localStorage.getItem(HISTORY_KEY);
         if (saved) {
@@ -276,12 +798,10 @@ function initializeApp() {
         analysisHistory = [];
     }
     
-    // Update UI with current language
     updateUILanguage();
 }
 
 function setupSecurityHeaders() {
-    // Prevent clickjacking
     if (window.self !== window.top) {
         window.top.location = window.self.location;
     }
@@ -315,12 +835,10 @@ function toggleLanguage() {
     html.lang = currentLanguage;
     html.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
     
-    // Update all UI elements
     updateUILanguage();
 }
 
 function updateUILanguage() {
-    // Update all text elements
     const updates = {
         'langBtnLabel': 'language',
         'privacyNoticeText': 'privacyNotice',
@@ -354,13 +872,11 @@ function updateUILanguage() {
         }
     }
 
-    // Update footer with HTML support
     const footerElement = document.getElementById('footerText');
     if (footerElement) {
         footerElement.innerHTML = t('footerText');
     }
 
-    // Update button labels
     const buttons = {
         'toggleDarkMode()': 'darkMode',
         'viewHistory()': 'history',
@@ -374,7 +890,6 @@ function updateUILanguage() {
         if (btn) btn.textContent = t(key);
     }
 
-    // Update main buttons
     const pasteBtn = document.querySelector('.btn-paste span');
     const clearBtn = document.querySelector('.btn-clear span');
     const analyzeBtn = document.querySelector('.btn-analyze span');
@@ -383,11 +898,9 @@ function updateUILanguage() {
     if (clearBtn) clearBtn.textContent = t('clear');
     if (analyzeBtn) analyzeBtn.textContent = t('analyze');
 
-    // Update placeholder
     const textarea = document.getElementById('messageInput');
     if (textarea) textarea.placeholder = t('placeholder');
 
-    // Update tips list
     updateTipsList();
 }
 
@@ -473,7 +986,6 @@ function viewHistory() {
         `).join('');
         historyActions.style.display = 'block';
         
-        // Update delete button text
         const deleteBtn = historyActions.querySelector('.btn-clear-history span');
         if (deleteBtn) deleteBtn.textContent = t('deleteHistory');
     }
@@ -510,8 +1022,6 @@ function clearHistory() {
 function loadFromHistory(idx) {
     const item = analysisHistory[idx];
     if (item) {
-        const textarea = document.getElementById('messageInput');
-        // Load only first 100 chars from history (we stored truncated version)
         const msg = currentLanguage === 'ar' 
             ? `محفوظ من السجل: ${item.message}`
             : `From history: ${item.message}`;
@@ -608,7 +1118,6 @@ function closeModal(modalId) {
     }
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeModal('historyModal');
@@ -629,7 +1138,6 @@ async function analyzeMessage() {
         return;
     }
 
-    // Security: Validate message length
     if (!validateMessageLength(text)) {
         showNotification(t('notifMessageTooLong'));
         return;
@@ -650,7 +1158,7 @@ async function analyzeMessage() {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -668,180 +1176,16 @@ async function analyzeMessage() {
         }
 
         const data = await response.json();
-        const result = combineAnalysis(text, data);
+        const result = combineMLWithEnhancedAnalysis(text, data);
         displayResult(result);
         
     } catch (error) {
         console.error('Error:', error);
-        const result = performRuleBasedAnalysis(text);
+        const result = performEnhancedAnalysis(text);
         displayResult(result);
     } finally {
         loading.classList.remove('show');
     }
-}
-
-function combineAnalysis(text, mlData) {
-    const ruleBasedResult = performRuleBasedAnalysis(text);
-    
-    if (mlData && mlData.url_predictions && mlData.url_predictions.length > 0) {
-        if (mlData.ml_risk_score > 50) {
-            ruleBasedResult.riskScore = Math.max(ruleBasedResult.riskScore, mlData.ml_risk_score);
-        }
-    }
-    
-    if (ruleBasedResult.riskScore <= 10) {
-        ruleBasedResult.classification = 'SAFE';
-        ruleBasedResult.classification_ar = t('safe');
-        ruleBasedResult.icon = '✅';
-    } else if (ruleBasedResult.riskScore <= 60) {
-        ruleBasedResult.classification = 'SUSPICIOUS';
-        ruleBasedResult.classification_ar = t('suspicious');
-        ruleBasedResult.icon = '⚠️';
-    } else {
-        ruleBasedResult.classification = 'FRAUD';
-        ruleBasedResult.classification_ar = t('fraud');
-        ruleBasedResult.icon = '❌';
-    }
-    
-    return ruleBasedResult;
-}
-
-function performRuleBasedAnalysis(text) {
-    const textLower = text.toLowerCase();
-    let riskScore = 0;
-    const warnings = [];
-
-    // Official Saudi government domains
-    const officialDomains = [
-        'absher.sa', 'www.absher.sa',
-        'moi.gov.sa', 'www.moi.gov.sa',
-        'my.gov.sa', 'www.my.gov.sa',
-        'sa.gov.sa', 'www.sa.gov.sa',
-        '.gov.sa'
-    ];
-    
-    const urls = extractURLs(text);
-    const hasUrls = urls.length > 0;
-
-    // Check for official domains
-    const hasOfficialDomain = urls.some(url => 
-        officialDomains.some(official => url.toLowerCase().includes(official))
-    );
-
-    if (hasOfficialDomain) {
-        riskScore -= 20;
-        warnings.push(t('warnOfficialLink'));
-    }
-
-    // Check for URL shorteners
-    const shorteners = ['bit.ly', 'tinyurl.com', 't.co', 'tmra.pe', 'goo.gl', 'is.gd', 'ow.ly', 'rebrand.ly', 'buff.ly', 'short.link', 'cutt.ly'];
-    const foundShorteners = urls.filter(url => shorteners.some(shortener => url.toLowerCase().includes(shortener)));
-    
-    if (foundShorteners.length > 0) {
-        riskScore += 25;
-        warnings.push(t('warnShortener'));
-    }
-
-    // Check for insecure HTTP links (excluding official .gov.sa)
-    const insecureUrls = urls.filter(url => {
-        const urlLower = url.toLowerCase();
-        const isHttp = urlLower.startsWith('http://') && !urlLower.startsWith('https://');
-        const isGovSa = urlLower.includes('.gov.sa');
-        return isHttp && !isGovSa;
-    });
-    
-    if (insecureUrls.length > 0) {
-        riskScore += 30;
-        warnings.push(t('warnInsecure'));
-    }
-
-    // Check for fake Absher mentions
-    const mentionsAbsher = text.match(/أبشر|absher/i);
-    if (mentionsAbsher && hasUrls && !hasOfficialDomain) {
-        riskScore += 35;
-        warnings.push(t('warnFakeAbsher'));
-    }
-
-    // Check for urgency tactics
-    const urgentKeywords = [
-        'تم تعليق', 'تم إيقاف', 'خلال 24 ساعة', 'خلال ساعة', 'ادفع الآن', 'قم بتحديث', 'فوراً', 'حالاً', 'عاجل', 'الآن',
-        'suspended', 'blocked', 'within 24 hours', 'pay now', 'update now', 'immediately', 'urgent', 'expire'
-    ];
-    const foundUrgent = urgentKeywords.filter(keyword => textLower.includes(keyword.toLowerCase()));
-    
-    if (foundUrgent.length > 0) {
-        riskScore += 20;
-        warnings.push(t('warnUrgent'));
-    }
-
-    // Check for phishing keywords
-    const phishingKeywords = [
-        'اضغط هنا', 'انقر فوراً', 'تحديث معلوماتك', 'تأكيد الحساب', 'أدخل بياناتك', 'تحقق من هويتك',
-        'click here', 'click now', 'update your information', 'confirm account', 'verify identity', 'enter your details'
-    ];
-    const foundPhishing = phishingKeywords.filter(keyword => textLower.includes(keyword.toLowerCase()));
-    
-    if (foundPhishing.length > 0) {
-        riskScore += 18;
-        warnings.push(t('warnPhishing'));
-    }
-
-    // Check for suspicious domains
-    const suspiciousTLDs = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.club'];
-    const hasSuspiciousDomain = urls.some(url => 
-        suspiciousTLDs.some(tld => url.toLowerCase().includes(tld))
-    );
-    
-    if (hasSuspiciousDomain) {
-        riskScore += 25;
-        warnings.push(t('warnSuspiciousDomain'));
-    }
-
-    // Check for multiple different links (potential phishing)
-    if (urls.length > 2) {
-        riskScore += 15;
-        warnings.push(t('warnMultipleLinks'));
-    }
-
-    // Check for unofficial sources
-    if (hasUrls && !hasOfficialDomain && urls.length > 0) {
-        riskScore += 12;
-        warnings.push(t('warnUnofficial'));
-    }
-
-    // Clamp risk score between 0 and 100
-    riskScore = Math.max(0, Math.min(100, riskScore));
-
-    return {
-        classification: riskScore <= 30 ? 'SAFE' : (riskScore <= 65 ? 'SUSPICIOUS' : 'FRAUD'),
-        classification_ar: riskScore <= 30 ? t('safe') : (riskScore <= 65 ? t('suspicious') : t('fraud')),
-        riskScore,
-        icon: riskScore <= 30 ? '✅' : (riskScore <= 65 ? '⚠️' : '❌'),
-        explanation: t('explanation'),
-        warnings,
-        urlsFound: urls.length
-    };
-}
-
-function extractURLs(text) {
-    const urls = [];
-    
-    // Extract full URLs with protocol
-    const fullUrlPattern = /https?:\/\/[^\s]+/gi;
-    const fullUrls = text.match(fullUrlPattern) || [];
-    urls.push(...fullUrls);
-    
-    // Extract URLs without protocol
-    const bareUrlPattern = /(?:^|\s)([a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g;
-    let match;
-    while ((match = bareUrlPattern.exec(text)) !== null) {
-        const url = match[1];
-        if (!urls.includes(url) && !url.endsWith('.') && url.includes('.')) {
-            urls.push(url);
-        }
-    }
-    
-    return urls;
 }
 
 function displayResult(result) {
@@ -903,7 +1247,6 @@ async function pasteFromClipboard() {
         if (navigator.clipboard && navigator.clipboard.readText) {
             const text = await navigator.clipboard.readText();
             
-            // Security: Validate length before pasting
             if (!validateMessageLength(text)) {
                 showNotification(t('notifMessageTooLong'));
                 return;
@@ -1015,7 +1358,6 @@ function showMainReportConfirm(message) {
             </div>`;
         document.body.appendChild(modal);
 
-        // Add hover effects
         const cancelBtn = modal.querySelector('.btn-cancel');
         const confirmBtn = modal.querySelector('.btn-confirm');
         
@@ -1079,16 +1421,14 @@ async function sendDirectReport(message) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        await fetch(REPORT_URL, {  // Changed from hardcoded localhost
+        await fetch(REPORT_URL, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload),
             signal: controller.signal
-        }).catch(() => {
-            // Silently fail - report endpoint might not be available
-        });
+        }).catch(() => {});
 
         clearTimeout(timeoutId);
     } catch (err) {
@@ -1103,7 +1443,6 @@ async function sendDirectReport(message) {
     }, 400);
 }
 
-// Close modals when clicking on backdrop
 window.addEventListener('click', function(event) {
     if (event.target.classList.contains('modal-backdrop')) {
         const modal = event.target.parentElement;
@@ -1114,7 +1453,6 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// Prevent body scroll when modal is open
 document.addEventListener('DOMContentLoaded', function() {
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
