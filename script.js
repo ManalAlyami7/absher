@@ -690,41 +690,42 @@ function performEnhancedAnalysis(text) {
 function combineMLWithEnhancedAnalysis(text, mlData) {
     const ruleBasedResult = performEnhancedAnalysis(text);
     
-    if (!mlData || !mlData.url_predictions || mlData.url_predictions.length === 0) {
-        return ruleBasedResult;
-    }
-    
-    // Combine Rule-based + ML + LLM scores
+    // Start with rule-based result
     let finalRiskScore = ruleBasedResult.riskScore;
     const warnings = [...ruleBasedResult.warnings];
     
-    // 1. ML URL Analysis
-    const mlPredictions = mlData.url_predictions;
+    // If no API data, return rule-based only
+    if (!mlData) {
+        return ruleBasedResult;
+    }
+    
+    // 1. ML URL Analysis (only if URLs exist)
     let mlUrlScore = 0;
+    if (mlData.url_predictions && mlData.url_predictions.length > 0) {
+        mlData.url_predictions.forEach(pred => {
+            const probability = pred.probability;
+            
+            if (probability >= ANALYSIS_CONFIG.ML_HIGH_CONFIDENCE) {
+                mlUrlScore += 35;
+                warnings.push(
+                    currentLanguage === 'ar'
+                        ? `🚨 الرابط ${pred.url} عالي الخطورة`
+                        : `🚨 URL ${pred.url} is high-risk`
+                );
+            } else if (probability >= ANALYSIS_CONFIG.ML_MEDIUM_CONFIDENCE) {
+                mlUrlScore += 20;
+                warnings.push(
+                    currentLanguage === 'ar'
+                        ? `⚠️ الرابط ${pred.url} مشبوه`
+                        : `⚠️ URL ${pred.url} is suspicious`
+                );
+            } else if (probability >= ANALYSIS_CONFIG.ML_LOW_CONFIDENCE) {
+                mlUrlScore += 8;
+            }
+        });
+    }
     
-    mlPredictions.forEach(pred => {
-        const probability = pred.probability;
-        
-        if (probability >= ANALYSIS_CONFIG.ML_HIGH_CONFIDENCE) {
-            mlUrlScore += 35;
-            warnings.push(
-                currentLanguage === 'ar'
-                    ? `🚨 الرابط ${pred.url} عالي الخطورة`
-                    : `🚨 URL ${pred.url} is high-risk`
-            );
-        } else if (probability >= ANALYSIS_CONFIG.ML_MEDIUM_CONFIDENCE) {
-            mlUrlScore += 20;
-            warnings.push(
-                currentLanguage === 'ar'
-                    ? `⚠️ الرابط ${pred.url} مشبوه`
-                    : `⚠️ URL ${pred.url} is suspicious`
-            );
-        } else if (probability >= ANALYSIS_CONFIG.ML_LOW_CONFIDENCE) {
-            mlUrlScore += 8;
-        }
-    });
-    
-    // 2. LLM Context Analysis
+    // 2. LLM Context Analysis (works even without URLs!)
     let llmContextScore = 0;
     if (mlData.llm_analysis) {
         const llm = mlData.llm_analysis;
@@ -737,25 +738,25 @@ function combineMLWithEnhancedAnalysis(text, mlData) {
                 llm.red_flags.slice(0, 2).forEach(flag => {
                     warnings.push(
                         currentLanguage === 'ar'
-                            ? `🚨 ${flag}`
-                            : `🚨 ${flag}`
+                            ? `🧠 ${flag}`
+                            : `🧠 ${flag}`
                     );
                 });
             }
         }
     }
     
-    // 3. Combined Final Score (weighted average)
-    // Rule-based: 40%, ML: 30%, LLM: 30%
-    finalRiskScore = Math.round(
-        (ruleBasedResult.riskScore * 0.4) +
-        (mlUrlScore * 0.3) +
-        (llmContextScore * 0.3)
-    );
-    
-    // Use API's combined_risk_score if available (it already combines all)
+    // 3. Use API's combined_risk_score if available (preferred)
     if (mlData.combined_risk_score !== undefined) {
         finalRiskScore = Math.round(mlData.combined_risk_score);
+    } else {
+        // Fallback: Manual combination
+        // Rule-based: 40%, ML: 30%, LLM: 30%
+        finalRiskScore = Math.round(
+            (ruleBasedResult.riskScore * 0.4) +
+            (mlUrlScore * 0.3) +
+            (llmContextScore * 0.3)
+        );
     }
     
     // Clamp final score
@@ -777,6 +778,14 @@ function combineMLWithEnhancedAnalysis(text, mlData) {
         classification_ar = t('fraud');
         icon = '❌';
     }
+    
+    // Add debug info
+    console.log('🔍 Analysis Summary:');
+    console.log('  Rule-based Score:', ruleBasedResult.riskScore);
+    console.log('  ML URL Score:', mlUrlScore);
+    console.log('  LLM Context Score:', llmContextScore);
+    console.log('  Final Score:', finalRiskScore);
+    console.log('  Classification:', classification);
     
     return {
         classification,
@@ -1203,8 +1212,8 @@ async function analyzeMessage() {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
-        const controller = new AbortController();
-       const timeoutId = setTimeout(() => controller.abort(), 15000); // ✅ 15 ثانية للـ LLM
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // ✅ 15 ثانية للـ LLM
 
     const response = await fetch(API_URL, {
         method: 'POST',
