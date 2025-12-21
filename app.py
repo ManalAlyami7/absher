@@ -37,7 +37,6 @@ MODEL_LOADED = False
 
 try:
     import joblib
-    import os
     
     # Check if model file exists
     if not os.path.exists('rf_model.pkl'):
@@ -294,17 +293,20 @@ async def root():
     return {
         "status": "online",
         "service": "Tanabbah URL Phishing Detection API",
-        "model_loaded": model is not None,
-        "version": "1.0.0"
+        "model_loaded": MODEL_LOADED,
+        "version": "1.0.0",
+        "message": "API is running. Use /docs for documentation."
     }
 
 
 @app.get("/health")
 async def health_check():
     """Detailed health check"""
+    import sys
     return {
-        "status": "healthy" if model is not None else "degraded",
-        "model_loaded": model is not None,
+        "status": "healthy",
+        "model_loaded": MODEL_LOADED,
+        "python_version": sys.version,
         "endpoints": ["/", "/health", "/api/analyze", "/api/report"]
     }
 
@@ -397,7 +399,7 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("🚀 Starting Tanabbah API Server...")
     print("="*60)
-    print(f"📊 Model status: {'✅ Loaded' if model else '⚠️ Not loaded'}")
+    print(f"📊 Model status: {'✅ Loaded' if MODEL_LOADED else '⚠️ Not loaded'}")
     print(f"🌐 Port: {port}")
     print(f"📚 API Docs: /docs")
     print(f"🧪 Health: /health")
