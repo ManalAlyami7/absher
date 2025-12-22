@@ -702,26 +702,6 @@ SOFTWARE.
 
 ---
 
-## 📞 Contact & Support
-
-### General Inquiries
-- **Email**: support@tanabbah.com
-- **Website**: https://tanabbah.com
-
-### Premium Support
-- **Email**: premium@tanabbah.com
-- **Response Time**: Within 24 hours
-
-### Bug Reports
-- **GitHub Issues**: https://github.com/yourusername/tanabbah/issues
-- **Security Issues**: security@tanabbah.com
-
-### Social Media
-- **Twitter**: @TanabbahSecurity
-- **LinkedIn**: Tanabbah Platform
-
----
-
 ## 🗺️ Roadmap
 
 ### Version 2.1 (Q2 2025)
