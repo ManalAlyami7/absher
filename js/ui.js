@@ -438,3 +438,116 @@ function displayResult(result) {
         console.warn('Enhanced display not available, using fallback');
     }
 }
+// ============================================================================
+// LOADING STATE MANAGEMENT
+// ============================================================================
+
+/**
+ * Show loading indicator
+ */
+function showLoading() {
+    const loading = document.getElementById('loading');
+    const resultCard = document.getElementById('resultCard');
+    
+    loading.innerHTML = `
+        <div class="spinner"></div>
+        <p>${t('analyzing')}</p>
+    `;
+    
+    loading.classList.add('show');
+    resultCard.classList.remove('show');
+}
+
+/**
+ * Hide loading indicator
+ */
+function hideLoading() {
+    const loading = document.getElementById('loading');
+    loading.classList.remove('show');
+}
+
+// ============================================================================
+// NOTIFICATION SYSTEM
+// ============================================================================
+
+/**
+ * Show notification message
+ * @param {string} message - Message to display
+ * @param {string} type - Notification type (success, error, warning, info)
+ */
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'polite');
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// ============================================================================
+// EXPORT BUTTON VISIBILITY
+// ============================================================================
+
+/**
+ * Update export button visibility based on result card state
+ */
+function updateExportButtonVisibility() {
+    const exportBtn = document.getElementById('exportBtn');
+    const resultCard = document.getElementById('resultCard');
+    
+    if (exportBtn && resultCard) {
+        if (resultCard.classList.contains('show')) {
+            exportBtn.style.display = 'flex';
+        } else {
+            exportBtn.style.display = 'none';
+        }
+    }
+}
+
+// ============================================================================
+// MODAL FUNCTIONS
+// ============================================================================
+
+/**
+ * Open modal by ID
+ * @param {string} modalId - Modal element ID
+ */
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+/**
+ * Close modal by ID
+ * @param {string} modalId - Modal element ID
+ */
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+// Export functions for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        displayResult,
+        showLoading,
+        hideLoading,
+        showNotification,
+        updateExportButtonVisibility,
+        openModal,
+        closeModal
+    };
+}
