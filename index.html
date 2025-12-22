@@ -331,93 +331,404 @@
             </div>
         </div>
 
-        <!-- Premium/App Download Modal -->
-        <div class="modal" id="premiumModal" role="dialog" aria-labelledby="premiumModalTitle">
-            <div class="modal-content premium-modal">
-                <div class="modal-header">
-                    <h2 id="premiumModalTitle">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" 
-                             style="color: var(--accent); margin-left: 8px;">
+       <!-- Premium/App Download Modal - Updated to Show Paid Subscription -->
+<div class="modal" id="premiumModal" role="dialog" aria-labelledby="premiumModalTitle">
+    <div class="modal-content premium-modal">
+        <div class="modal-header">
+            <h2 id="premiumModalTitle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" 
+                     style="color: var(--accent); margin-left: 8px;">
+                    <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" 
+                          fill="currentColor"/>
+                </svg>
+                <span id="premiumModalTitleText">اشتراك تنبَه المميز</span>
+            </h2>
+            <button class="modal-close" onclick="closePremiumModal()" 
+                    aria-label="إغلاق">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="premium-content">
+                <div class="premium-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" 
+                              fill="var(--primary)" opacity="0.1"/>
+                        <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" 
+                              stroke="var(--primary)" stroke-width="2" fill="none"/>
+                        <path d="M9 12L11 14L15 10" stroke="var(--primary)" 
+                              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                </div>
+                
+                <!-- Pricing Badge -->
+                <div class="premium-pricing-badge">
+                    <div class="price-amount">5 ريال</div>
+                    <div class="price-period">شهرياً</div>
+                </div>
+                
+                <h3 style="font-size: 1.5rem; font-weight: 900; color: var(--text); 
+                           margin: 24px 0 12px; text-align: center;">
+                    <span id="premiumHeaderText">احصل على الحماية الكاملة</span>
+                </h3>
+                
+                <p style="color: var(--text-secondary); text-align: center; 
+                          line-height: 1.8; margin-bottom: 32px;">
+                    <span id="premiumDescText">اشترك الآن بـ <strong style="color: var(--accent);">5 ريال شهرياً فقط</strong> للحصول على حماية متقدمة</span>
+                </p>
+                
+                <!-- Feature Comparison Table -->
+                <div class="premium-comparison">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>الميزة</th>
+                                <th>مجاني</th>
+                                <th style="color: var(--accent);">مميز</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>فحص الرسائل</td>
+                                <td>5 يومياً</td>
+                                <td>غير محدود ✨</td>
+                            </tr>
+                            <tr>
+                                <td>التحليل بالذكاء الاصطناعي</td>
+                                <td>أساسي</td>
+                                <td>متقدم ✨</td>
+                            </tr>
+                            <tr>
+                                <td>التقارير المفصلة</td>
+                                <td>❌</td>
+                                <td>✅</td>
+                            </tr>
+                            <tr>
+                                <td>التنبيهات الفورية</td>
+                                <td>❌</td>
+                                <td>✅</td>
+                            </tr>
+                            <tr>
+                                <td>الدعم الفني</td>
+                                <td>عادي</td>
+                                <td>أولوية ✨</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Premium Features Grid -->
+                <div class="premium-features">
+                    <div class="premium-feature">
+                        <span class="feature-icon">⚡</span>
+                        <span id="feature1Text">فحص غير محدود</span>
+                    </div>
+                    <div class="premium-feature">
+                        <span class="feature-icon">🧠</span>
+                        <span id="feature2Text">تحليل ذكي متقدم</span>
+                    </div>
+                    <div class="premium-feature">
+                        <span class="feature-icon">🔔</span>
+                        <span id="feature3Text">تنبيهات فورية</span>
+                    </div>
+                    <div class="premium-feature">
+                        <span class="feature-icon">📊</span>
+                        <span id="feature4Text">تقارير مفصلة</span>
+                    </div>
+                    <div class="premium-feature">
+                        <span class="feature-icon">🎯</span>
+                        <span id="feature5Text">دعم أولوية</span>
+                    </div>
+                    <div class="premium-feature">
+                        <span class="feature-icon">💾</span>
+                        <span id="feature6Text">تصدير السجلات</span>
+                    </div>
+                    <div class="premium-feature">
+                        <span class="feature-icon">🔌</span>
+                        <span id="feature7Text">API متقدم</span>
+                    </div>
+                    <div class="premium-feature">
+                        <span class="feature-icon">🔒</span>
+                        <span id="feature8Text">حماية شاملة</span>
+                    </div>
+                </div>
+                
+                <!-- Subscription Button -->
+                <div class="premium-cta">
+                    <button class="btn btn-subscribe" onclick="subscribeToPremium()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                             <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" 
                                   fill="currentColor"/>
                         </svg>
-                        تطبيق تنبَه
-                    </h2>
-                    <button class="modal-close" onclick="closePremiumModal()" 
-                            aria-label="إغلاق">&times;</button>
+                        <span id="subscribeBtnText">اشترك الآن - 5 ريال شهرياً</span>
+                    </button>
+                    
+                    <p class="premium-trial-note">
+                        <span id="trialText">✨ تجربة مجانية لمدة 7 أيام</span>
+                    </p>
                 </div>
-                <div class="modal-body">
-                    <div class="premium-content">
-                        <div class="premium-icon">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" 
-                                      fill="var(--primary)" opacity="0.1"/>
-                                <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" 
-                                      stroke="var(--primary)" stroke-width="2" fill="none"/>
-                                <path d="M9 12L11 14L15 10" stroke="var(--primary)" 
-                                      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                            </svg>
-                        </div>
-                        
-                        <h3 style="font-size: 1.5rem; font-weight: 900; color: var(--text); 
-                                   margin: 24px 0 12px; text-align: center;">
-                            حمّل تطبيق تنبَه
-                        </h3>
-                        
-                        <p style="color: var(--text-secondary); text-align: center; 
-                                  line-height: 1.8; margin-bottom: 32px;">
-                            احصل على حماية فورية من الاحتيال الإلكتروني على هاتفك
-                        </p>
-                        
-                        <div class="premium-features">
-                            <div class="premium-feature">
-                                <span class="feature-icon">⚡</span>
-                                <span>فحص فوري للرسائل</span>
-                            </div>
-                            <div class="premium-feature">
-                                <span class="feature-icon">🔔</span>
-                                <span>تنبيهات في الوقت الفعلي</span>
-                            </div>
-                            <div class="premium-feature">
-                                <span class="feature-icon">📊</span>
-                                <span>تقارير مفصلة</span>
-                            </div>
-                            <div class="premium-feature">
-                                <span class="feature-icon">🔒</span>
-                                <span>حماية خصوصية كاملة</span>
-                            </div>
-                        </div>
-                        
-                        <div class="app-download-buttons">
-                            <button class="btn btn-app-store" onclick="downloadApp('ios')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                                </svg>
-                                <div style="text-align: right;">
-                                    <div style="font-size: 0.7rem; opacity: 0.8;">متوفر على</div>
-                                    <div style="font-size: 1rem; font-weight: 800;">App Store</div>
-                                </div>
-                            </button>
-                            
-                            <button class="btn btn-google-play" onclick="downloadApp('android')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-                                </svg>
-                                <div style="text-align: right;">
-                                    <div style="font-size: 0.7rem; opacity: 0.8;">متوفر على</div>
-                                    <div style="font-size: 1rem; font-weight: 800;">Google Play</div>
-                                </div>
-                            </button>
-                        </div>
-                        
-                        <p style="color: var(--text-muted); font-size: 0.85rem; 
-                                  text-align: center; margin-top: 24px;">
-                            قريباً على متاجر التطبيقات
-                        </p>
+                
+                <!-- Payment Methods -->
+                <div class="payment-methods">
+                    <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 12px;">
+                        <span id="paymentMethodsText">طرق الدفع المتاحة</span>
+                    </p>
+                    <div class="payment-icons">
+                        <span class="payment-icon" title="Visa">💳</span>
+                        <span class="payment-icon" title="Mastercard">💳</span>
+                        <span class="payment-icon" title="Mada">🇸🇦</span>
+                        <span class="payment-icon" title="Apple Pay">🍎</span>
+                        <span class="payment-icon" title="STC Pay">📱</span>
                     </div>
                 </div>
+                
+                <!-- Terms -->
+                <p style="color: var(--text-muted); font-size: 0.85rem; 
+                          text-align: center; margin-top: 24px; line-height: 1.6;">
+                    <span id="termsText">باشتراكك، توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت</span>
+                </p>
             </div>
         </div>
+    </div>
+</div>
+
+<style>
+/* Premium Modal Styles */
+.premium-pricing-badge {
+    background: linear-gradient(135deg, var(--accent), #b87820);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 16px;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 200px;
+    box-shadow: 0 8px 24px rgba(205, 143, 42, 0.3);
+}
+
+.price-amount {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.price-period {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 4px;
+    opacity: 0.9;
+}
+
+.premium-comparison {
+    margin: 32px 0;
+    overflow-x: auto;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.comparison-table th {
+    background: var(--primary);
+    color: white;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.comparison-table th:last-child {
+    background: var(--accent);
+}
+
+.comparison-table td:first-child {
+    text-align: right;
+    font-weight: 600;
+}
+
+.comparison-table tr:last-child td {
+    border-bottom: none;
+}
+
+.comparison-table tr:hover {
+    background: var(--card-bg);
+}
+
+.premium-cta {
+    text-align: center;
+    margin: 32px 0;
+}
+
+.btn-subscribe {
+    background: linear-gradient(135deg, var(--accent), #b87820);
+    color: white;
+    padding: 18px 40px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 24px rgba(205, 143, 42, 0.4);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-subscribe:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 32px rgba(205, 143, 42, 0.5);
+}
+
+.premium-trial-note {
+    margin-top: 16px;
+    color: var(--primary);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.payment-methods {
+    margin-top: 32px;
+}
+
+.payment-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.payment-icon {
+    font-size: 2rem;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.payment-icon:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+@media (max-width: 768px) {
+    .comparison-table {
+        font-size: 0.85rem;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 12px 8px;
+    }
+    
+    .price-amount {
+        font-size: 2rem;
+    }
+    
+    .btn-subscribe {
+        width: 100%;
+        padding: 16px 24px;
+    }
+}
+</style>
+
+<script>
+function subscribeToPremium() {
+    // Show confirmation with pricing
+    const lang = window.currentLanguage || 'ar';
+    const message = lang === 'ar' 
+        ? 'سيتم توجيهك لصفحة الدفع لإتمام الاشتراك بـ 5 ريال شهرياً.\n\n✨ تتضمن تجربة مجانية لمدة 7 أيام\n\nهل تريد المتابعة؟'
+        : 'You will be redirected to the payment page to complete your subscription at 5 SAR/month.\n\n✨ Includes 7-day free trial\n\nContinue?';
+    
+    if (confirm(message)) {
+        // TODO: Integrate with payment gateway (Stripe, HyperPay, etc.)
+        showNotification(
+            lang === 'ar' 
+                ? '🚀 جاري التحويل إلى صفحة الدفع الآمنة...' 
+                : '🚀 Redirecting to secure payment page...',
+            'info'
+        );
+        
+        // Simulate payment redirect
+        setTimeout(() => {
+            // In production, redirect to actual payment page
+            // window.location.href = '/checkout?plan=premium&price=5';
+            
+            showNotification(
+                lang === 'ar'
+                    ? '📱 قريباً: سيتم إطلاق خاصية الاشتراك المميز'
+                    : '📱 Coming soon: Premium subscription feature',
+                'info'
+            );
+        }, 1000);
+    }
+}
+
+// Update premium modal text on language change
+function updatePremiumModalLanguage() {
+    const lang = window.currentLanguage || 'ar';
+    
+    const translations = {
+        ar: {
+            title: 'اشتراك تنبَه المميز',
+            header: 'احصل على الحماية الكاملة',
+            desc: 'اشترك الآن بـ <strong style="color: var(--accent);">5 ريال شهرياً فقط</strong> للحصول على حماية متقدمة',
+            feature1: 'فحص غير محدود',
+            feature2: 'تحليل ذكي متقدم',
+            feature3: 'تنبيهات فورية',
+            feature4: 'تقارير مفصلة',
+            feature5: 'دعم أولوية',
+            feature6: 'تصدير السجلات',
+            feature7: 'API متقدم',
+            feature8: 'حماية شاملة',
+            subscribeBtn: 'اشترك الآن - 5 ريال شهرياً',
+            trial: '✨ تجربة مجانية لمدة 7 أيام',
+            paymentMethods: 'طرق الدفع المتاحة',
+            terms: 'باشتراكك، توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت'
+        },
+        en: {
+            title: 'Tanabbah Premium Subscription',
+            header: 'Get Complete Protection',
+            desc: 'Subscribe now for just <strong style="color: var(--accent);">5 SAR/month</strong> for advanced protection',
+            feature1: 'Unlimited Analysis',
+            feature2: 'Advanced AI Analysis',
+            feature3: 'Real-time Alerts',
+            feature4: 'Detailed Reports',
+            feature5: 'Priority Support',
+            feature6: 'Export History',
+            feature7: 'Advanced API',
+            feature8: 'Complete Protection',
+            subscribeBtn: 'Subscribe Now - 5 SAR/month',
+            trial: '✨ 7-day free trial',
+            paymentMethods: 'Available Payment Methods',
+            terms: 'By subscribing, you agree to <a href="#" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a>. Cancel anytime'
+        }
+    };
+    
+    const t = translations[lang];
+    
+    document.getElementById('premiumModalTitleText').textContent = t.title;
+    document.getElementById('premiumHeaderText').textContent = t.header;
+    document.getElementById('premiumDescText').innerHTML = t.desc;
+    document.getElementById('feature1Text').textContent = t.feature1;
+    document.getElementById('feature2Text').textContent = t.feature2;
+    document.getElementById('feature3Text').textContent = t.feature3;
+    document.getElementById('feature4Text').textContent = t.feature4;
+    document.getElementById('feature5Text').textContent = t.feature5;
+    document.getElementById('feature6Text').textContent = t.feature6;
+    document.getElementById('feature7Text').textContent = t.feature7;
+    document.getElementById('feature8Text').textContent = t.feature8;
+    document.getElementById('subscribeBtnText').textContent = t.subscribeBtn;
+    document.getElementById('trialText').textContent = t.trial;
+    document.getElementById('paymentMethodsText').textContent = t.paymentMethods;
+    document.getElementById('termsText').innerHTML = t.terms;
+}
+</script>
 
     </div> <!-- End of .container -->
 
