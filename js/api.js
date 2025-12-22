@@ -1,39 +1,34 @@
 /**
  * ========================================
- * Tanabbah - API Integration
+ * Tanabbah - Enhanced API Integration v2.2
  * ========================================
- * Purpose: Backend communication, API calls
+ * Complete API communication with language support
  * Author: Manal Alyami
- * Version: 2.0.0
+ * Version: 2.2.0
  * ========================================
  */
 
-// ============================================================================
-// API CONFIGURATION
-// ============================================================================
-
+// API Configuration
 const API_CONFIG = {
     BASE_URL: 'https://tanabbah-production-a91f.up.railway.app',
     ANALYZE_ENDPOINT: '/api/analyze',
     REPORT_ENDPOINT: '/api/report',
-    TIMEOUT: 20000 // 20 seconds
+    TIMEOUT: 20000
 };
 
-// ============================================================================
-// API CALL FUNCTIONS
-// ============================================================================
-
 /**
- * Analyze message via API
+ * Analyze message via API with complete technical details
  * @param {string} message - Message to analyze
  * @param {boolean} enableLLM - Enable LLM analysis
- * @returns {Promise<Object>} Analysis result
+ * @returns {Promise<Object>} Complete analysis result
  */
 async function analyzeViaAPI(message, enableLLM = true) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
 
     try {
+        const language = window.currentLanguage || 'ar';
+        
         const response = await fetch(
             `${API_CONFIG.BASE_URL}${API_CONFIG.ANALYZE_ENDPOINT}`,
             {
@@ -43,7 +38,8 @@ async function analyzeViaAPI(message, enableLLM = true) {
                 },
                 body: JSON.stringify({ 
                     message: message,
-                    enable_llm: enableLLM
+                    enable_llm: enableLLM,
+                    language: language
                 }),
                 signal: controller.signal
             }
@@ -56,7 +52,7 @@ async function analyzeViaAPI(message, enableLLM = true) {
         }
 
         const data = await response.json();
-        return processAPIResponse(data);
+        return processEnhancedAPIResponse(data);
         
     } catch (error) {
         console.error('API error:', error);
@@ -65,204 +61,304 @@ async function analyzeViaAPI(message, enableLLM = true) {
 }
 
 /**
- * Process API response into standard format
+ * Process enhanced API response
  * @param {Object} data - Raw API response
  * @returns {Object} Processed result
  */
-function processAPIResponse(data) {
-    const riskScore = Math.round(
-        data.combined_risk_score || 
-        data.ml_risk_score || 
-        0
-    );
-    
-    let classification, classification_ar, icon;
-    
-    // Determine classification based on risk score
-    if (riskScore <= 25) {
-        classification = 'SAFE';
-        classification_ar = t('safe');
-        icon = '✅';
-    } else if (riskScore <= 65) {
-        classification = 'SUSPICIOUS';
-        classification_ar = t('suspicious');
-        icon = '⚠️';
-    } else {
-        classification = 'FRAUD';
-        classification_ar = t('fraud');
-        icon = '❌';
-    }
-    
-    const warnings = [];
-    
-    // Add URL predictions as warnings
-    if (data.url_predictions && data.url_predictions.length > 0) {
-        data.url_predictions.forEach(pred => {
-            if (pred.probability >= 0.75) {
-                warnings.push(
-                    window.currentLanguage === 'ar'
-                        ? `🚨 الرابط ${pred.url} عالي الخطورة (${(pred.probability * 100).toFixed(0)}%)`
-                        : `🚨 URL ${pred.url} is high-risk (${(pred.probability * 100).toFixed(0)}%)`
-                );
-            }
-        });
-    }
-    
-    // Add LLM red flags
-    if (data.llm_analysis && data.llm_analysis.red_flags) {
-        data.llm_analysis.red_flags.slice(0, 3).forEach(flag => {
-            warnings.push(
-                window.currentLanguage === 'ar'
-                    ? `🧠 ${translateLLMFlag(flag)}`
-                    : `🧠 ${flag}`
-            );
-        });
-    }
-    
-    // Calculate LLM score
-    let llmScore = undefined;
-    if (data.llm_analysis) {
-        llmScore = data.llm_analysis.is_phishing 
-            ? data.llm_analysis.context_score 
-            : (100 - data.llm_analysis.context_score);
-    }
-    
+function processEnhancedAPIResponse(data) {
+    // The API now returns complete data, so we just need to ensure it's formatted correctly
     return {
-        classification,
-        classification_ar,
-        riskScore,
-        icon,
-        explanation: window.currentLanguage === 'ar'
-            ? `تم فحص الرسالة بالذكاء الاصطناعي وتحليل ${warnings.length} مؤشر أمني`
-            : `Message analyzed with AI and ${warnings.length} security indicators checked`,
-        warnings: warnings.slice(0, 8),
-        urlsFound: data.urls_found || 0,
-        mlScore: Math.round(data.ml_risk_score || 0),
-        llmScore: llmScore !== undefined ? Math.round(llmScore) : undefined,
-        llmAnalysis: data.llm_analysis
+        // Classification
+        classification: data.classification,
+        classification_ar: data.classification_ar,
+        
+        // Explanations
+        explanation: data.explanation,
+        explanation_ar: data.explanation_ar,
+        
+        // Risk Score
+        risk_score: data.risk_score,
+        riskScore: data.risk_score, // Backward compatibility
+        combined_risk_score: data.combined_risk_score,
+        
+        // Red Flags
+        red_flags: data.red_flags || [],
+        red_flags_ar: data.red_flags_ar || [],
+        warnings: data.red_flags_ar || [], // Backward compatibility
+        
+        // Action Guidance
+        action: data.action,
+        action_ar: data.action_ar,
+        
+        // Technical Details
+        technical_details: data.technical_details,
+        
+        // URL Information
+        urls_found: data.urls_found || 0,
+        urlsFound: data.urls_found || 0, // Backward compatibility
+        url_predictions: data.url_predictions || [],
+        
+        // ML/LLM Scores
+        ml_risk_score: data.ml_risk_score,
+        mlScore: data.ml_risk_score, // Backward compatibility
+        llm_analysis: data.llm_analysis,
+        llmScore: data.llm_analysis?.confidence,
+        llmAnalysis: data.llm_analysis, // Backward compatibility
+        
+        // Icon (for backward compatibility)
+        icon: getIconForClassification(data.classification),
+        
+        // Status
+        status: data.status
     };
 }
 
-// ============================================================================
-// LOCAL FALLBACK ANALYSIS
-// ============================================================================
+/**
+ * Get icon for classification
+ * @param {string} classification - Classification type
+ * @returns {string} Emoji icon
+ */
+function getIconForClassification(classification) {
+    const icons = {
+        'SAFE': '✅',
+        'LOW_RISK': '⚠️',
+        'SUSPICIOUS': '🚨',
+        'HIGH_RISK': '❌'
+    };
+    return icons[classification] || '✅';
+}
 
 /**
- * Perform local analysis when API fails
+ * Local fallback analysis with enhanced details
  * @param {string} text - Text to analyze
  * @returns {Object} Analysis result
  */
 function performLocalAnalysis(text) {
+    const isArabic = window.currentLanguage === 'ar';
     const urls = extractURLs(text);
     let riskScore = 0;
-    const warnings = [];
+    const redFlags = [];
+    const redFlagsAr = [];
+    const urlTypes = [];
     
     // Check for URLs
     if (urls.length > 0) {
         riskScore += 15;
         
-        // Check for URL shorteners
-        const shorteners = ['bit.ly', 'tinyurl', 'goo.gl', 'ow.ly'];
-        if (urls.some(url => shorteners.some(s => url.toLowerCase().includes(s)))) {
-            riskScore += 30;
-            warnings.push(
-                window.currentLanguage === 'ar' 
-                    ? '🚨 يحتوي على روابط مختصرة' 
-                    : '🚨 Contains shortened URLs'
-            );
+        // Check for URL shorteners (HIGH RISK)
+        const shorteners = ['bit.ly', 'tinyurl', 'goo.gl', 'ow.ly', 't.co', 'is.gd'];
+        const hasShorteners = urls.some(url => 
+            shorteners.some(s => url.toLowerCase().includes(s))
+        );
+        
+        if (hasShorteners) {
+            riskScore += 35;
+            redFlags.push('Contains shortened URLs');
+            redFlagsAr.push('يحتوي على روابط مختصرة مشبوهة');
+            urlTypes.push('Suspicious');
         }
         
         // Check for insecure links
         if (urls.some(url => url.toLowerCase().startsWith('http://'))) {
             riskScore += 20;
-            warnings.push(
-                window.currentLanguage === 'ar' 
-                    ? '⚠️ روابط غير آمنة' 
-                    : '⚠️ Insecure links'
-            );
+            redFlags.push('Insecure HTTP links');
+            redFlagsAr.push('روابط غير آمنة (HTTP)');
         }
     }
     
     // Check for urgency patterns
-    const urgencyPatterns = ['تعليق', 'إيقاف', 'suspended', 'urgent', 'فوراً'];
+    const urgencyPatterns = ['تعليق', 'إيقاف', 'suspended', 'urgent', 'فوراً', 'immediately'];
     if (urgencyPatterns.some(p => text.toLowerCase().includes(p.toLowerCase()))) {
         riskScore += 25;
-        warnings.push(
-            window.currentLanguage === 'ar' 
-                ? '🚨 أسلوب الضغط' 
-                : '🚨 Pressure tactics'
-        );
+        redFlags.push('Urgency tactics');
+        redFlagsAr.push('أسلوب الاستعجال والضغط');
     }
     
     // Check for government impersonation
-    const govServices = ['أبشر', 'absher', 'ناجز', 'najiz'];
+    const govServices = ['أبشر', 'absher', 'ناجز', 'najiz', 'وزارة', 'ministry'];
     const officialDomains = ['absher.sa', 'najiz.sa', '.gov.sa'];
     
     if (govServices.some(s => text.toLowerCase().includes(s.toLowerCase())) && 
         urls.length > 0 && 
         !urls.some(url => officialDomains.some(d => url.toLowerCase().includes(d)))) {
         riskScore += 35;
-        warnings.push(
-            window.currentLanguage === 'ar' 
-                ? '🚨 انتحال جهة حكومية' 
-                : '🚨 Government impersonation'
-        );
+        redFlags.push('Potential government impersonation');
+        redFlagsAr.push('انتحال صفة جهة حكومية');
+        urlTypes.push('Phishing');
     }
     
-    // Cap risk score at 100
+    // Check for sensitive data requests
+    const sensitiveKeywords = ['password', 'pin', 'otp', 'cvv', 
+                               'كلمة المرور', 'رمز التحقق', 'بطاقة'];
+    if (sensitiveKeywords.some(word => text.toLowerCase().includes(word))) {
+        riskScore += 30;
+        redFlags.push('Requests sensitive information');
+        redFlagsAr.push('طلب معلومات حساسة');
+    }
+    
+    // Cap risk score
     riskScore = Math.min(100, riskScore);
     
     // Determine classification
-    let classification, classification_ar, icon;
-    if (riskScore <= 25) {
+    let classification, classificationAr;
+    if (riskScore <= 30) {
         classification = 'SAFE';
-        classification_ar = t('safe');
-        icon = '✅';
-    } else if (riskScore <= 65) {
+        classificationAr = 'آمنة';
+    } else if (riskScore <= 55) {
+        classification = 'LOW_RISK';
+        classificationAr = 'منخفضة الخطورة';
+    } else if (riskScore <= 75) {
         classification = 'SUSPICIOUS';
-        classification_ar = t('suspicious');
-        icon = '⚠️';
+        classificationAr = 'مشبوهة';
     } else {
-        classification = 'FRAUD';
-        classification_ar = t('fraud');
-        icon = '❌';
+        classification = 'HIGH_RISK';
+        classificationAr = 'عالية الخطورة';
     }
+    
+    // Ensure we have at least one flag
+    if (redFlags.length === 0) {
+        redFlags.push('No significant red flags detected');
+        redFlagsAr.push('لم يتم اكتشاف مؤشرات احتيال واضحة');
+    }
+    
+    // Generate explanations
+    const isTrusted = false;
+    const explanationAr = getExplanationText(classification, riskScore, isTrusted, 'ar');
+    const explanationEn = getExplanationText(classification, riskScore, isTrusted, 'en');
+    
+    // Get action guidance
+    const actionAr = getActionText(classification, 'ar');
+    const actionEn = getActionText(classification, 'en');
+    
+    // Build technical details
+    const technicalDetails = {
+        urls_found: urls.length,
+        url_types: urlTypes.length > 0 ? urlTypes : ['No URLs'],
+        ml_risk_score: riskScore,
+        llm_confidence: null,
+        trusted_source: false,
+        red_flags_details: [
+            ...redFlagsAr,
+            `تم اكتشاف ${urls.length} رابط`,
+            `طريقة التحليل: محلية (Heuristic)`,
+            `درجة الخطر الإجمالية: ${riskScore}%`
+        ],
+        analysis_method: 'Local Heuristic',
+        features_analyzed: urls.length * 41
+    };
     
     return {
         classification,
-        classification_ar,
-        riskScore,
-        icon,
-        explanation: t('explanation'),
-        warnings,
+        classification_ar: classificationAr,
+        explanation: isArabic ? explanationAr : explanationEn,
+        explanation_ar: explanationAr,
+        risk_score: riskScore,
+        riskScore: riskScore,
+        combined_risk_score: riskScore,
+        red_flags: redFlags,
+        red_flags_ar: redFlagsAr,
+        warnings: redFlagsAr,
+        action: isArabic ? actionAr : actionEn,
+        action_ar: actionAr,
+        technical_details: technicalDetails,
+        urls_found: urls.length,
         urlsFound: urls.length,
-        mlScore: 0,
-        llmScore: undefined,
-        llmAnalysis: null
+        url_predictions: [],
+        ml_risk_score: riskScore,
+        mlScore: riskScore,
+        llm_analysis: null,
+        llmScore: null,
+        icon: getIconForClassification(classification),
+        status: 'success'
     };
 }
 
-// ============================================================================
-// REPORT SUBMISSION
-// ============================================================================
+/**
+ * Get explanation text
+ */
+function getExplanationText(classification, riskScore, isTrusted, language) {
+    if (language === 'ar') {
+        if (classification === 'SAFE') {
+            if (isTrusted) {
+                return `الرسالة تبدو رسمية وصادرة من جهة موثوقة. لم يتم اكتشاف مؤشرات احتيال واضحة. (درجة الخطر: ${riskScore}%)`;
+            }
+            return `الرسالة تبدو آمنة بشكل عام. لا توجد مؤشرات خطر واضحة. (درجة الخطر: ${riskScore}%)`;
+        } else if (classification === 'LOW_RISK') {
+            return `الرسالة تحتوي على بعض العلامات التي تستدعي الحذر المعتدل. يُنصح بالتحقق من المصدر. (درجة الخطر: ${riskScore}%)`;
+        } else if (classification === 'SUSPICIOUS') {
+            return `الرسالة تحتوي على عدة مؤشرات مشبوهة. توخَّ الحذر الشديد ولا تضغط على أي روابط. (درجة الخطر: ${riskScore}%)`;
+        } else {
+            return `الرسالة تحتوي على مؤشرات احتيال قوية. لا تتفاعل معها ويُنصح بحذفها فوراً. (درجة الخطر: ${riskScore}%)`;
+        }
+    } else {
+        if (classification === 'SAFE') {
+            if (isTrusted) {
+                return `Message appears official from a trusted source. No clear fraud indicators detected. (Risk score: ${riskScore}%)`;
+            }
+            return `Message appears generally safe. No clear risk indicators found. (Risk score: ${riskScore}%)`;
+        } else if (classification === 'LOW_RISK') {
+            return `Message contains some signs requiring moderate caution. Verify the source. (Risk score: ${riskScore}%)`;
+        } else if (classification === 'SUSPICIOUS') {
+            return `Message contains several suspicious indicators. Exercise extreme caution and don't click any links. (Risk score: ${riskScore}%)`;
+        } else {
+            return `Message contains strong fraud indicators. Do not interact and delete immediately. (Risk score: ${riskScore}%)`;
+        }
+    }
+}
+
+/**
+ * Get action text
+ */
+function getActionText(classification, language) {
+    const actions = {
+        'SAFE': { ar: '✅ لا يوجد إجراء مطلوب', en: '✅ No action required' },
+        'LOW_RISK': { ar: '⚠️ تحقق قبل الضغط على أي رابط', en: '⚠️ Verify before clicking any links' },
+        'SUSPICIOUS': { ar: '🚫 لا تضغط على الروابط حتى تتأكد من المصدر', en: '🚫 Do not click links until you verify the source' },
+        'HIGH_RISK': { ar: '❌ يُنصح بحذف الرسالة وعدم التفاعل معها', en: '❌ Recommended to delete and not interact' }
+    };
+    return actions[classification]?.[language] || actions['SAFE'][language];
+}
+
+/**
+ * Extract URLs from text
+ */
+function extractURLs(text) {
+    const urls = [];
+    
+    // Extract full URLs with protocol
+    const fullUrlPattern = /https?:\/\/[^\s]+/gi;
+    const fullUrls = text.match(fullUrlPattern) || [];
+    urls.push(...fullUrls);
+    
+    // Extract URLs without protocol
+    const bareUrlPattern = /(?:^|\s)([a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g;
+    let match;
+    while ((match = bareUrlPattern.exec(text)) !== null) {
+        const url = match[1];
+        if (!urls.includes(url) && !url.endsWith('.') && url.includes('.')) {
+            urls.push(url);
+        }
+    }
+    
+    return [...new Set(urls)];
+}
 
 /**
  * Send report to authorities
- * @param {string} message - Message to report
- * @returns {Promise<boolean>} Success status
  */
 async function sendReportToAPI(message) {
     try {
+        const language = window.currentLanguage || 'ar';
         const payload = {
             message: sanitizeHTML(message.substring(0, 1000)),
             timestamp: new Date().toISOString(),
-            language: window.currentLanguage || 'ar'
+            language: language
         };
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        await fetch(
+        const response = await fetch(
             `${API_CONFIG.BASE_URL}${API_CONFIG.REPORT_ENDPOINT}`,
             {
                 method: 'POST',
@@ -275,20 +371,15 @@ async function sendReportToAPI(message) {
         );
 
         clearTimeout(timeoutId);
-        return true;
+        return response.ok;
     } catch (error) {
         console.error('Report error:', error);
         return false;
     }
 }
 
-// ============================================================================
-// HEALTH CHECK
-// ============================================================================
-
 /**
- * Check API health status
- * @returns {Promise<boolean>} True if API is healthy
+ * Check API health
  */
 async function checkAPIHealth() {
     try {
@@ -296,7 +387,6 @@ async function checkAPIHealth() {
             method: 'GET',
             timeout: 5000
         });
-        
         return response.ok;
     } catch (error) {
         console.error('Health check failed:', error);
@@ -304,12 +394,21 @@ async function checkAPIHealth() {
     }
 }
 
-// Export functions for use in other modules
+/**
+ * HTML sanitization helper
+ */
+function sanitizeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Export functions for global use
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         API_CONFIG,
         analyzeViaAPI,
-        processAPIResponse,
+        processEnhancedAPIResponse,
         performLocalAnalysis,
         sendReportToAPI,
         checkAPIHealth
