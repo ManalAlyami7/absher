@@ -16,8 +16,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Optional
 
-from ml import predict_url, extract_urls, MODEL_LOADED, URLPrediction
-from llm import analyze_message_with_llm, is_llm_available, LLMAnalysis, is_trusted_domain
+from backend.ml import predict_url, extract_urls, MODEL_LOADED, URLPrediction
+from backend.llm import analyze_message_with_llm, is_llm_available, LLMAnalysis, is_trusted_domain
 
 logging.basicConfig(
     level=logging.INFO,
