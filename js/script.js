@@ -250,7 +250,6 @@ function toggleLanguage() {
 function updateUILanguage() {
     // Update text elements (using textContent)
     const textUpdates = {
-        langBtnLabel: 'language',
         privacyNoticeText: 'privacyNotice',
         mainTitle: 'mainTitle',
         mainSubtitle: 'mainSubtitle',
@@ -264,10 +263,28 @@ function updateUILanguage() {
         sendReportBtnText: 'sendReport',
         cancelReportBtnText: 'cancel'
     };
+    
+    // Update language button separately since it's dynamic
+    const langBtn = document.getElementById('langBtnLabel');
+    if (langBtn) langBtn.textContent = window.currentLanguage === 'ar' ? t('language') : t('languageAr');
+    
+    // Update language button tooltip
+    const langHeaderBtn = document.querySelector('.header-btn[onclick="toggleLanguage()"]');
+    if (langHeaderBtn) {
+        langHeaderBtn.title = window.currentLanguage === 'ar' ? t('languageAr') : t('language');
+        langHeaderBtn.setAttribute('aria-label', window.currentLanguage === 'ar' ? t('languageAr') : t('language'));
+        langHeaderBtn.setAttribute('data-tooltip', (window.currentLanguage === 'ar' ? t('languageAr') : t('language')) + ' (' + (window.currentLanguage === 'ar' ? t('language') : t('languageAr')) + ')');
+    }
 
     for (const [id, key] of Object.entries(textUpdates)) {
         const el = document.getElementById(id);
         if (el) el.textContent = t(key);
+    }
+    
+    // Update privacy notice with innerHTML to preserve formatting
+    const privacyNoticeEl = document.getElementById('privacyNoticeText');
+    if (privacyNoticeEl) {
+        privacyNoticeEl.innerHTML = t('privacyNotice');
     }
     
     // Update footer with innerHTML (to preserve formatting)
@@ -276,6 +293,52 @@ function updateUILanguage() {
         footerEl.innerHTML = t('footerText');
     }
 
+    // Update header buttons
+    const darkModeBtn = document.querySelector('.header-btn[onclick="toggleDarkMode()"] .btn-label');
+    const historyBtn = document.querySelector('.header-btn[onclick="viewHistory()"] .btn-label');
+    const exportBtn = document.querySelector('.header-btn[onclick="exportResult()"] .btn-label');
+    const reportBtn = document.querySelector('.header-btn.report-btn .btn-label');
+    const premiumBtn = document.querySelector('.header-btn.premium-btn .btn-label');
+    
+    if (darkModeBtn) darkModeBtn.textContent = t('darkMode');
+    if (historyBtn) historyBtn.textContent = t('history');
+    if (exportBtn) exportBtn.textContent = t('save');
+    if (reportBtn) reportBtn.textContent = t('report');
+    if (premiumBtn) premiumBtn.textContent = t('app');
+    
+    // Update header button tooltips and aria-labels
+    const darkModeHeaderBtn = document.querySelector('.header-btn[onclick="toggleDarkMode()"]');
+    const historyHeaderBtn = document.querySelector('.header-btn[onclick="viewHistory()"]');
+    const exportHeaderBtn = document.querySelector('.header-btn[onclick="exportResult()"]');
+    const reportHeaderBtn = document.querySelector('.header-btn.report-btn');
+    const premiumHeaderBtn = document.querySelector('.header-btn.premium-btn');
+    
+    if (darkModeHeaderBtn) {
+        darkModeHeaderBtn.title = t('darkMode');
+        darkModeHeaderBtn.setAttribute('aria-label', t('darkMode'));
+        darkModeHeaderBtn.setAttribute('data-tooltip', t('darkMode') + ' (' + (window.currentLanguage === 'ar' ? 'EN' : 'عربي') + ')');
+    }
+    if (historyHeaderBtn) {
+        historyHeaderBtn.title = t('history');
+        historyHeaderBtn.setAttribute('aria-label', t('history'));
+        historyHeaderBtn.setAttribute('data-tooltip', t('history'));
+    }
+    if (exportHeaderBtn) {
+        exportHeaderBtn.title = t('save');
+        exportHeaderBtn.setAttribute('aria-label', t('save'));
+        exportHeaderBtn.setAttribute('data-tooltip', t('save'));
+    }
+    if (reportHeaderBtn) {
+        reportHeaderBtn.title = t('report');
+        reportHeaderBtn.setAttribute('aria-label', t('report'));
+        reportHeaderBtn.setAttribute('data-tooltip', t('report'));
+    }
+    if (premiumHeaderBtn) {
+        premiumHeaderBtn.title = t('app');
+        premiumHeaderBtn.setAttribute('aria-label', t('app'));
+        premiumHeaderBtn.setAttribute('data-tooltip', t('app'));
+    }
+    
     // Update buttons
     const pasteBtn = document.querySelector('.btn-paste span');
     const clearBtn = document.querySelector('.btn-clear span');

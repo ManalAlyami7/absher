@@ -133,10 +133,12 @@ const translations = {
     ar: {
         // Header & Brand
         language: 'EN',
+        languageAr: 'عربي',
         darkMode: 'الإضاءة',
         history: 'السجل',
         save: 'حفظ',
         report: 'إبلاغ',
+        app: 'التطبيق',
         
         // Privacy
         privacyNotice: 'نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا',
@@ -200,8 +202,8 @@ const translations = {
         feature8: 'حماية شاملة',
         downloadBtn: 'تحميل التطبيق - 5 ريال/شهر',
         trial: '✨ تجربة مجانية لمدة 7 أيام',
-        appStores: 'المميزات المتاحة:',
-        terms: 'بتنزيل التطبيق، توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت',
+        termsAr: 'بتنزيل التطبيق، توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت',
+        terms: 'By downloading the app, you agree to <a href="#" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a>. Cancel anytime',
         
         // Notifications
         notifPasted: '✅ تم اللصق بنجاح',
@@ -223,10 +225,12 @@ const translations = {
     en: {
         // Header & Brand
         language: 'عربي',
+        languageAr: 'EN',
         darkMode: 'Theme',
         history: 'History',
         save: 'Export',
         report: 'Report',
+        app: 'App',
         
         // Privacy
         privacyNotice: 'We do not save or store the messages you check. Your privacy matters to us',
@@ -290,7 +294,6 @@ const translations = {
         feature8: 'Complete Protection',
         downloadBtn: 'Download App - 5 SAR/month',
         trial: '✨ 7-day free trial',
-        appStores: 'Available features:',
         terms: 'By downloading the app, you agree to <a href="#" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a>. Cancel anytime',
         
         // Notifications

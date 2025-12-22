@@ -1502,7 +1502,7 @@
 }
 
 .premium-modal .modal-content {
-    max-height: 100vh;
+    max-height: 75vh;
     overflow-y: auto;
     padding: 25px;
     max-width: 500px;
@@ -1685,23 +1685,24 @@
 }
 
 .premium-modal .modal-body {
-    max-height: calc(60vh - 150px);
+    max-height: calc(75vh - 150px);
     overflow-y: auto;
-    padding-right: 5px;
+    padding-right: 10px;
 }
 
 .premium-modal .modal-body::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 .premium-modal .modal-body::-webkit-scrollbar-track {
     background: rgba(0, 108, 53, 0.1);
-    border-radius: 3px;
+    border-radius: 4px;
+    margin: 5px 0;
 }
 
 .premium-modal .modal-body::-webkit-scrollbar-thumb {
     background: var(--primary);
-    border-radius: 3px;
+    border-radius: 4px;
 }
 
 .premium-modal .modal-body::-webkit-scrollbar-thumb:hover {

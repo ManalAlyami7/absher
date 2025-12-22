@@ -215,7 +215,11 @@ def calculate_enhanced_risk(
             llm_risk = llm_analysis.confidence
             # Adjust LLM risk based on trust level
             if not llm_analysis.is_phishing and not has_critical_flags:
-                llm_risk = min(llm_risk, 40.0)  # Lower risk for non-phishing with no critical flags
+                # If message is not phishing and no critical flags, use lower risk score
+                if not urls:  # No URLs = likely safe message
+                    llm_risk = min(llm_risk, 10.0)
+                else:
+                    llm_risk = min(llm_risk, 40.0)  # Lower risk for non-phishing with no critical flags
             elif llm_analysis.is_phishing:
                 llm_risk = max(llm_risk, 30.0)  # Ensure phishing has adequate risk score
             combined = (ml_score * 0.4) + (llm_risk * 0.6)

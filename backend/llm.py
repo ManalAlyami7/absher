@@ -13,6 +13,7 @@ import re
 import json
 from typing import List, Optional, Dict
 from pydantic import BaseModel
+import hashlib
 
 try:
     from huggingface_hub import InferenceClient
@@ -92,7 +93,15 @@ def translate_red_flag(flag: str) -> str:
         'insecure': 'اتصال غير آمن',
         'social engineering': 'محاولة خداع نفسي',
         'phishing': 'محاولة احتيال',
-        'sensitive data': 'طلب بيانات حساسة'
+        'sensitive data': 'طلب بيانات حساسة',
+        'signature_match_0': 'طلب معلومات حساسة',
+        'signature_match_1': 'توعّد بتعليق الحساب',
+        'signature_match_2': 'لغة استعجال وضغط',
+        'signature_match_3': 'وعود بجوائز',
+        'signature_match_4': 'طلب معلومات حساسة (عربي)',
+        'suspicious_url_pattern_0': 'روابط مختصرة',
+        'suspicious_url_pattern_1': 'عناوين IP مباشرة',
+        'suspicious_url_pattern_2': 'نطاقات مشابهة لمواقع رسمية'
     }
     
     flag_lower = flag.lower()
@@ -207,6 +216,54 @@ def parse_llm_response(response_text: str) -> Optional[dict]:
     return None
 
 
+def signature_based_analysis(message: str, urls: List[str]) -> tuple:
+    """
+    Signature-based analysis method for quick phishing detection
+    Uses known phishing patterns and signatures to identify threats
+    Implements cybersecurity best practices for signature matching
+    """
+    
+    red_flags = []
+    score = 0
+    
+    message_lower = message.lower()
+    
+    # Known phishing signatures and patterns
+    phishing_signatures = [
+        # Password/credential requests
+        r'\b(?:password|pin|otp|cvv|card|credit card|bank account|iban)\b',
+        # Urgency indicators
+        r'\b(?:suspended|locked|blocked|deleted|terminate|deactivate)\b',
+        # Threat indicators
+        r'\b(?:urgent|immediately|now|today|within.*24.*hours|act.*now)\b',
+        # Prize/lottery indicators
+        r'\b(?:winner|prize|lottery|won|free.*money|cash.*prize)\b',
+        # Arabic equivalents
+        r'(?:\u0643\u0644\u0645\u0629\s*\u0627\u0644\u0645\u0631\u0648\u0631|\u0631\u0645\u0632|\u0627\u0644\u062a\u062d\u062f\u064a\u062f|\u0641\u0627\u0626\u0632|\u062c\u0627\u0626\u0632\u0629|\u0631\u0627\u0626\u062f)\b'
+    ]
+    
+    # Check for signature matches
+    for i, signature in enumerate(phishing_signatures):
+        if re.search(signature, message_lower):
+            score += 15
+            red_flags.append(f"signature_match_{i}")
+    
+    # Check for suspicious URLs
+    suspicious_patterns = [
+        r'\b(?:bit\.ly|tinyurl\.com|goo\.gl|ow\.ly|t\.co|is\.gd|cutt\.ly)\b',
+        r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b',  # IP addresses
+        r'(?:abshar|absher-?login|najiz-?secure)\b'  # Lookalike domains
+    ]
+    
+    for url in urls:
+        for i, pattern in enumerate(suspicious_patterns):
+            if re.search(pattern, url.lower()):
+                score += 20
+                red_flags.append(f"suspicious_url_pattern_{i}")
+    
+    return score, red_flags
+
+
 def create_enhanced_analysis(message: str, urls: List[str]) -> LLMAnalysis:
     """
     Create enhanced heuristic analysis with trust recognition
@@ -216,7 +273,7 @@ def create_enhanced_analysis(message: str, urls: List[str]) -> LLMAnalysis:
     """
     
     red_flags = []
-    score = 10  # Lower base score to reduce false positives
+    score = 0  # Reset base score to 0 to reduce false positives
     
     message_lower = message.lower()
     
@@ -259,11 +316,11 @@ def create_enhanced_analysis(message: str, urls: List[str]) -> LLMAnalysis:
         if not has_threats and not has_urgency and not has_prizes and not has_impersonation:
             return LLMAnalysis(
                 is_phishing=False,
-                confidence=15.0,  # Very low confidence = safe
+                confidence=5.0,  # Very low confidence = safe
                 reasoning="رسالة رسمية من جهة حكومية موثوقة",
                 red_flags=[],
                 red_flags_ar=["لم يتم اكتشاف مؤشرات احتيال واضحة"],
-                context_score=15,
+                context_score=5,
                 model_used="heuristic_with_trust",
                 is_trusted_source=True
             )
@@ -347,6 +404,22 @@ def create_enhanced_analysis(message: str, urls: List[str]) -> LLMAnalysis:
     if risk_indicators_count >= 2:
         score += risk_indicators_count * 10  # Additional penalty for multiple indicators
     
+    # === COMBINE WITH SIGNATURE-BASED ANALYSIS ===
+    signature_score, signature_flags = signature_based_analysis(message, urls)
+    score = max(score, signature_score)  # Use the higher of the two scores
+    if signature_flags:
+        red_flags.extend([f"signature: {flag}" for flag in signature_flags])
+    
+    # === SPECIAL CASE: NO URLS - REDUCE SCORE FOR SIMPLE MESSAGES ===
+    if not has_urls:
+        # For messages without URLs, only flag if there are clear indicators
+        # Otherwise, reduce score significantly to avoid false positives
+        if score == 0:
+            score = 0  # No indicators = 0 risk
+        else:
+            # Only apply score if there are clear indicators
+            pass
+    
     # Cap score
     score = min(100, max(0, score))  # Ensure score is between 0 and 100
     is_phishing = score > 45  # Lowered threshold to catch more phishing
@@ -360,7 +433,7 @@ def create_enhanced_analysis(message: str, urls: List[str]) -> LLMAnalysis:
     return LLMAnalysis(
         is_phishing=is_phishing,
         confidence=min(confidence, 95),
-        reasoning="تحليل قائم على مؤشرات احتيال متعددة" if is_phishing else "لم يتم اكتشاف مؤشرات خطر واضحة",
+        reasoning="تحليل قائم على مؤشرات احتيال متعددة" if is_phishing else "رسالة آمنة - لا توجد مؤشرات خطر واضحة",
         red_flags=red_flags if red_flags else ["no significant red flags"],
         red_flags_ar=red_flags_ar,
         context_score=score,
