@@ -1284,19 +1284,7 @@
     margin-bottom: 25px;
 }
 
-.premium-pricing-badge {
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    color: white;
-    display: inline-block;
-    padding: 6px 16px;
-    border-radius: 50px;
-    margin-bottom: 15px;
-    font-weight: bold;
-    box-shadow: 0 6px 15px rgba(0, 108, 53, 0.3);
-    position: relative;
-    overflow: hidden;
-    font-size: 0.9rem;
-}
+
 
 .price-amount {
     font-size: 1.5rem;
