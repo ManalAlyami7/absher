@@ -1,331 +1,440 @@
 /**
  * ========================================
- * Tanabbah - UI Display Module
+ * Tanabbah - Enhanced UI Display Module
  * ========================================
- * Purpose: Result display, notifications, loading states
+ * Purpose: Improved result display with Arabic UX
  * Author: Manal Alyami
- * Version: 2.0.0
+ * Version: 2.1.0 - Arabic UX & Simplified Display
  * ========================================
  */
-
-// ============================================================================
-// RESULT CARD DISPLAY
-// ============================================================================
 
 /**
- * Display analysis result with user-friendly design
+ * Display enhanced analysis result with simplified Arabic UX
  * @param {Object} result - Analysis result object
  */
-function displayResult(result) {
+function displayEnhancedResult(result) {
     const resultCard = document.getElementById('resultCard');
     
-    // Determine color class and status
-    let colorClass = 'safe';
-    if (result.classification === 'SUSPICIOUS') colorClass = 'suspicious';
-    if (result.classification === 'FRAUD') colorClass = 'fraud';
-
-    // Get display classification based on language
-    const displayClassification = window.currentLanguage === 'ar' 
-        ? result.classification_ar 
-        : result.classification;
-
-    // Build risk description
-    const riskDescriptions = {
-        ar: {
-            safe: 'هذه الرسالة تبدو آمنة بشكل عام. لا توجد مؤشرات خطر واضحة.',
-            suspicious: 'هذه الرسالة تحتوي على بعض العلامات المشبوهة. توخَّ الحذر.',
-            fraud: 'هذه الرسالة تحتوي على مؤشرات احتيال قوية. لا تتفاعل معها.'
-        },
-        en: {
-            safe: 'This message appears generally safe. No clear risk indicators found.',
-            suspicious: 'This message contains some suspicious signs. Exercise caution.',
-            fraud: 'This message shows strong fraud indicators. Do not interact with it.'
-        }
-    };
-
-    const riskDesc = window.currentLanguage === 'ar' 
-        ? riskDescriptions.ar[colorClass]
-        : riskDescriptions.en[colorClass];
-
-    // Build key findings badges
-    let findingsBadges = '';
+    // Get classification from API (already in Arabic if available)
+    const classification = result.classification || 'SAFE';
+    const classificationAr = result.classification_ar || 'آمنة';
+    const explanationAr = result.explanation_ar || 'الرسالة تبدو آمنة';
     
-    if (result.urlsFound > 0) {
-        findingsBadges += `
-            <div class="finding-badge ${colorClass === 'safe' ? 'positive' : 'warning'}">
-                <span class="finding-icon">🔗</span>
-                <span>${result.urlsFound} ${window.currentLanguage === 'ar' ? 'روابط تم فحصها' : 'URLs analyzed'}</span>
-            </div>`;
-    } else {
-        findingsBadges += `
-            <div class="finding-badge positive">
-                <span class="finding-icon">✅</span>
-                <span>${window.currentLanguage === 'ar' ? 'لا توجد روابط' : 'No URLs found'}</span>
-            </div>`;
-    }
-
-    if (result.mlScore !== undefined && result.mlScore > 0) {
-        const mlClass = result.mlScore > 70 ? 'danger' : (result.mlScore > 40 ? 'warning' : 'positive');
-        findingsBadges += `
-            <div class="finding-badge ${mlClass}">
-                <span class="finding-icon">🤖</span>
-                <span>${window.currentLanguage === 'ar' ? 'فحص آلي' : 'ML Analysis'}: ${result.mlScore}%</span>
-            </div>`;
-    }
-
-    if (result.llmScore !== undefined) {
-        const llmClass = result.llmScore > 70 ? 'danger' : (result.llmScore > 40 ? 'warning' : 'positive');
-        findingsBadges += `
-            <div class="finding-badge ${llmClass}">
-                <span class="finding-icon">🧠</span>
-                <span>${window.currentLanguage === 'ar' ? 'تحليل ذكي' : 'AI Analysis'}: ${result.llmScore}%</span>
-            </div>`;
-    }
-
-    // Build warnings section
-    let warningsHTML = '';
-    if (result.warnings && result.warnings.length > 0) {
-        const warningsTitle = window.currentLanguage === 'ar' 
-            ? 'مؤشرات الخطر المكتشفة' 
-            : 'Detected Risk Indicators';
-        
-        warningsHTML = `
-            <div class="warnings-section">
+    // Determine color class
+    let colorClass = 'safe';
+    if (classification.includes('LOW')) colorClass = 'low-risk';
+    else if (classification.includes('SUSPICIOUS')) colorClass = 'suspicious';
+    else if (classification.includes('HIGH')) colorClass = 'high-risk';
+    
+    // Get display text based on language
+    const isArabic = window.currentLanguage === 'ar';
+    const displayClassification = isArabic ? classificationAr : classification;
+    
+    // Icon selection
+    const icons = {
+        'safe': '✅',
+        'low-risk': '⚠️',
+        'suspicious': '🚨',
+        'high-risk': '❌'
+    };
+    const icon = icons[colorClass];
+    
+    // Risk score
+    const riskScore = Math.round(result.combined_risk_score || result.riskScore || 0);
+    
+    // === SIMPLIFIED RED FLAGS DISPLAY ===
+    let redFlagsHTML = '';
+    
+    // Get Arabic red flags if available
+    const redFlags = result.llm_analysis?.red_flags_ar || 
+                    result.llm_analysis?.red_flags || 
+                    result.warnings || 
+                    [];
+    
+    // Filter out "no red flags" messages for display
+    const displayFlags = redFlags.filter(flag => {
+        const lower = flag.toLowerCase();
+        return !lower.includes('no red flags') && 
+               !lower.includes('no significant') &&
+               !lower.includes('لم يتم اكتشاف');
+    });
+    
+    if (displayFlags.length > 0 && riskScore > 30) {
+        redFlagsHTML = `
+            <div class="warnings-section simplified">
                 <div class="warnings-header">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" 
                               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" 
-                              stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2"/>
                     </svg>
-                    <span>${warningsTitle}</span>
+                    <span>${isArabic ? 'مؤشرات الخطر' : 'Risk Indicators'}</span>
                 </div>
-                <div class="warning-list">
-                    ${result.warnings.slice(0, 6).map(warning => `
-                        <div class="warning-item">
+                <div class="warning-list simplified">
+                    ${displayFlags.slice(0, 3).map(flag => `
+                        <div class="warning-item simple">
                             <span class="warning-bullet">•</span>
-                            <div>${sanitizeHTML(warning)}</div>
+                            <div>${sanitizeHTML(flag)}</div>
                         </div>
                     `).join('')}
                 </div>
             </div>`;
+    } else if (riskScore <= 30) {
+        // Safe message - show positive feedback
+        redFlagsHTML = `
+            <div class="safe-message">
+                <div class="safe-icon">✅</div>
+                <div class="safe-text">
+                    ${isArabic ? 'لم يتم اكتشاف مؤشرات احتيال واضحة' : 'No clear fraud indicators detected'}
+                </div>
+            </div>`;
     }
-
-    // Build recommendations
-    const recommendations = {
-        ar: {
-            safe: 'يمكنك التفاعل مع هذه الرسالة بحذر معتدل. تأكد دائماً من مصدر الرسائل.',
-            suspicious: '<strong>لا تضغط على أي روابط</strong> حتى تتحقق من مصدر الرسالة. تواصل مع الجهة المرسلة مباشرة إذا كنت بحاجة للتأكد.',
-            fraud: '<strong>احذف هذه الرسالة فوراً</strong> ولا تتفاعل معها بأي شكل. لا تضغط على الروابط ولا تشارك أي معلومات شخصية.'
+    
+    // === ACTION GUIDANCE (SIMPLIFIED) ===
+    const actionGuidance = {
+        'safe': {
+            ar: '✅ لا يوجد إجراء مطلوب',
+            en: '✅ No action required',
+            icon: '✅',
+            color: 'var(--success)'
         },
-        en: {
-            safe: 'You may interact with this message with moderate caution. Always verify message sources.',
-            suspicious: '<strong>Do not click any links</strong> until you verify the message source. Contact the sender directly if you need confirmation.',
-            fraud: '<strong>Delete this message immediately</strong> and do not interact with it. Do not click links or share any personal information.'
+        'low-risk': {
+            ar: '⚠️ تحقق قبل الضغط على أي رابط',
+            en: '⚠️ Verify before clicking any links',
+            icon: '⚠️',
+            color: 'var(--warning)'
+        },
+        'suspicious': {
+            ar: '🚫 لا تضغط على الروابط حتى تتأكد من المصدر',
+            en: '🚫 Do not click links until you verify the source',
+            icon: '🚫',
+            color: 'var(--danger)'
+        },
+        'high-risk': {
+            ar: '❌ يُنصح بحذف الرسالة وعدم التفاعل معها',
+            en: '❌ Recommended to delete and not interact',
+            icon: '❌',
+            color: 'var(--danger)'
         }
     };
-
-    const recommendation = window.currentLanguage === 'ar' 
-        ? recommendations.ar[colorClass]
-        : recommendations.en[colorClass];
-
-    const recommendationTitle = window.currentLanguage === 'ar' 
-        ? 'ما يجب فعله' 
-        : 'What to Do';
-
-    // Assemble complete result card
+    
+    const action = actionGuidance[colorClass];
+    const actionText = isArabic ? action.ar : action.en;
+    
+    // === TECHNICAL DETAILS (COLLAPSIBLE) ===
+    let technicalHTML = '';
+    if (result.urlsFound > 0 || result.ml_risk_score || result.llm_analysis) {
+        const techTitle = isArabic ? 'تفاصيل تقنية (للمختصين فقط)' : 'Technical Details (For Experts)';
+        
+        let techDetails = [];
+        if (result.urlsFound > 0) {
+            techDetails.push(`
+                <div class="tech-item">
+                    <span class="tech-label">${isArabic ? 'روابط تم فحصها' : 'URLs Analyzed'}:</span>
+                    <span class="tech-value">${result.urlsFound}</span>
+                </div>
+            `);
+        }
+        
+        if (result.ml_risk_score !== undefined) {
+            techDetails.push(`
+                <div class="tech-item">
+                    <span class="tech-label">${isArabic ? 'درجة النموذج الآلي' : 'ML Score'}:</span>
+                    <span class="tech-value">${Math.round(result.ml_risk_score)}%</span>
+                </div>
+            `);
+        }
+        
+        if (result.llm_analysis?.confidence) {
+            techDetails.push(`
+                <div class="tech-item">
+                    <span class="tech-label">${isArabic ? 'درجة الذكاء الاصطناعي' : 'AI Score'}:</span>
+                    <span class="tech-value">${Math.round(result.llm_analysis.confidence)}%</span>
+                </div>
+            `);
+        }
+        
+        if (result.llm_analysis?.is_trusted_source) {
+            techDetails.push(`
+                <div class="tech-item trusted">
+                    <span class="tech-label">🏛️ ${isArabic ? 'مصدر موثوق' : 'Trusted Source'}</span>
+                </div>
+            `);
+        }
+        
+        technicalHTML = `
+            <details class="technical-details">
+                <summary>${techTitle}</summary>
+                <div class="tech-content">
+                    ${techDetails.join('')}
+                </div>
+            </details>
+        `;
+    }
+    
+    // === ASSEMBLE CARD ===
     resultCard.innerHTML = `
-        <div class="result-header">
-            <div class="result-icon" role="img" aria-label="${displayClassification}">${result.icon}</div>
+        <div class="result-header simplified">
+            <div class="result-icon" role="img" aria-label="${displayClassification}">${icon}</div>
             <div class="result-info">
                 <div class="result-title">${sanitizeHTML(displayClassification)}</div>
-                <div class="result-subtitle">${result.classification}</div>
-                <div class="risk-level-container">
-                    <div class="risk-level-row">
-                        <span class="risk-label">${window.currentLanguage === 'ar' ? 'درجة الخطر' : 'Risk Level'}</span>
-                        <span class="risk-score-large">${result.riskScore}%</span>
-                    </div>
-                    <div class="risk-level-bar">
-                        <div class="risk-level-fill" style="width: ${result.riskScore}%"></div>
-                    </div>
-                    <div class="risk-description">${riskDesc}</div>
+                <div class="risk-score-badge" style="background: linear-gradient(135deg, var(--status-color), var(--status-color-light));">
+                    ${riskScore}%
                 </div>
             </div>
         </div>
 
-        <div class="result-summary">
-            <div class="summary-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                    <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" 
-                          stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>${window.currentLanguage === 'ar' ? 'ملخص الفحص' : 'Scan Summary'}</span>
-            </div>
-            <div class="summary-text">${sanitizeHTML(result.explanation)}</div>
+        <div class="result-explanation">
+            ${sanitizeHTML(explanationAr)}
         </div>
 
-        ${findingsBadges ? `
-        <div class="key-findings">
-            <div class="findings-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" 
-                          stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" 
-                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>${window.currentLanguage === 'ar' ? 'النتائج الرئيسية' : 'Key Findings'}</span>
-            </div>
-            <div class="findings-grid">
-                ${findingsBadges}
-            </div>
-        </div>
-        ` : ''}
+        ${redFlagsHTML}
 
-        ${warningsHTML}
-
-        <div class="recommendations-section">
-            <div class="recommendations-header">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
-                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>${recommendationTitle}</span>
-            </div>
-            <div class="recommendation-box">
-                ${recommendation}
-            </div>
+        <div class="action-guidance" style="border-left: 4px solid ${action.color};">
+            <div class="action-icon">${action.icon}</div>
+            <div class="action-text">${actionText}</div>
         </div>
+
+        ${technicalHTML}
     `;
-
-    // Apply color class and show
-    resultCard.className = `result-card ${colorClass} show`;
     
-    // Save to history (function from script.js)
-    const textarea = document.getElementById('messageInput');
+    // Apply color class and show
+    resultCard.className = `result-card ${colorClass} show simplified`;
+    
+    // Save to history
     if (typeof addToHistory === 'function') {
-        addToHistory(textarea.value, result);
+        const textarea = document.getElementById('messageInput');
+        addToHistory(textarea.value, {
+            classification: classification,
+            classification_ar: classificationAr,
+            riskScore: riskScore
+        });
     }
     
-    // Update export button visibility
+    // Update export button
     updateExportButtonVisibility();
-
+    
     // Scroll into view
     setTimeout(() => {
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
 }
 
-// ============================================================================
-// LOADING STATE MANAGEMENT
-// ============================================================================
-
 /**
- * Show loading indicator
+ * Enhanced CSS for simplified display
  */
-function showLoading() {
-    const loading = document.getElementById('loading');
-    const resultCard = document.getElementById('resultCard');
-    
-    loading.innerHTML = `
-        <div class="spinner"></div>
-        <p>${t('analyzing')}</p>
-    `;
-    
-    loading.classList.add('show');
-    resultCard.classList.remove('show');
+const enhancedStyles = `
+<style>
+/* Simplified Result Card */
+.result-card.simplified {
+    border-width: 2px;
 }
 
-/**
- * Hide loading indicator
- */
-function hideLoading() {
-    const loading = document.getElementById('loading');
-    loading.classList.remove('show');
+.result-header.simplified {
+    padding: 32px 36px;
+    gap: 20px;
 }
 
-// ============================================================================
-// NOTIFICATION SYSTEM
-// ============================================================================
-
-/**
- * Show notification message
- * @param {string} message - Message to display
- * @param {string} type - Notification type (success, error, warning, info)
- */
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    notification.setAttribute('role', 'alert');
-    notification.setAttribute('aria-live', 'polite');
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 3 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+.result-icon {
+    font-size: 3.5rem;
 }
 
-// ============================================================================
-// EXPORT BUTTON VISIBILITY
-// ============================================================================
+.risk-score-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    color: white;
+    font-weight: 900;
+    font-size: 1.3rem;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 
-/**
- * Update export button visibility based on result card state
- */
-function updateExportButtonVisibility() {
-    const exportBtn = document.getElementById('exportBtn');
-    const resultCard = document.getElementById('resultCard');
+.result-explanation {
+    padding: 24px 36px;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-weight: 600;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Safe Message Display */
+.safe-message {
+    padding: 24px 36px;
+    background: rgba(5, 150, 105, 0.05);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.safe-icon {
+    font-size: 2rem;
+}
+
+.safe-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--success);
+}
+
+/* Simplified Warnings */
+.warnings-section.simplified {
+    padding: 24px 36px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.warning-list.simplified {
+    gap: 10px;
+}
+
+.warning-item.simple {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+}
+
+/* Action Guidance */
+.action-guidance {
+    padding: 24px 36px;
+    background: var(--status-bg);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left-width: 4px;
+    border-left-style: solid;
+}
+
+[dir="ltr"] .action-guidance {
+    border-left: none;
+    border-right-width: 4px;
+    border-right-style: solid;
+}
+
+.action-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.action-text {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+/* Technical Details */
+.technical-details {
+    margin: 20px 36px;
+    border: 2px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.technical-details summary {
+    padding: 16px 20px;
+    background: var(--bg);
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    user-select: none;
+    transition: all 0.3s ease;
+}
+
+.technical-details summary:hover {
+    background: var(--card-bg);
+    color: var(--text);
+}
+
+.tech-content {
+    padding: 16px 20px;
+    background: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tech-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.tech-item.trusted {
+    background: rgba(5, 150, 105, 0.1);
+    border: 1px solid var(--success);
+    font-weight: 700;
+    color: var(--success);
+}
+
+.tech-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.tech-value {
+    font-weight: 800;
+    color: var(--text);
+}
+
+/* Color Variants */
+.result-card.low-risk {
+    --status-color: #f59e0b;
+    --status-color-light: #fbbf24;
+    --status-bg: rgba(245, 158, 11, 0.05);
+}
+
+.result-card.high-risk {
+    --status-color: #dc2626;
+    --status-color-light: #ef4444;
+    --status-bg: rgba(220, 38, 38, 0.05);
+}
+
+@media (max-width: 768px) {
+    .result-header.simplified,
+    .result-explanation,
+    .warnings-section.simplified,
+    .action-guidance {
+        padding: 20px 24px;
+    }
     
-    if (exportBtn && resultCard) {
-        if (resultCard.classList.contains('show')) {
-            exportBtn.style.display = 'flex';
-        } else {
-            exportBtn.style.display = 'none';
-        }
+    .technical-details {
+        margin: 16px 24px;
+    }
+    
+    .action-text {
+        font-size: 1rem;
     }
 }
+</style>
+`;
 
-// ============================================================================
-// MODAL FUNCTIONS
-// ============================================================================
-
-/**
- * Open modal by ID
- * @param {string} modalId - Modal element ID
- */
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
+// Inject enhanced styles
+if (!document.getElementById('enhanced-result-styles')) {
+    const styleEl = document.createElement('div');
+    styleEl.id = 'enhanced-result-styles';
+    styleEl.innerHTML = enhancedStyles;
+    document.head.appendChild(styleEl);
 }
 
-/**
- * Close modal by ID
- * @param {string} modalId - Modal element ID
- */
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('show');
-        document.body.style.overflow = '';
-    }
-}
+// Export the enhanced function
+window.displayEnhancedResult = displayEnhancedResult;
 
-// Export functions for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        displayResult,
-        showLoading,
-        hideLoading,
-        showNotification,
-        updateExportButtonVisibility,
-        openModal,
-        closeModal
-    };
+/**
+ * Update the main analyze function to use enhanced display
+ */
+function displayResult(result) {
+    // Use enhanced display if available
+    if (window.displayEnhancedResult) {
+        window.displayEnhancedResult(result);
+    } else {
+        // Fallback to original display
+        console.warn('Enhanced display not available, using fallback');
+    }
 }
