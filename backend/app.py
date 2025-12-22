@@ -17,13 +17,13 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 # Import our modules
-from backend.ml_model import (
+from backend.ml import (
     predict_url, 
     extract_urls, 
     MODEL_LOADED, 
     URLPrediction
 )
-from backend.llm_analysis import (
+from backend.llm import (
     analyze_message_with_llm, 
     is_llm_available,
     LLMAnalysis
