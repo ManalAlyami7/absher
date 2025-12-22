@@ -193,7 +193,6 @@ async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LL
                 messages=messages,
                 temperature=0.2,
                 max_tokens=500,
-                timeout=10.0
             )
             
             # Extract response text
