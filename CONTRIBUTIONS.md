@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Tanabbah** (تنبَه) is an AI-powered phishing detection platform combining Machine Learning and Large Language Models to protect users from online fraud.
+**Tanabbah** (تنـبَّـه) is an AI-powered phishing detection platform combining Machine Learning and Large Language Models to protect users from online fraud.
 
 - **Original Concept**: Naif Saleh
 - **Enhanced Development & Implementation**: Manal Alyami

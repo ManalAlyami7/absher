@@ -555,7 +555,7 @@ function exportResult() {
     const textarea = document.getElementById('messageInput');
     const timestamp = getTimestamp();
     
-    const exportData = `تنبَه - Tanabbah
+    const exportData = `تنـبَّـه - Tanabbah
 ${'='.repeat(50)}
 ${timestamp}
 
