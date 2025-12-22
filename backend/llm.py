@@ -315,12 +315,12 @@ async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LL
         ]
         
         try:
-            response = llm_client.chat.completions.create(
-                model=LLM_MODEL,
-                messages=messages,
-                temperature=0.1,  # Lower temperature for consistency
-                max_tokens=500,
-            )
+            response = llm_client.chat_completion(
+            model=LLM_MODEL,
+            messages=messages,
+            temperature=0.1,
+            max_tokens=500,
+        )
             
             if hasattr(response, 'choices') and response.choices:
                 response_text = response.choices[0].message.content
