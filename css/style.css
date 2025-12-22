@@ -13,6 +13,7 @@
    ============================================================================ */
 
 * {
+    
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -83,11 +84,13 @@ body.dark-mode {
 [dir="rtl"] {
     direction: rtl;
     text-align: right;
+    font-family: 'Dubai', 'Geeza Pro', 'Arabic UI', 'Arial', 'Tahoma', sans-serif;
 }
 
 [dir="ltr"] {
     direction: ltr;
     text-align: left;
+    font-family: 'Segoe UI', 'SF Pro Display', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 /* ============================================================================
@@ -95,8 +98,7 @@ body.dark-mode {
    ============================================================================ */
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Dubai', 
-                 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Segoe UI', 'Dubai', 'SF Pro Display', 'Helvetica Neue', 'Arial', 'Tahoma', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -217,10 +219,10 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 11px 20px;
+    padding: 12px 22px;
     background: transparent;
     border: 2px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--text);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -229,6 +231,9 @@ body {
     white-space: nowrap;
     position: relative;
     overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .header-btn::before {
@@ -247,27 +252,112 @@ body {
 }
 
 .header-btn:hover {
-    background: var(--bg);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
     border-color: var(--primary);
-    color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 108, 53, 0.3);
 }
 
 .header-btn:active {
     transform: translateY(0);
 }
 
+.header-btn.premium-btn {
+    background: linear-gradient(135deg, var(--accent), #b87820);
+    color: white;
+    border-color: var(--accent);
+    position: relative;
+    overflow: hidden;
+}
+
+.header-btn.premium-btn:hover {
+    background: linear-gradient(135deg, #b87820, var(--accent));
+    color: white;
+    border-color: #b87820;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(205, 143, 42, 0.4);
+}
+
+.header-btn.premium-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.header-btn.premium-btn:hover::before {
+    left: 100%;
+}
+
 /* Special Button Styles */
+.history-btn {
+    border-color: var(--primary);
+    color: var(--primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.history-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.history-btn:hover {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-color: var(--primary);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 108, 53, 0.3);
+}
+
+.history-btn:hover::before {
+    opacity: 0.15;
+}
+
+
 .report-btn {
     border-color: var(--danger);
     color: var(--danger);
+    position: relative;
+    overflow: hidden;
+}
+
+.report-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--danger), #a01f24);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
 }
 
 .report-btn:hover {
-    background: rgba(193, 39, 45, 0.08);
+    background: linear-gradient(135deg, var(--danger), #a01f24);
     border-color: var(--danger);
-    color: var(--danger);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(193, 39, 45, 0.3);
+}
+
+.report-btn:hover::before {
+    opacity: 0.15;
 }
 
 /* ============================================================================
@@ -320,6 +410,15 @@ body {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
 
@@ -448,7 +547,7 @@ body {
 .btn {
     padding: 16px 26px;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 1.05rem;
     font-weight: 800;
     cursor: pointer;
@@ -457,9 +556,13 @@ body {
     align-items: center;
     justify-content: center;
     gap: 11px;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    border: 2px solid transparent;
 }
 
 .btn span,
@@ -472,6 +575,21 @@ body {
     background: var(--card-bg);
     color: var(--text);
     border: 2px solid var(--border);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-paste::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
 }
 
 .btn-paste:hover {
@@ -479,20 +597,75 @@ body {
     border-color: var(--primary);
     color: var(--primary);
     transform: translateY(-3px);
-    box-shadow: var(--shadow);
+    box-shadow: 0 6px 20px rgba(0, 108, 53, 0.3);
+}
+
+.btn-paste:hover::before {
+    opacity: 0.1;
 }
 
 .btn-clear {
     background: var(--card-bg);
     color: var(--danger);
     border: 2px solid var(--danger);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-clear::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--danger), #a01f24);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
 }
 
 .btn-clear:hover {
     background: var(--danger);
     color: white;
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(193, 39, 45, 0.35);
+    box-shadow: 0 8px 24px rgba(193, 39, 45, 0.4);
+}
+
+.btn-clear:hover::before {
+    opacity: 0.15;
+}
+
+.btn-danger {
+    background: var(--card-bg);
+    color: var(--danger);
+    border: 2px solid var(--danger);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-danger::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--danger), #a01f24);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(193, 39, 45, 0.4);
+}
+
+.btn-danger:hover::before {
+    opacity: 0.15;
 }
 
 .btn-analyze {
@@ -500,11 +673,30 @@ body {
     color: white;
     font-size: 1.15rem;
     border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-analyze::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
 }
 
 .btn-analyze:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(0, 108, 53, 0.4);
+    box-shadow: 0 12px 35px rgba(0, 108, 53, 0.5);
+}
+
+.btn-analyze:hover::before {
+    opacity: 1;
 }
 
 .btn:active {

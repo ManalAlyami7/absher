@@ -26,6 +26,7 @@ window.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupTextareaAutoDirection();
     setupKeyboardShortcuts();
+    setupHistorySearch();
 });
 
 /**
@@ -54,7 +55,31 @@ function initializeApp() {
     // Update UI language
     updateUILanguage();
     
+    // Hide splash screen after initialization
+    setTimeout(hideSplashScreen, 2500);
+    
     console.log('✅ Tanabbah initialized successfully');
+}
+
+/**
+ * Hide the splash screen with fade out animation
+ */
+function hideSplashScreen() {
+    const splashScreen = document.getElementById('splashScreen');
+    const container = document.querySelector('.container');
+    
+    if (splashScreen) {
+        splashScreen.classList.add('hidden');
+        
+        // Remove splash screen after animation completes
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+        }, 500);
+    }
+    
+    if (container) {
+        container.style.display = 'block';
+    }
 }
 
 /**
@@ -230,7 +255,14 @@ function updateUILanguage() {
         mainTitle: 'mainTitle',
         mainSubtitle: 'mainSubtitle',
         tipsTitleText: 'tipsTitle',
-        officialSitesTitleText: 'officialSitesTitle'
+        officialSitesTitleText: 'officialSitesTitle',
+        historyModalTitle: 'historyTitle',
+        clearHistoryBtnText: 'clearHistory',
+        reportModalTitle: 'reportTitle',
+        reportDescriptionText: 'reportDescription',
+        reportInfoText: 'reportInfo',
+        sendReportBtnText: 'sendReport',
+        cancelReportBtnText: 'cancel'
     };
 
     for (const [id, key] of Object.entries(textUpdates)) {
@@ -241,11 +273,7 @@ function updateUILanguage() {
     // Update footer with innerHTML (to preserve formatting)
     const footerEl = document.getElementById('footerText');
     if (footerEl) {
-        if (window.currentLanguage === 'ar') {
-            footerEl.innerHTML = '<strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.';
-        } else {
-            footerEl.innerHTML = '<strong>Tanabbah</strong> is an independent app not affiliated with any government entity. Its purpose is to raise awareness and protect users from online fraud.';
-        }
+        footerEl.innerHTML = t('footerText');
     }
 
     // Update buttons
@@ -262,6 +290,11 @@ function updateUILanguage() {
 
     // Update tips list
     updateTipsList();
+    
+    // Update premium modal language
+    if (typeof updatePremiumModalLanguage === 'function') {
+        updatePremiumModalLanguage();
+    }
 }
 
 /**
@@ -283,6 +316,93 @@ function updateTipsList() {
 // ============================================================================
 // HISTORY MANAGEMENT
 // ============================================================================
+
+/**
+ * Setup history search functionality
+ */
+function setupHistorySearch() {
+    const searchInput = document.getElementById('historySearch');
+    const searchBtn = document.getElementById('historySearchBtn');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(filterHistory, 300));
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterHistory();
+            }
+        });
+    }
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', filterHistory);
+    }
+}
+
+/**
+ * Debounce function to limit rate of function calls
+ * @param {Function} func - Function to debounce
+ * @param {number} delay - Delay in milliseconds
+ * @returns {Function} Debounced function
+ */
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+/**
+ * Filter history based on search term
+ */
+function filterHistory() {
+    const searchTerm = document.getElementById('historySearch').value.toLowerCase().trim();
+    const historyList = document.getElementById('historyList');
+    const historyActions = document.getElementById('historyActions');
+    
+    if (!historyList) return;
+    
+    // Filter history items
+    let filteredHistory = analysisHistory;
+    if (searchTerm) {
+        filteredHistory = analysisHistory.filter(item => 
+            item.message.toLowerCase().includes(searchTerm) ||
+            (item.classification && item.classification.toLowerCase().includes(searchTerm)) ||
+            (item.classification_ar && item.classification_ar.toLowerCase().includes(searchTerm)) ||
+            (item.riskScore && item.riskScore.toString().includes(searchTerm)))
+        
+    }
+    
+    // Update display
+    if (filteredHistory.length === 0) {
+        historyList.innerHTML = `
+            <p style="color:var(--text-muted);text-align:center;padding:40px;">
+                ${searchTerm ? t('noHistory') + ' "' + searchTerm + '"' : t('noHistory')}
+            </p>`;
+        historyActions.style.display = 'none';
+    } else {
+        historyList.innerHTML = filteredHistory.map((item, idx) => {
+            // Find the actual index in the original array for proper deletion
+            const actualIdx = analysisHistory.findIndex(histItem => 
+                histItem.message === item.message && 
+                histItem.timestamp === item.timestamp
+            );
+            
+            return `
+                <div class="history-item" onclick="loadFromHistory(${actualIdx})">
+                    <button class="history-item-delete" 
+                            onclick="event.stopPropagation(); deleteHistoryItem(${actualIdx})">×</button>
+                    <div class="history-item-text">${item.message}...</div>
+                    <div class="history-item-meta">
+                        ${window.currentLanguage === 'ar' ? item.classification_ar : item.classification} 
+                        (${item.riskScore}%) • ${item.timestamp}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        historyActions.style.display = 'block';
+    }
+}
 
 /**
  * Add analysis result to history
@@ -308,29 +428,14 @@ function addToHistory(message, result) {
  * View analysis history
  */
 function viewHistory() {
-    const historyList = document.getElementById('historyList');
-    const historyActions = document.getElementById('historyActions');
-    
-    if (analysisHistory.length === 0) {
-        historyList.innerHTML = `
-            <p style="color:var(--text-muted);text-align:center;padding:40px;">
-                ${t('noHistory')}
-            </p>`;
-        historyActions.style.display = 'none';
-    } else {
-        historyList.innerHTML = analysisHistory.map((item, idx) => `
-            <div class="history-item" onclick="loadFromHistory(${idx})">
-                <button class="history-item-delete" 
-                        onclick="event.stopPropagation(); deleteHistoryItem(${idx})">×</button>
-                <div class="history-item-text">${item.message}...</div>
-                <div class="history-item-meta">
-                    ${window.currentLanguage === 'ar' ? item.classification_ar : item.classification} 
-                    (${item.riskScore}%) • ${item.timestamp}
-                </div>
-            </div>
-        `).join('');
-        historyActions.style.display = 'block';
+    // Clear search input
+    const searchInput = document.getElementById('historySearch');
+    if (searchInput) {
+        searchInput.value = '';
     }
+    
+    // Display all history items
+    filterHistory();
     
     openModal('historyModal');
 }
@@ -387,7 +492,13 @@ function exportResult() {
     const textarea = document.getElementById('messageInput');
     const timestamp = getTimestamp();
     
-    const exportData = `تنبَه - Tanabbah\n${'='.repeat(50)}\n${timestamp}\n\n${textarea.value}\n\n${resultText}`;
+    const exportData = `تنبَه - Tanabbah
+${'='.repeat(50)}
+${timestamp}
+
+${textarea.value}
+
+${resultText}`;
     
     // Try clipboard API first
     navigator.clipboard.writeText(exportData).then(() => {

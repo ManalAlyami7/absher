@@ -414,3 +414,13 @@ if (typeof module !== 'undefined' && module.exports) {
         checkAPIHealth
     };
 }
+
+// Make functions available globally in browser
+if (typeof window !== 'undefined') {
+    window.API_CONFIG = API_CONFIG;
+    window.analyzeViaAPI = analyzeViaAPI;
+    window.processEnhancedAPIResponse = processEnhancedAPIResponse;
+    window.performLocalAnalysis = performLocalAnalysis;
+    window.sendReportToAPI = sendReportToAPI;
+    window.checkAPIHealth = checkAPIHealth;
+}

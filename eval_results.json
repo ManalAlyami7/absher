@@ -1,0 +1,704 @@
+{
+  "evaluation_summary": {
+    "total_tests": 26,
+    "classification_accuracy": 0.46153846153846156,
+    "correct_classifications": 12,
+    "risk_score_consistency": 0.46153846153846156,
+    "consistent_risk_scores": 12,
+    "red_flags_metrics": {
+      "precision": 0.038461538461538464,
+      "recall": 0.2692307692307692,
+      "f1_score": 0.038461538461538464
+    }
+  },
+  "confusion_matrix": {
+    "SAFE": {
+      "SAFE": 5,
+      "SUSPICIOUS": 1,
+      "LOW_RISK": 0,
+      "HIGH_RISK": 0
+    },
+    "LOW_RISK": {
+      "SUSPICIOUS": 4,
+      "SAFE": 2,
+      "LOW_RISK": 0,
+      "HIGH_RISK": 0
+    },
+    "SUSPICIOUS": {
+      "SUSPICIOUS": 5,
+      "HIGH_RISK": 2,
+      "SAFE": 0,
+      "LOW_RISK": 0
+    },
+    "HIGH_RISK": {
+      "SUSPICIOUS": 5,
+      "HIGH_RISK": 2,
+      "SAFE": 0,
+      "LOW_RISK": 0
+    }
+  },
+  "detailed_results": [
+    {
+      "test_id": "safe_001",
+      "message": "مرحبا، اجتماعنا غدا الساعة 10 صباحا في المكتب. لا تنسى إحضار التقرير.",
+      "language": "ar",
+      "expected_label": "SAFE",
+      "expected_flags": [],
+      "predicted_label": "SAFE",
+      "predicted_flags": [
+        "لم يتم اكتشاف مؤشرات احتيال واضحة"
+      ],
+      "risk_score": 12.0,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 1.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 0
+      }
+    },
+    {
+      "test_id": "safe_002",
+      "message": "Hello, your order #12345 has been shipped. Track it here: https://amazon.com/track/abc123",
+      "language": "en",
+      "expected_label": "SAFE",
+      "expected_flags": [],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "untrusted URL",
+        "request for tracking"
+      ],
+      "risk_score": 68.0,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 1.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 0
+      }
+    },
+    {
+      "test_id": "safe_003",
+      "message": "تذكير: موعدك الطبي يوم الأحد القادم في مستشفى الملك فيصل. للاستفسار: 920012345",
+      "language": "ar",
+      "expected_label": "SAFE",
+      "expected_flags": [],
+      "predicted_label": "SAFE",
+      "predicted_flags": [
+        "لم يتم اكتشاف مؤشرات احتيال واضحة"
+      ],
+      "risk_score": 12.0,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 1.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 0
+      }
+    },
+    {
+      "test_id": "safe_004",
+      "message": "Your verification code is 123456. Valid for 10 minutes. Do not share this code with anyone.",
+      "language": "en",
+      "expected_label": "SAFE",
+      "expected_flags": [],
+      "predicted_label": "SAFE",
+      "predicted_flags": [
+        "no significant red flags"
+      ],
+      "risk_score": 12.0,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 1.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 0
+      }
+    },
+    {
+      "test_id": "safe_005",
+      "message": "إشعار من أبشر: تم إصدار تأشيرتك بنجاح. للاستعلام: https://absher.sa",
+      "language": "ar",
+      "expected_label": "SAFE",
+      "expected_flags": [],
+      "predicted_label": "SAFE",
+      "predicted_flags": [
+        "لم يتم اكتشاف مؤشرات احتيال واضحة"
+      ],
+      "risk_score": 15.0,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 1.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 0
+      }
+    },
+    {
+      "test_id": "lowrisk_001",
+      "message": "عرض خاص لفترة محدودة! خصم 50% على جميع المنتجات. اضغط هنا: https://shop-store.com/offers",
+      "language": "ar",
+      "expected_label": "LOW_RISK",
+      "expected_flags": [
+        "urgency tactics"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "untrusted URL",
+        "انتحال صفة جهة حكومية"
+      ],
+      "risk_score": 70.4,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 1,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "lowrisk_002",
+      "message": "Limited time offer! Get 30% off your next purchase. Click: https://deals-today.com",
+      "language": "en",
+      "expected_label": "LOW_RISK",
+      "expected_flags": [
+        "urgency tactics"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "suspicious URL name",
+        "untrusted domain"
+      ],
+      "risk_score": 56.4,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 1,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "lowrisk_003",
+      "message": "تنبيه: فاتورتك الشهرية جاهزة للعرض. قم بتسجيل الدخول على موقعنا لمراجعتها.",
+      "language": "ar",
+      "expected_label": "LOW_RISK",
+      "expected_flags": [],
+      "predicted_label": "SAFE",
+      "predicted_flags": [
+        "لم يتم اكتشاف مؤشرات احتيال واضحة"
+      ],
+      "risk_score": 12.0,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 1.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 0
+      }
+    },
+    {
+      "test_id": "lowrisk_004",
+      "message": "Your package delivery failed. Please update your address within 24 hours: http://delivery-update.net",
+      "language": "en",
+      "expected_label": "LOW_RISK",
+      "expected_flags": [
+        "urgency tactics",
+        "insecure links"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "untrusted URL",
+        "lack of trusted domain match"
+      ],
+      "risk_score": 61.6,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 2,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "lowrisk_005",
+      "message": "آخر فرصة! التسجيل ينتهي اليوم. سجل الآن على موقعنا.",
+      "language": "ar",
+      "expected_label": "LOW_RISK",
+      "expected_flags": [
+        "urgency tactics"
+      ],
+      "predicted_label": "SAFE",
+      "predicted_flags": [
+        "لم يتم اكتشاف مؤشرات احتيال واضحة"
+      ],
+      "risk_score": 12.0,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 1,
+        "total_actual": 1
+      }
+    },
+    {
+      "test_id": "suspicious_001",
+      "message": "تحذير! تم تعليق حسابك في أبشر. اضغط فورا: bit.ly/abs9876 لتحديث بياناتك خلال 24 ساعة.",
+      "language": "ar",
+      "expected_label": "SUSPICIOUS",
+      "expected_flags": [
+        "urgency tactics",
+        "shortened url",
+        "government impersonation"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة",
+        "تهديدات وإنذارات"
+      ],
+      "risk_score": 68.0,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 3,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "suspicious_002",
+      "message": "URGENT: Your bank account has been locked. Verify your identity immediately: tinyurl.com/bank123",
+      "language": "en",
+      "expected_label": "SUSPICIOUS",
+      "expected_flags": [
+        "urgency tactics",
+        "shortened url",
+        "threatening language"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "URL shortener (tinyurl.com)"
+      ],
+      "risk_score": 72.7,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 3,
+        "total_actual": 1
+      }
+    },
+    {
+      "test_id": "suspicious_003",
+      "message": "مبروك! فزت بجائزة 50,000 ريال. للمطالبة بالجائزة أدخل معلومات بطاقتك: https://win-prize.tk",
+      "language": "ar",
+      "expected_label": "SUSPICIOUS",
+      "expected_flags": [
+        "reward tactics",
+        "requests sensitive data",
+        "suspicious domain"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة",
+        "untrusted domain"
+      ],
+      "risk_score": 67.2,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 3,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "suspicious_004",
+      "message": "Your password will expire today. Update now to avoid account deletion: http://account-verify-now.com/update",
+      "language": "en",
+      "expected_label": "SUSPICIOUS",
+      "expected_flags": [
+        "urgency tactics",
+        "threatening language",
+        "insecure links"
+      ],
+      "predicted_label": "HIGH_RISK",
+      "predicted_flags": [
+        "URL shortener",
+        "aggressive threat"
+      ],
+      "risk_score": 76.4,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 3,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "suspicious_005",
+      "message": "من وزارة الداخلية: تحديث بياناتك مطلوب فورا. اضغط هنا: goo.gl/moi123 وإلا سيتم إيقاف خدماتك.",
+      "language": "ar",
+      "expected_label": "SUSPICIOUS",
+      "expected_flags": [
+        "government impersonation",
+        "shortened url",
+        "urgency tactics",
+        "threatening language"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة"
+      ],
+      "risk_score": 61.2,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 4,
+        "total_actual": 1
+      }
+    },
+    {
+      "test_id": "suspicious_006",
+      "message": "Netflix: Your payment failed. Update your credit card details immediately: http://netflix-payment.xyz/update",
+      "language": "en",
+      "expected_label": "SUSPICIOUS",
+      "expected_flags": [
+        "requests sensitive data",
+        "urgency tactics",
+        "suspicious domain",
+        "insecure links"
+      ],
+      "predicted_label": "HIGH_RISK",
+      "predicted_flags": [
+        "URL shortener",
+        "request for credit card details"
+      ],
+      "risk_score": 84.4,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 4,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "highrisk_001",
+      "message": "عاجل! حسابك البنكي سيغلق خلال ساعة. أدخل رمز بطاقتك ورقم CVV فورا: bit.ly/bank-urgent",
+      "language": "ar",
+      "expected_label": "HIGH_RISK",
+      "expected_flags": [
+        "requests sensitive data",
+        "shortened url",
+        "urgency tactics",
+        "threatening language"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة",
+        "request for sensitive information"
+      ],
+      "risk_score": 67.6,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 4,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "highrisk_002",
+      "message": "ALERT: Suspicious login detected. Confirm your password and PIN immediately: tinyurl.com/verify-now or account will be terminated.",
+      "language": "en",
+      "expected_label": "HIGH_RISK",
+      "expected_flags": [
+        "requests sensitive data",
+        "shortened url",
+        "urgency tactics",
+        "threatening language"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "URL shortener",
+        "aggressive threat"
+      ],
+      "risk_score": 69.6,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 4,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "highrisk_003",
+      "message": "من أبشر: حسابك معلق. أدخل كلمة المرور ورمز التحقق OTP هنا فورا: http://absher-verify.tk/login خلال ساعة واحدة.",
+      "language": "ar",
+      "expected_label": "HIGH_RISK",
+      "expected_flags": [
+        "government impersonation",
+        "requests sensitive data",
+        "suspicious domain",
+        "urgency tactics",
+        "insecure links"
+      ],
+      "predicted_label": "HIGH_RISK",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة",
+        "request for OTP"
+      ],
+      "risk_score": 76.0,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 5,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "highrisk_004",
+      "message": "Your account has been HACKED! Reset your password NOW and enter your credit card to verify identity: bit.ly/secure-reset-12345",
+      "language": "en",
+      "expected_label": "HIGH_RISK",
+      "expected_flags": [
+        "threatening language",
+        "requests sensitive data",
+        "shortened url",
+        "urgency tactics"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "URL shortener",
+        "request for credit card"
+      ],
+      "risk_score": 74.0,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 4,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "highrisk_005",
+      "message": "تنبيه أمني: تم محاولة اختراق حسابك. أدخل كلمة السر ورقم الهاتف ورقم الهوية فورا: goo.gl/security123 لمنع الإغلاق النهائي.",
+      "language": "ar",
+      "expected_label": "HIGH_RISK",
+      "expected_flags": [
+        "threatening language",
+        "requests sensitive data",
+        "shortened url",
+        "urgency tactics"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة",
+        "request for sensitive information",
+        "تهديدات وإنذارات"
+      ],
+      "risk_score": 66.4,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 4,
+        "total_actual": 3
+      }
+    },
+    {
+      "test_id": "highrisk_006",
+      "message": "FINAL WARNING: Tax refund of $5,000 waiting. Provide SSN, bank account, and password: http://irs-refund-claim.xyz/verify-now or lose claim forever.",
+      "language": "en",
+      "expected_label": "HIGH_RISK",
+      "expected_flags": [
+        "reward tactics",
+        "requests sensitive data",
+        "suspicious domain",
+        "urgency tactics",
+        "threatening language",
+        "insecure links"
+      ],
+      "predicted_label": "HIGH_RISK",
+      "predicted_flags": [
+        "aggressive threat",
+        "request for sensitive information",
+        "lookalike domain"
+      ],
+      "risk_score": 82.4,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 6,
+        "total_actual": 3
+      }
+    },
+    {
+      "test_id": "highrisk_007",
+      "message": "من ناجز: مطلوب دفع غرامة فورية 10,000 ريال. أدخل بيانات بطاقتك كاملة (الرقم، تاريخ الانتهاء، CVV): bit.ly/najiz-pay خلال ساعتين أو سيتم الحجز.",
+      "language": "ar",
+      "expected_label": "HIGH_RISK",
+      "expected_flags": [
+        "government impersonation",
+        "requests sensitive data",
+        "shortened url",
+        "urgency tactics",
+        "threatening language"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة",
+        "request for credit card details"
+      ],
+      "risk_score": 60.8,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 5,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "safe_006",
+      "message": "Reminder: Your library books are due tomorrow. Renew online at https://library.gov.sa/renewals",
+      "language": "en",
+      "expected_label": "SAFE",
+      "expected_flags": [],
+      "predicted_label": "SAFE",
+      "predicted_flags": [],
+      "risk_score": 15.0,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "matched": 0,
+        "total_expected": 0
+      }
+    },
+    {
+      "test_id": "lowrisk_006",
+      "message": "تحديث: تطبيقنا الجديد متاح الآن! قم بالتنزيل اليوم واحصل على مكافأة. رابط التحميل: https://app-download-store.com",
+      "language": "ar",
+      "expected_label": "LOW_RISK",
+      "expected_flags": [
+        "urgency tactics"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة",
+        "non-verified domain"
+      ],
+      "risk_score": 70.0,
+      "classification_correct": false,
+      "risk_score_consistent": false,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 1,
+        "total_actual": 2
+      }
+    },
+    {
+      "test_id": "suspicious_007",
+      "message": "من الهيئة العامة للزكاة والدخل: مطلوب تحديث سجلك الضريبي. اضغط: ow.ly/tax456 خلال 48 ساعة لتجنب الغرامة.",
+      "language": "ar",
+      "expected_label": "SUSPICIOUS",
+      "expected_flags": [
+        "government impersonation",
+        "shortened url",
+        "urgency tactics",
+        "threatening language"
+      ],
+      "predicted_label": "SUSPICIOUS",
+      "predicted_flags": [
+        "روابط مختصرة مشبوهة"
+      ],
+      "risk_score": 63.2,
+      "classification_correct": true,
+      "risk_score_consistent": true,
+      "flags_metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "matched": 0,
+        "total_expected": 4,
+        "total_actual": 1
+      }
+    }
+  ]
+}

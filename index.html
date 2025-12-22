@@ -28,7 +28,35 @@
         ========================================
     -->
     
-    <div class="container">
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" 
+                          fill="url(#splashGradient)" stroke="url(#splashGradientStroke)" stroke-width="1"/>
+                    <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <defs>
+                        <linearGradient id="splashGradient" x1="3" y1="1" x2="21" y2="23.5" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#006c35" />
+                            <stop offset="1" stop-color="#00964a" />
+                        </linearGradient>
+                        <linearGradient id="splashGradientStroke" x1="3" y1="1" x2="21" y2="23.5" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#006c35" />
+                            <stop offset="1" stop-color="#00964a" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1 class="splash-title">تنبَّه</h1>
+            <p class="splash-subtitle">Tanabbah Security</p>
+            <div class="splash-loader">
+                <div class="splash-loader-bar"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="display: none;">
         <!-- Header -->
         <header class="header">
             <div class="brand">
@@ -46,7 +74,7 @@
 
             <div class="header-actions">
                 <button class="header-btn" onclick="toggleDarkMode()" 
-                        title="تغيير الإضاءة" aria-label="تغيير الإضاءة">
+                        title="تغيير الإضاءة" aria-label="تغيير الإضاءة" data-tooltip="Toggle dark/light mode">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="5" fill="currentColor"/>
                         <path d="M12 1V3M12 21V23M23 12H21M3 12H1M20.485 3.515L19.07 4.93M4.93 19.07L3.515 20.485M20.485 20.485L19.07 19.07M4.93 4.93L3.515 3.515" 
@@ -56,7 +84,7 @@
                 </button>
                 
                 <button class="header-btn" onclick="viewHistory()" 
-                        title="السجل" aria-label="عرض السجل">
+                        title="السجل" aria-label="عرض السجل" data-tooltip="View analysis history">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -65,7 +93,7 @@
                 </button>
 
                 <button class="header-btn" onclick="exportResult()" id="exportBtn" 
-                        style="display:none;" title="حفظ" aria-label="حفظ النتيجة">
+                        style="display:none;" title="حفظ" aria-label="حفظ النتيجة" data-tooltip="Export analysis result">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <path d="M14 2H6C5.45 2 5 2.45 5 3V21C5 21.55 5.45 22 6 22H18C18.55 22 19 21.55 19 21V8L14 2Z" 
                               stroke="currentColor" stroke-width="1.5" fill="none"/>
@@ -77,7 +105,7 @@
                 <div class="header-divider"></div>
 
                 <button class="header-btn" onclick="toggleLanguage()" 
-                        title="تبديل اللغة" aria-label="تبديل اللغة">
+                        title="تبديل اللغة" aria-label="تبديل اللغة" data-tooltip="Toggle language (Arabic/English)">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
                         <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" 
@@ -89,7 +117,7 @@
                 <div class="header-divider"></div>
 
                 <button class="header-btn report-btn" onclick="openReportModal()" 
-                        title="إبلاغ" aria-label="إبلاغ عن رسالة احتيالية">
+                        title="إبلاغ" aria-label="إبلاغ عن رسالة احتيالية" data-tooltip="Report fraudulent message">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" 
                               stroke="currentColor" stroke-width="1.5" fill="none"/>
@@ -99,7 +127,7 @@
                 </button>
 
                 <button class="header-btn premium-btn" onclick="openPremiumModal()" 
-                        title="التطبيق" aria-label="تحميل التطبيق">
+                        title="التطبيق" aria-label="تحميل التطبيق" data-tooltip="Get premium mobile app">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" fill="currentColor"/>
                     </svg>
@@ -140,7 +168,7 @@
 
                     <div class="button-row">
                         <button class="btn btn-paste" onclick="pasteFromClipboard()" 
-                                aria-label="لصق من الحافظة">
+                                aria-label="لصق من الحافظة" title="لصق من الحافظة" data-tooltip="Paste from clipboard">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                 <rect x="5" y="6" width="14" height="14" rx="1" 
                                       stroke="currentColor" stroke-width="1.5" fill="none"/>
@@ -151,7 +179,7 @@
                         </button>
                         
                         <button class="btn btn-clear" onclick="clearAll()" 
-                                aria-label="مسح النص">
+                                aria-label="مسح النص" title="مسح النص" data-tooltip="Clear all fields">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                 <path d="M3 6H21M8 6V4C8 3.45 8.45 3 9 3H15C15.55 3 16 3.45 16 4V6" 
                                       stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -162,7 +190,7 @@
                         </button>
                         
                         <button class="btn btn-analyze" onclick="analyzeMessage()" 
-                                aria-label="فحص الرسالة">
+                                aria-label="فحص الرسالة" title="فحص الرسالة" data-tooltip="Analyze message for fraud">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                 <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
                                 <path d="M15 15L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -179,7 +207,9 @@
 
                     <!-- Result Display -->
                     <div class="result-card" id="resultCard" 
-                         role="region" aria-live="polite" aria-label="نتيجة الفحص"></div>
+                         role="region" aria-live="polite" aria-label="نتيجة الفحص">
+                        <!-- Enhanced analysis card will be dynamically inserted here -->
+                    </div>
                 </div>
             </div>
 
@@ -273,83 +303,94 @@
              ============================================ -->
 
         <!-- History Modal -->
-        <div class="modal" id="historyModal" role="dialog" aria-labelledby="historyModalTitle">
-            <div class="modal-content">
+        <div class="modal" id="historyModal" role="dialog" aria-labelledby="historyModalTitle" aria-modal="true" tabindex="-1">
+            <div class="modal-content history-modal" role="document">
                 <div class="modal-header">
                     <h2 id="historyModalTitle">رسائل تم فحصها سابقاً</h2>
-                    <button class="modal-close" onclick="closeModal('historyModal')" 
-                            aria-label="إغلاق">&times;</button>
+                    <button class="modal-close" onclick="closeModal('historyModal')"
+                            aria-label="إغلاق" aria-controls="historyModal" title="Close" data-tooltip="Close">&times;</button>
                 </div>
-                <div id="historyList" class="history-list"></div>
-                <div id="historyActions" class="modal-actions">
-                    <button class="btn btn-danger" onclick="clearHistory()">
-                        حذف جميع السجلات
+                <div class="modal-body">
+                    <div class="search-container history-search-container">
+                        <input type="text" id="historySearch" placeholder="بحث في السجل..." aria-label="بحث في السجل">
+                        <button class="btn btn-search" id="historySearchBtn" aria-label="بحث" title="بحث" data-tooltip="Search">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="historyList" class="history-list" role="list"></div>
+                </div>
+                <div id="historyActions" class="modal-actions history-actions">
+                    <button class="btn btn-danger" onclick="clearHistory()" id="clearHistoryBtn" title="حذف جميع السجلات" data-tooltip="Delete all history">
+                        <span id="clearHistoryBtnText">حذف جميع السجلات</span>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Report Modal -->
-        <div class="modal" id="reportModal" role="dialog" aria-labelledby="reportModalTitle">
-            <div class="modal-content">
+        <div class="modal" id="reportModal" role="dialog" aria-labelledby="reportModalTitle" aria-modal="true" tabindex="-1">
+            <div class="modal-content report-modal" role="document">
                 <div class="modal-header">
                     <h2 id="reportModalTitle">إبلاغ عن رسالة احتيالية</h2>
-                    <button class="modal-close" onclick="closeModal('reportModal')" 
-                            aria-label="إغلاق">&times;</button>
+                    <button class="modal-close" onclick="closeModal('reportModal')"
+                            aria-label="إغلاق" aria-controls="reportModal" title="Close" data-tooltip="Close">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 24px;">
+                <div class="modal-body report-body">
+                    <p class="report-description" id="reportDescriptionText">
                         سيتم إرسال الرسالة إلى الجهات المختصة للتحقيق. 
                         نشكر لك مساهمتك في حماية المجتمع من الاحتيال الإلكتروني.
                     </p>
                     <div class="report-info">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
-                             style="color: var(--primary); flex-shrink: 0;">
+                             class="report-icon" aria-hidden="true">
                             <circle cx="12" cy="12" r="10" stroke="currentColor" 
                                     stroke-width="2" fill="none"/>
                             <path d="M12 16v-4M12 8h.01" stroke="currentColor" 
                                   stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span style="color: var(--text-muted); font-size: 0.9rem;">
+                        <span class="report-info-text" id="reportInfoText">
                             سيتم إرسال البلاغ بشكل سري وآمن
                         </span>
                     </div>
                 </div>
-                <div class="modal-actions">
-                    <button class="btn btn-primary" onclick="sendReport()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <div class="modal-actions report-actions">
+                    <button class="btn btn-primary" onclick="sendReport()" id="sendReportBtn" title="إرسال البلاغ" data-tooltip="Send report">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" 
                                   stroke="currentColor" stroke-width="2" 
                                   stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        إرسال البلاغ
+                        <span id="sendReportBtnText">إرسال البلاغ</span>
                     </button>
-                    <button class="btn btn-secondary" onclick="closeModal('reportModal')">
-                        إلغاء
+                    <button class="btn btn-secondary" onclick="closeModal('reportModal')" id="cancelReportBtn" title="إلغاء" data-tooltip="Cancel">
+                        <span id="cancelReportBtnText">إلغاء</span>
                     </button>
                 </div>
             </div>
         </div>
 
-       <!-- Premium/App Download Modal - Updated to Show Paid Subscription -->
-<div class="modal" id="premiumModal" role="dialog" aria-labelledby="premiumModalTitle">
-    <div class="modal-content premium-modal">
+        <!-- Premium Mobile App Download Modal -->
+<div class="modal" id="premiumModal" role="dialog" aria-labelledby="premiumModalTitle" aria-modal="true" tabindex="-1">
+    <div class="modal-content premium-modal" role="document">
         <div class="modal-header">
             <h2 id="premiumModalTitle">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" 
-                     style="color: var(--accent); margin-left: 8px;">
+                     style="color: var(--accent); margin-left: 8px;" aria-hidden="true">
                     <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" 
                           fill="currentColor"/>
                 </svg>
-                <span id="premiumModalTitleText">اشتراك تنبَه المميز</span>
+                <span id="premiumModalTitleText">تنبَه - تطبيق الجوال</span>
             </h2>
             <button class="modal-close" onclick="closePremiumModal()" 
-                    aria-label="إغلاق">&times;</button>
+                    aria-label="إغلاق" aria-controls="premiumModal" title="Close" data-tooltip="Close">&times;</button>
         </div>
         <div class="modal-body">
             <div class="premium-content">
                 <div class="premium-icon">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" 
                               fill="var(--primary)" opacity="0.1"/>
                         <path d="M12 1L3 4.5V11C3 18 8.5 22.5 12 23.5C15.5 22.5 21 18 21 11V4.5L12 1Z" 
@@ -365,100 +406,55 @@
                     <div class="price-period">شهرياً</div>
                 </div>
                 
-                <h3 style="font-size: 1.5rem; font-weight: 900; color: var(--text); 
-                           margin: 24px 0 12px; text-align: center;">
-                    <span id="premiumHeaderText">احصل على الحماية الكاملة</span>
-                </h3>
+                <h3 id="premiumHeaderText">احصل على تطبيق الجوال</h3>
                 
-                <p style="color: var(--text-secondary); text-align: center; 
-                          line-height: 1.8; margin-bottom: 32px;">
-                    <span id="premiumDescText">اشترك الآن بـ <strong style="color: var(--accent);">5 ريال شهرياً فقط</strong> للحصول على حماية متقدمة</span>
-                </p>
+                <p id="premiumDescText">حمل تطبيق تنبَه للجوال واحصل على <strong>5 ريال شهرياً فقط</strong> على ميزات متقدمة</p>
                 
-                <!-- Feature Comparison Table -->
-                <div class="premium-comparison">
-                    <table class="comparison-table">
-                        <thead>
-                            <tr>
-                                <th>الميزة</th>
-                                <th>مجاني</th>
-                                <th style="color: var(--accent);">مميز</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>فحص الرسائل</td>
-                                <td>5 يومياً</td>
-                                <td>غير محدود ✨</td>
-                            </tr>
-                            <tr>
-                                <td>التحليل بالذكاء الاصطناعي</td>
-                                <td>أساسي</td>
-                                <td>متقدم ✨</td>
-                            </tr>
-                            <tr>
-                                <td>التقارير المفصلة</td>
-                                <td>❌</td>
-                                <td>✅</td>
-                            </tr>
-                            <tr>
-                                <td>التنبيهات الفورية</td>
-                                <td>❌</td>
-                                <td>✅</td>
-                            </tr>
-                            <tr>
-                                <td>الدعم الفني</td>
-                                <td>عادي</td>
-                                <td>أولوية ✨</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Premium Features Grid -->
+                <!-- Mobile App Features Grid -->
                 <div class="premium-features">
                     <div class="premium-feature">
-                        <span class="feature-icon">⚡</span>
-                        <span id="feature1Text">فحص غير محدود</span>
+                        <span class="feature-icon" aria-hidden="true">📱</span>
+                        <span id="feature1Text">فحص تلقائي للرسائل</span>
                     </div>
                     <div class="premium-feature">
-                        <span class="feature-icon">🧠</span>
-                        <span id="feature2Text">تحليل ذكي متقدم</span>
+                        <span class="feature-icon" aria-hidden="true">🔐</span>
+                        <span id="feature2Text">إذن قراءة الرسائل</span>
                     </div>
                     <div class="premium-feature">
-                        <span class="feature-icon">🔔</span>
+                        <span class="feature-icon" aria-hidden="true">🔔</span>
                         <span id="feature3Text">تنبيهات فورية</span>
                     </div>
                     <div class="premium-feature">
-                        <span class="feature-icon">📊</span>
+                        <span class="feature-icon" aria-hidden="true">📊</span>
                         <span id="feature4Text">تقارير مفصلة</span>
                     </div>
                     <div class="premium-feature">
-                        <span class="feature-icon">🎯</span>
-                        <span id="feature5Text">دعم أولوية</span>
+                        <span class="feature-icon" aria-hidden="true">🤖</span>
+                        <span id="feature5Text">تحليل في الخلفية</span>
                     </div>
                     <div class="premium-feature">
-                        <span class="feature-icon">💾</span>
-                        <span id="feature6Text">تصدير السجلات</span>
+                        <span class="feature-icon" aria-hidden="true">📡</span>
+                        <span id="feature6Text">تحديثات مباشرة</span>
                     </div>
                     <div class="premium-feature">
-                        <span class="feature-icon">🔌</span>
-                        <span id="feature7Text">API متقدم</span>
+                        <span class="feature-icon" aria-hidden="true">🔄</span>
+                        <span id="feature7Text">تحليل مستمر</span>
                     </div>
                     <div class="premium-feature">
-                        <span class="feature-icon">🔒</span>
+                        <span class="feature-icon" aria-hidden="true">🛡️</span>
                         <span id="feature8Text">حماية شاملة</span>
                     </div>
                 </div>
                 
-                <!-- Subscription Button -->
+                <!-- Download Button -->
                 <div class="premium-cta">
-                    <button class="btn btn-subscribe" onclick="subscribeToPremium()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L15.5 10.5H24L17 15L19.5 23.5L12 19L4.5 23.5L7 15L0 10.5H8.5L12 2Z" 
-                                  fill="currentColor"/>
+                    <button class="btn btn-download" onclick="downloadMobileApp()" id="downloadBtn" title="Download mobile app" data-tooltip="Download mobile app">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                         </svg>
-                        <span id="subscribeBtnText">اشترك الآن - 5 ريال شهرياً</span>
+                        <span id="downloadBtnText">تحميل التطبيق - 5 ريال/شهر</span>
                     </button>
                     
                     <p class="premium-trial-note">
@@ -466,59 +462,76 @@
                     </p>
                 </div>
                 
-                <!-- Payment Methods -->
-                <div class="payment-methods">
-                    <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 12px;">
-                        <span id="paymentMethodsText">طرق الدفع المتاحة</span>
-                    </p>
-                    <div class="payment-icons">
-                        <span class="payment-icon" title="Visa">💳</span>
-                        <span class="payment-icon" title="Mastercard">💳</span>
-                        <span class="payment-icon" title="Mada">🇸🇦</span>
-                        <span class="payment-icon" title="Apple Pay">🍎</span>
-                        <span class="payment-icon" title="STC Pay">📱</span>
+                <!-- Mobile App Info -->
+                <div class="mobile-app-info">
+                    <p id="appStoresText">المميزات المتاحة:</p>
+                    <div class="app-features">
+                        <div class="app-feature">
+                            <span class="feature-icon">📱</span>
+                            <span class="feature-text">فحص تلقائي للرسائل</span>
+                        </div>
+                        <div class="app-feature">
+                            <span class="feature-icon">🔔</span>
+                            <span class="feature-text">تنبيهات فورية</span>
+                        </div>
+                        <div class="app-feature">
+                            <span class="feature-icon">🤖</span>
+                            <span class="feature-text">تحليل في الخلفية</span>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Terms -->
-                <p style="color: var(--text-muted); font-size: 0.85rem; 
-                          text-align: center; margin-top: 24px; line-height: 1.6;">
-                    <span id="termsText">باشتراكك، توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت</span>
-                </p>
+                <p id="termsText">بتنزيل التطبيق، توافق على <a href="#" id="termsLink">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت</p>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-/* Premium Modal Styles */
+/* Premium Modal Styles - Enhanced styling for consistency */
+.premium-modal .modal-content {
+    max-width: 450px;
+    padding: 12px;
+    max-height: 75vh;
+    border: 1px solid var(--border-light);
+}
+
 .premium-pricing-badge {
     background: linear-gradient(135deg, var(--accent), #b87820);
     color: white;
-    padding: 16px 32px;
-    border-radius: 16px;
+    padding: 12px 20px;
+    border-radius: 12px;
     text-align: center;
-    margin: 20px auto;
-    max-width: 200px;
-    box-shadow: 0 8px 24px rgba(205, 143, 42, 0.3);
+    margin: 15px auto;
+    max-width: 150px;
+    box-shadow: 0 4px 15px rgba(205, 143, 42, 0.4);
+    transition: all 0.3s ease;
+}
+
+.premium-pricing-badge:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(205, 143, 42, 0.5);
 }
 
 .price-amount {
-    font-size: 2.5rem;
+    font-size: 1.6rem;
     font-weight: 900;
     line-height: 1;
 }
 
 .price-period {
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 600;
     margin-top: 4px;
-    opacity: 0.9;
+    opacity: 0.95;
 }
 
 .premium-comparison {
-    margin: 32px 0;
+    margin: 15px 0;
     overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
 }
 
 .comparison-table {
@@ -527,29 +540,31 @@
     background: var(--bg);
     border-radius: 12px;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
 .comparison-table th,
 .comparison-table td {
-    padding: 16px;
+    padding: 10px;
     text-align: center;
     border-bottom: 1px solid var(--border-light);
+    font-size: 0.8rem;
 }
 
 .comparison-table th {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), #2563eb);
     color: white;
     font-weight: 800;
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 
 .comparison-table th:last-child {
-    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent), #b87820);
 }
 
 .comparison-table td:first-child {
     text-align: right;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .comparison-table tr:last-child td {
@@ -558,81 +573,182 @@
 
 .comparison-table tr:hover {
     background: var(--card-bg);
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+.premium-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.premium-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.premium-feature:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+}
+
+.feature-icon {
+    font-size: 1.4rem;
 }
 
 .premium-cta {
     text-align: center;
-    margin: 32px 0;
+    margin: 20px 0;
 }
 
 .btn-subscribe {
     background: linear-gradient(135deg, var(--accent), #b87820);
     color: white;
-    padding: 18px 40px;
-    font-size: 1.1rem;
-    font-weight: 900;
+    padding: 16px 28px;
+    font-size: 1rem;
+    font-weight: 800;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 24px rgba(205, 143, 42, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 20px rgba(205, 143, 42, 0.4);
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+}
+
+.btn-subscribe::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
 }
 
 .btn-subscribe:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 32px rgba(205, 143, 42, 0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(205, 143, 42, 0.6);
+}
+
+.btn-subscribe:hover::before {
+    opacity: 1;
+}
+
+.premium-content {
+    text-align: center;
+    margin-top: -5px;
+}
+
+.premium-icon {
+    margin: 0 auto 10px;
+    width: fit-content;
 }
 
 .premium-trial-note {
-    margin-top: 16px;
+    margin-top: 12px;
     color: var(--primary);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 700;
 }
 
 .payment-methods {
-    margin-top: 32px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-light);
+}
+
+.payment-methods p {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text);
 }
 
 .payment-icons {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 16px;
-    margin-top: 8px;
+    gap: 10px;
+    margin-top: 6px;
 }
 
 .payment-icon {
-    font-size: 2rem;
-    opacity: 0.7;
+    font-size: 1.5rem;
+    opacity: 0.8;
     transition: all 0.3s ease;
+    border-radius: 6px;
+    padding: 6px;
 }
 
 .payment-icon:hover {
     opacity: 1;
-    transform: scale(1.2);
+    transform: scale(1.15) translateY(-2px);
+    background: var(--bg);
+    box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 768px) {
+    .premium-modal .modal-content {
+        padding: 10px;
+        max-width: 95%;
+    }
+    
+    .premium-features {
+        grid-template-columns: 1fr;
+    }
+    
     .comparison-table {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
     }
     
     .comparison-table th,
     .comparison-table td {
-        padding: 12px 8px;
+        padding: 8px 6px;
     }
     
     .price-amount {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
     
     .btn-subscribe {
         width: 100%;
-        padding: 16px 24px;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .premium-feature {
+        padding: 8px;
+        font-size: 0.75rem;
+    }
+    
+    .payment-icon {
+        font-size: 1.3rem;
+    }
+    
+    .premium-pricing-badge {
+        padding: 10px 20px;
+        max-width: 140px;
     }
 }
 </style>
@@ -671,62 +787,50 @@ function subscribeToPremium() {
 
 // Update premium modal text on language change
 function updatePremiumModalLanguage() {
+    if (typeof t !== 'function') return; // Ensure translation function exists
+    
+    document.getElementById('premiumModalTitleText').textContent = t('premiumTitle');
+    document.getElementById('premiumHeaderText').textContent = t('premiumHeader');
+    document.getElementById('premiumDescText').innerHTML = t('premiumDesc');
+    document.getElementById('feature1Text').textContent = t('feature1');
+    document.getElementById('feature2Text').textContent = t('feature2');
+    document.getElementById('feature3Text').textContent = t('feature3');
+    document.getElementById('feature4Text').textContent = t('feature4');
+    document.getElementById('feature5Text').textContent = t('feature5');
+    document.getElementById('feature6Text').textContent = t('feature6');
+    document.getElementById('feature7Text').textContent = t('feature7');
+    document.getElementById('feature8Text').textContent = t('feature8');
+    document.getElementById('downloadBtnText').textContent = t('downloadBtn');
+    document.getElementById('trialText').textContent = t('trial');
+    document.getElementById('appStoresText').textContent = t('appStores');
+    document.getElementById('termsText').innerHTML = t('terms');
+}
+
+// Function to handle mobile app download
+function downloadMobileApp() {
     const lang = window.currentLanguage || 'ar';
+    const message = lang === 'ar' 
+        ? 'تطبيق تنبَه للجوال يتطلب إذن قراءة الرسائل لفحص الرسائل تلقائياً.\n\n✨ تجربة مجانية لمدة 7 أيام\n\nهل تريد المتابعة؟'
+        : 'The Tanabbah mobile app requires SMS permission to scan messages automatically.\n\n✨ Includes 7-day free trial\n\nContinue?';
     
-    const translations = {
-        ar: {
-            title: 'اشتراك تنبَه المميز',
-            header: 'احصل على الحماية الكاملة',
-            desc: 'اشترك الآن بـ <strong style="color: var(--accent);">5 ريال شهرياً فقط</strong> للحصول على حماية متقدمة',
-            feature1: 'فحص غير محدود',
-            feature2: 'تحليل ذكي متقدم',
-            feature3: 'تنبيهات فورية',
-            feature4: 'تقارير مفصلة',
-            feature5: 'دعم أولوية',
-            feature6: 'تصدير السجلات',
-            feature7: 'API متقدم',
-            feature8: 'حماية شاملة',
-            subscribeBtn: 'اشترك الآن - 5 ريال شهرياً',
-            trial: '✨ تجربة مجانية لمدة 7 أيام',
-            paymentMethods: 'طرق الدفع المتاحة',
-            terms: 'باشتراكك، توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت'
-        },
-        en: {
-            title: 'Tanabbah Premium Subscription',
-            header: 'Get Complete Protection',
-            desc: 'Subscribe now for just <strong style="color: var(--accent);">5 SAR/month</strong> for advanced protection',
-            feature1: 'Unlimited Analysis',
-            feature2: 'Advanced AI Analysis',
-            feature3: 'Real-time Alerts',
-            feature4: 'Detailed Reports',
-            feature5: 'Priority Support',
-            feature6: 'Export History',
-            feature7: 'Advanced API',
-            feature8: 'Complete Protection',
-            subscribeBtn: 'Subscribe Now - 5 SAR/month',
-            trial: '✨ 7-day free trial',
-            paymentMethods: 'Available Payment Methods',
-            terms: 'By subscribing, you agree to <a href="#" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a>. Cancel anytime'
-        }
-    };
-    
-    const t = translations[lang];
-    
-    document.getElementById('premiumModalTitleText').textContent = t.title;
-    document.getElementById('premiumHeaderText').textContent = t.header;
-    document.getElementById('premiumDescText').innerHTML = t.desc;
-    document.getElementById('feature1Text').textContent = t.feature1;
-    document.getElementById('feature2Text').textContent = t.feature2;
-    document.getElementById('feature3Text').textContent = t.feature3;
-    document.getElementById('feature4Text').textContent = t.feature4;
-    document.getElementById('feature5Text').textContent = t.feature5;
-    document.getElementById('feature6Text').textContent = t.feature6;
-    document.getElementById('feature7Text').textContent = t.feature7;
-    document.getElementById('feature8Text').textContent = t.feature8;
-    document.getElementById('subscribeBtnText').textContent = t.subscribeBtn;
-    document.getElementById('trialText').textContent = t.trial;
-    document.getElementById('paymentMethodsText').textContent = t.paymentMethods;
-    document.getElementById('termsText').innerHTML = t.terms;
+    if (confirm(message)) {
+        showNotification(
+            lang === 'ar' 
+                ? '📱 معلومات حول تطبيق تنبَه للجوال...' 
+                : '📱 Information about the Tanabbah mobile app...',
+            'info'
+        );
+        
+        // Show information about the mobile app
+        setTimeout(() => {
+            showNotification(
+                lang === 'ar'
+                    ? '📱 تطبيق تنبَه للجوال: فحص تلقائي للرسائل، تنبيهات فورية، تحليل في الخلفية'
+                    : '📱 Tanabbah Mobile App: Automatic message scanning, real-time alerts, background analysis',
+                'success'
+            );
+        }, 1000);
+    }
 }
 </script>
 

@@ -178,6 +178,31 @@ const translations = {
         confirmDeleteAll: 'هل تريد حذف جميع السجلات؟\n\nلا يمكن التراجع عن هذا الإجراء.',
         confirmClear: 'هل تريد مسح الرسالة؟',
         
+        // Report Modal
+        reportTitle: 'إبلاغ عن رسالة احتيالية',
+        reportDescription: 'سيتم إرسال الرسالة إلى الجهات المختصة للتحقيق. نشكر لك مساهمتك في حماية المجتمع من الاحتيال الإلكتروني.',
+        reportInfo: 'سيتم إرسال البلاغ بشكل سري وآمن',
+        sendReport: 'إرسال البلاغ',
+        cancel: 'إلغاء',
+        clearHistory: 'حذف جميع السجلات',
+        
+        // Premium Mobile App
+        premiumTitle: 'تنبَه - تطبيق الجوال',
+        premiumHeader: 'احصل على تطبيق الجوال',
+        premiumDesc: 'حمل تطبيق تنبَه للجوال واحصل على <strong>5 ريال شهرياً فقط</strong> على ميزات متقدمة',
+        feature1: 'فحص تلقائي للرسائل',
+        feature2: 'إذن قراءة الرسائل',
+        feature3: 'تنبيهات فورية',
+        feature4: 'تقارير مفصلة',
+        feature5: 'تحليل في الخلفية',
+        feature6: 'تحديثات مباشرة',
+        feature7: 'تحليل مستمر',
+        feature8: 'حماية شاملة',
+        downloadBtn: 'تحميل التطبيق - 5 ريال/شهر',
+        trial: '✨ تجربة مجانية لمدة 7 أيام',
+        appStores: 'المميزات المتاحة:',
+        terms: 'بتنزيل التطبيق، توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت',
+        
         // Notifications
         notifPasted: '✅ تم اللصق بنجاح',
         notifCleared: '🗑️ تم المسح',
@@ -193,7 +218,7 @@ const translations = {
         reportFailed: '⚠️ فشل إرسال البلاغ. حاول لاحقاً',
         
         // Footer
-        footerText: '<strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.'
+        footerText: '<strong>تنبَه</strong> هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.',
     },
     en: {
         // Header & Brand
@@ -243,6 +268,31 @@ const translations = {
         confirmDeleteAll: 'Do you want to delete all history?\n\nThis action cannot be undone.',
         confirmClear: 'Do you want to clear the message?',
         
+        // Report Modal
+        reportTitle: 'Report Fraudulent Message',
+        reportDescription: 'The message will be sent to the relevant authorities for investigation. Thank you for your contribution to protecting the community from online fraud.',
+        reportInfo: 'The report will be sent securely and confidentially',
+        sendReport: 'Send Report',
+        cancel: 'Cancel',
+        clearHistory: 'Delete All History',
+        
+        // Premium Mobile App
+        premiumTitle: 'Tanabbah Mobile App',
+        premiumHeader: 'Get the Mobile App',
+        premiumDesc: 'Download the Tanabbah mobile app and get advanced features for just <strong>5 SAR/month</strong>',
+        feature1: 'Automatic Message Scanning',
+        feature2: 'SMS Permission',
+        feature3: 'Real-time Alerts',
+        feature4: 'Detailed Reports',
+        feature5: 'Background Analysis',
+        feature6: 'Live Updates',
+        feature7: 'Ongoing Analysis',
+        feature8: 'Complete Protection',
+        downloadBtn: 'Download App - 5 SAR/month',
+        trial: '✨ 7-day free trial',
+        appStores: 'Available features:',
+        terms: 'By downloading the app, you agree to <a href="#" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a>. Cancel anytime',
+        
         // Notifications
         notifPasted: '✅ Pasted successfully',
         notifCleared: '🗑️ Cleared',
@@ -258,7 +308,7 @@ const translations = {
         reportFailed: '⚠️ Failed to send report. Try again later',
         
         // Footer
-        footerText: '<strong>Tanabbah</strong> is an independent app not affiliated with any government entity. Its purpose is to raise awareness and protect users from online fraud.'
+        footerText: '<strong>Tanabbah</strong> is an independent app not affiliated with any government entity. Its purpose is to raise awareness and protect users from online fraud.',
     }
 };
 
@@ -372,6 +422,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Export functions for use in other modules
+// Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         CONFIG,
@@ -386,4 +437,19 @@ if (typeof module !== 'undefined' && module.exports) {
         getTimestamp,
         initCopyrightProtection
     };
+}
+
+// Make functions available globally in browser
+if (typeof window !== 'undefined') {
+    window.CONFIG = CONFIG;
+    window.sanitizeHTML = sanitizeHTML;
+    window.validateMessageLength = validateMessageLength;
+    window.extractURLs = extractURLs;
+    window.saveToStorage = saveToStorage;
+    window.loadFromStorage = loadFromStorage;
+    window.removeFromStorage = removeFromStorage;
+    window.t = t;
+    window.translateLLMFlag = translateLLMFlag;
+    window.getTimestamp = getTimestamp;
+    window.initCopyrightProtection = initCopyrightProtection;
 }

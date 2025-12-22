@@ -78,10 +78,12 @@ Analyzes 41 distinct features:
 
 ### 🎨 **Modern User Experience**
 
-- **Dark Mode**: Eye-friendly dark theme
-- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Dark Mode**: Eye-friendly dark theme with seamless toggle
+- **Responsive Design**: Works on desktop, tablet, and mobile with adaptive layouts
 - **Real-time Analysis**: Instant feedback on suspicious content
 - **Interactive Results**: Detailed breakdowns with actionable advice
+- **Enhanced Modals**: Improved history, report, and premium modals with better styling
+- **Accessibility Features**: ARIA labels, focus management, and keyboard navigation
 
 ### 📊 **Analysis History**
 
@@ -110,34 +112,17 @@ Upgrade to Premium for advanced protection and features:
 | Feature | Free | Premium |
 |---------|------|---------|
 | Message Analysis | ✅ 5 per day | ✅ Unlimited |
-| LLM Analysis | ❌ Basic | ✅ Advanced |
-| Real-time Alerts | ❌ | ✅ |
-| Detailed Reports | ❌ | ✅ |
-| Priority Support | ❌ | ✅ |
-| Export History | ❌ | ✅ |
-| Bulk Analysis | ❌ | ✅ |
-| API Access | ❌ | ✅ |
-| Custom Integrations | ❌ | ✅ |
 
 #### 💰 **Pricing**
 
 - **Monthly Subscription**: **5 SAR/month**
-- **Payment Methods**: Credit/Debit Card, Apple Pay, STC Pay, Mada
+- **Payment Methods**: Coming soon
 - **Cancel Anytime**: No long-term commitment
 - **7-Day Free Trial**: Test Premium features risk-free
 
 #### 🎯 **Premium Benefits**
 
 1. **Unlimited Analysis**: No daily limits on message scanning
-2. **Advanced AI**: Access to latest LLM models for deeper analysis
-3. **Real-time Protection**: Instant notifications for detected threats
-4. **Detailed Reports**: Comprehensive PDF reports with recommendations
-5. **Priority Support**: Direct support channel with response within 24 hours
-6. **API Access**: Integrate Tanabbah into your own applications
-7. **Bulk Processing**: Analyze multiple messages simultaneously
-8. **Custom Rules**: Create personalized detection rules
-9. **Team Collaboration**: Share insights with your organization
-10. **Data Export**: Export all analysis history and reports
 
 #### 📱 **How to Subscribe**
 
@@ -529,20 +514,24 @@ Detailed Results + Recommendations
 - ✅ Developed billing and invoicing system
 
 #### Frontend / UX
-- ✅ Updated CSS for modern, responsive design
+- ✅ Updated CSS for modern, responsive design with enhanced modal styling
 - ✅ Implemented dark mode with seamless toggling
 - ✅ Added multi-language support (Arabic/English)
 - ✅ Created RTL/LTR automatic text direction
-- ✅ Designed result cards with risk visualization
+- ✅ Designed result cards with enhanced risk visualization
 - ✅ Built interactive notifications system
 - ✅ Improved button states and loading indicators
+- ✅ Enhanced accessibility with ARIA labels and focus management
+- ✅ Improved modal dialogs with consistent design language
 
 #### History & Logging
 - ✅ Implemented analysis history storage
-- ✅ Created history modal with search/filter
+- ✅ Created enhanced history modal with improved search/filter functionality
 - ✅ Added export functionality (TXT format)
 - ✅ Built delete individual/all records feature
-- ✅ Designed history UI with timestamps and classifications
+- ✅ Designed improved history UI with timestamps and classifications
+- ✅ Enhanced report modal with better layout and styling
+- ✅ Improved premium modal with refined pricing badge and feature grid
 
 #### Security & Privacy
 - ✅ Input validation (max 10,000 characters)
@@ -615,15 +604,11 @@ Version: 2.0.2
 
 ### Revenue Projections
 
-Based on market research and similar SaaS products:
+Revenue model is planned but not yet implemented:
 
-| Metric | Conservative | Expected | Optimistic |
-|--------|--------------|----------|------------|
-| Users (Year 1) | 1,000 | 5,000 | 10,000 |
-| Conversion Rate | 2% | 5% | 10% |
-| Premium Users | 20 | 250 | 1,000 |
-| Monthly Revenue | 100 SAR | 1,250 SAR | 5,000 SAR |
-| Annual Revenue | 1,200 SAR | 15,000 SAR | 60,000 SAR |
+- Premium subscription model (5 SAR/month) is designed
+- Payment gateway integration coming soon
+- Revenue projections are theoretical and not yet realized
 
 ### Cost Structure
 

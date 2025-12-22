@@ -1,0 +1,223 @@
+{
+  "version": "1.0",
+  "description": "Tanabbah Fraud Detection Evaluation Dataset - 25 Diverse Test Cases",
+  "test_cases": [
+    {
+      "id": "safe_001",
+      "message": "مرحبا، اجتماعنا غدا الساعة 10 صباحا في المكتب. لا تنسى إحضار التقرير.",
+      "label": "SAFE",
+      "expected_red_flags": [],
+      "language": "ar",
+      "description": "Normal business message, no URLs, no urgency"
+    },
+    {
+      "id": "safe_002",
+      "message": "Hello, your order #12345 has been shipped. Track it here: https://amazon.com/track/abc123",
+      "label": "SAFE",
+      "expected_red_flags": [],
+      "language": "en",
+      "description": "Legitimate shipping notification with real domain"
+    },
+    {
+      "id": "safe_003",
+      "message": "تذكير: موعدك الطبي يوم الأحد القادم في مستشفى الملك فيصل. للاستفسار: 920012345",
+      "label": "SAFE",
+      "expected_red_flags": [],
+      "language": "ar",
+      "description": "Medical appointment reminder, no suspicious elements"
+    },
+    {
+      "id": "safe_004",
+      "message": "Your verification code is 123456. Valid for 10 minutes. Do not share this code with anyone.",
+      "label": "SAFE",
+      "expected_red_flags": [],
+      "language": "en",
+      "description": "Standard OTP message with security warning"
+    },
+    {
+      "id": "safe_005",
+      "message": "إشعار من أبشر: تم إصدار تأشيرتك بنجاح. للاستعلام: https://absher.sa",
+      "label": "SAFE",
+      "expected_red_flags": [],
+      "language": "ar",
+      "description": "Official Absher notification with correct domain"
+    },
+    {
+      "id": "lowrisk_001",
+      "message": "عرض خاص لفترة محدودة! خصم 50% على جميع المنتجات. اضغط هنا: https://shop-store.com/offers",
+      "label": "LOW_RISK",
+      "expected_red_flags": ["urgency tactics"],
+      "language": "ar",
+      "description": "Marketing message with urgency but legitimate domain"
+    },
+    {
+      "id": "lowrisk_002",
+      "message": "Limited time offer! Get 30% off your next purchase. Click: https://deals-today.com",
+      "label": "LOW_RISK",
+      "expected_red_flags": ["urgency tactics"],
+      "language": "en",
+      "description": "Promotional message with urgency language"
+    },
+    {
+      "id": "lowrisk_003",
+      "message": "تنبيه: فاتورتك الشهرية جاهزة للعرض. قم بتسجيل الدخول على موقعنا لمراجعتها.",
+      "label": "LOW_RISK",
+      "expected_red_flags": [],
+      "language": "ar",
+      "description": "Bill notification without URL but slightly suspicious wording"
+    },
+    {
+      "id": "lowrisk_004",
+      "message": "Your package delivery failed. Please update your address within 24 hours: http://delivery-update.net",
+      "label": "LOW_RISK",
+      "expected_red_flags": ["urgency tactics", "insecure links"],
+      "language": "en",
+      "description": "Delivery message with HTTP (not HTTPS) and urgency"
+    },
+    {
+      "id": "lowrisk_005",
+      "message": "آخر فرصة! التسجيل ينتهي اليوم. سجل الآن على موقعنا.",
+      "label": "LOW_RISK",
+      "expected_red_flags": ["urgency tactics"],
+      "language": "ar",
+      "description": "Registration deadline with urgency language"
+    },
+    {
+      "id": "suspicious_001",
+      "message": "تحذير! تم تعليق حسابك في أبشر. اضغط فورا: bit.ly/abs9876 لتحديث بياناتك خلال 24 ساعة.",
+      "label": "SUSPICIOUS",
+      "expected_red_flags": ["urgency tactics", "shortened url", "government impersonation"],
+      "language": "ar",
+      "description": "Fake Absher with URL shortener and urgent threat"
+    },
+    {
+      "id": "suspicious_002",
+      "message": "URGENT: Your bank account has been locked. Verify your identity immediately: tinyurl.com/bank123",
+      "label": "SUSPICIOUS",
+      "expected_red_flags": ["urgency tactics", "shortened url", "threatening language"],
+      "language": "en",
+      "description": "Bank impersonation with URL shortener"
+    },
+    {
+      "id": "suspicious_003",
+      "message": "مبروك! فزت بجائزة 50,000 ريال. للمطالبة بالجائزة أدخل معلومات بطاقتك: https://win-prize.tk",
+      "label": "SUSPICIOUS",
+      "expected_red_flags": ["reward tactics", "requests sensitive data", "suspicious domain"],
+      "language": "ar",
+      "description": "Fake prize with suspicious TLD (.tk) and requests card info"
+    },
+    {
+      "id": "suspicious_004",
+      "message": "Your password will expire today. Update now to avoid account deletion: http://account-verify-now.com/update",
+      "label": "SUSPICIOUS",
+      "expected_red_flags": ["urgency tactics", "threatening language", "insecure links"],
+      "language": "en",
+      "description": "Password expiry scam with HTTP and threats"
+    },
+    {
+      "id": "suspicious_005",
+      "message": "من وزارة الداخلية: تحديث بياناتك مطلوب فورا. اضغط هنا: goo.gl/moi123 وإلا سيتم إيقاف خدماتك.",
+      "label": "SUSPICIOUS",
+      "expected_red_flags": ["government impersonation", "shortened url", "urgency tactics", "threatening language"],
+      "language": "ar",
+      "description": "Government impersonation with URL shortener and threats"
+    },
+    {
+      "id": "suspicious_006",
+      "message": "Netflix: Your payment failed. Update your credit card details immediately: http://netflix-payment.xyz/update",
+      "label": "SUSPICIOUS",
+      "expected_red_flags": ["requests sensitive data", "urgency tactics", "suspicious domain", "insecure links"],
+      "language": "en",
+      "description": "Netflix phishing with suspicious domain and HTTP"
+    },
+    {
+      "id": "highrisk_001",
+      "message": "عاجل! حسابك البنكي سيغلق خلال ساعة. أدخل رمز بطاقتك ورقم CVV فورا: bit.ly/bank-urgent",
+      "label": "HIGH_RISK",
+      "expected_red_flags": ["requests sensitive data", "shortened url", "urgency tactics", "threatening language"],
+      "language": "ar",
+      "description": "Critical phishing: requests CVV with URL shortener and extreme urgency"
+    },
+    {
+      "id": "highrisk_002",
+      "message": "ALERT: Suspicious login detected. Confirm your password and PIN immediately: tinyurl.com/verify-now or account will be terminated.",
+      "label": "HIGH_RISK",
+      "expected_red_flags": ["requests sensitive data", "shortened url", "urgency tactics", "threatening language"],
+      "language": "en",
+      "description": "Credential theft with URL shortener and account termination threat"
+    },
+    {
+      "id": "highrisk_003",
+      "message": "من أبشر: حسابك معلق. أدخل كلمة المرور ورمز التحقق OTP هنا فورا: http://absher-verify.tk/login خلال ساعة واحدة.",
+      "label": "HIGH_RISK",
+      "expected_red_flags": ["government impersonation", "requests sensitive data", "suspicious domain", "urgency tactics", "insecure links"],
+      "language": "ar",
+      "description": "Absher impersonation requesting password and OTP with suspicious domain"
+    },
+    {
+      "id": "highrisk_004",
+      "message": "Your account has been HACKED! Reset your password NOW and enter your credit card to verify identity: bit.ly/secure-reset-12345",
+      "label": "HIGH_RISK",
+      "expected_red_flags": ["threatening language", "requests sensitive data", "shortened url", "urgency tactics"],
+      "language": "en",
+      "description": "Hacking scare with credit card request and URL shortener"
+    },
+    {
+      "id": "highrisk_005",
+      "message": "تنبيه أمني: تم محاولة اختراق حسابك. أدخل كلمة السر ورقم الهاتف ورقم الهوية فورا: goo.gl/security123 لمنع الإغلاق النهائي.",
+      "label": "HIGH_RISK",
+      "expected_red_flags": ["threatening language", "requests sensitive data", "shortened url", "urgency tactics"],
+      "language": "ar",
+      "description": "Security scare requesting password, phone, and ID number"
+    },
+    {
+      "id": "highrisk_006",
+      "message": "FINAL WARNING: Tax refund of $5,000 waiting. Provide SSN, bank account, and password: http://irs-refund-claim.xyz/verify-now or lose claim forever.",
+      "label": "HIGH_RISK",
+      "expected_red_flags": ["reward tactics", "requests sensitive data", "suspicious domain", "urgency tactics", "threatening language", "insecure links"],
+      "language": "en",
+      "description": "Tax refund scam with multiple red flags"
+    },
+    {
+      "id": "highrisk_007",
+      "message": "من ناجز: مطلوب دفع غرامة فورية 10,000 ريال. أدخل بيانات بطاقتك كاملة (الرقم، تاريخ الانتهاء، CVV): bit.ly/najiz-pay خلال ساعتين أو سيتم الحجز.",
+      "label": "HIGH_RISK",
+      "expected_red_flags": ["government impersonation", "requests sensitive data", "shortened url", "urgency tactics", "threatening language"],
+      "language": "ar",
+      "description": "Najiz impersonation with fine threat and full card details request"
+    },
+    {
+      "id": "safe_006",
+      "message": "Reminder: Your library books are due tomorrow. Renew online at https://library.gov.sa/renewals",
+      "label": "SAFE",
+      "expected_red_flags": [],
+      "language": "en",
+      "description": "Library reminder with legitimate .gov.sa domain"
+    },
+    {
+      "id": "lowrisk_006",
+      "message": "تحديث: تطبيقنا الجديد متاح الآن! قم بالتنزيل اليوم واحصل على مكافأة. رابط التحميل: https://app-download-store.com",
+      "label": "LOW_RISK",
+      "expected_red_flags": ["urgency tactics"],
+      "language": "ar",
+      "description": "App download promotion with incentive, unknown domain"
+    },
+    {
+      "id": "suspicious_007",
+      "message": "من الهيئة العامة للزكاة والدخل: مطلوب تحديث سجلك الضريبي. اضغط: ow.ly/tax456 خلال 48 ساعة لتجنب الغرامة.",
+      "label": "SUSPICIOUS",
+      "expected_red_flags": ["government impersonation", "shortened url", "urgency tactics", "threatening language"],
+      "language": "ar",
+      "description": "Tax authority impersonation with URL shortener"
+    }
+  ],
+  "statistics": {
+    "total_cases": 25,
+    "safe": 6,
+    "low_risk": 6,
+    "suspicious": 7,
+    "high_risk": 6,
+    "arabic": 14,
+    "english": 11
+  }
+}

@@ -189,24 +189,25 @@ function displayEnhancedResult(result) {
             return !lower.includes('no red flags') && 
                    !lower.includes('no significant') &&
                    !lower.includes('لم يتم اكتشاف') &&
-                   !lower.includes('no clear');
+                   !lower.includes('no clear') &&
+                   flag.trim() !== '';
         });
         
         if (displayFlags.length > 0) {
             redFlagsHTML = `
-                <div class="warnings-section">
+                <div class="warnings-section" role="region" aria-label="Risk indicators">
                     <div class="warnings-header">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" 
                                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2"/>
                         </svg>
                         <span>${t_ui('redFlagsTitle')}</span>
                     </div>
-                    <div class="warning-list">
+                    <div class="warning-list" role="list">
                         ${displayFlags.map(flag => `
-                            <div class="warning-item">
-                                <span class="warning-bullet">•</span>
+                            <div class="warning-item" role="listitem">
+                                <span class="warning-bullet" aria-hidden="true">•</span>
                                 <div>${sanitizeHTML(flag)}</div>
                             </div>
                         `).join('')}
@@ -218,8 +219,8 @@ function displayEnhancedResult(result) {
     // === SAFE MESSAGE (If no red flags and low risk) ===
     if (riskScore <= 30 && !redFlagsHTML) {
         redFlagsHTML = `
-            <div class="safe-message">
-                <div class="safe-icon">✅</div>
+            <div class="safe-message" role="region" aria-label="Safe message indicator">
+                <div class="safe-icon" aria-hidden="true">✅</div>
                 <div class="safe-text">${t_ui('noRedFlags')}</div>
             </div>`;
     }
@@ -233,7 +234,7 @@ function displayEnhancedResult(result) {
             <div class="result-icon" role="img" aria-label="${classificationText}">${icon}</div>
             <div class="result-info">
                 <div class="result-title">${sanitizeHTML(classificationText)}</div>
-                <div class="risk-score-badge ${colorClass}">
+                <div class="risk-score-badge ${colorClass}" aria-label="${riskScore}% risk score">
                     ${riskScore}%
                 </div>
             </div>
@@ -245,8 +246,8 @@ function displayEnhancedResult(result) {
 
         ${redFlagsHTML}
 
-        <div class="action-guidance" style="border-${isArabic ? 'right' : 'left'}-color: ${actionColor};">
-            <div class="action-icon">${icon}</div>
+        <div class="action-guidance" style="border-${isArabic ? 'right' : 'left'}-color: ${actionColor};" role="region" aria-label="Recommended action">
+            <div class="action-icon" aria-hidden="true">${icon}</div>
             <div class="action-text">${sanitizeHTML(action)}</div>
         </div>
 
@@ -255,6 +256,15 @@ function displayEnhancedResult(result) {
     
     // === APPLY STYLING & ANIMATION ===
     resultCard.className = `result-card ${colorClass} show`;
+    
+    // === ADD EVENT LISTENER FOR TECHNICAL DETAILS ===
+    const technicalDetails = resultCard.querySelector('.technical-details');
+    if (technicalDetails) {
+        const summary = technicalDetails.querySelector('summary');
+        technicalDetails.addEventListener('toggle', function() {
+            summary.setAttribute('aria-expanded', this.open);
+        });
+    }
     
     // === SAVE TO HISTORY ===
     saveToHistory(result);
@@ -287,8 +297,8 @@ function buildTechnicalDetailsSection(result, isArabic) {
     
     // === OVERVIEW SECTION ===
     const overviewHTML = `
-        <div class="tech-section">
-            <h4 class="tech-section-title">${t_ui('overview')}</h4>
+        <div class="tech-section" role="region" aria-labelledby="overview-title">
+            <h4 class="tech-section-title" id="overview-title">${t_ui('overview')}</h4>
             <div class="tech-grid">
                 <div class="tech-item">
                     <span class="tech-label">${t_ui('urlsFound')}:</span>
@@ -308,8 +318,8 @@ function buildTechnicalDetailsSection(result, isArabic) {
     
     // === RISK SCORES SECTION ===
     const scoresHTML = `
-        <div class="tech-section">
-            <h4 class="tech-section-title">${t_ui('riskScores')}</h4>
+        <div class="tech-section" role="region" aria-labelledby="risk-scores-title">
+            <h4 class="tech-section-title" id="risk-scores-title">${t_ui('riskScores')}</h4>
             <div class="tech-grid">
                 <div class="tech-item">
                     <span class="tech-label">${t_ui('mlScore')}:</span>
@@ -338,13 +348,13 @@ function buildTechnicalDetailsSection(result, isArabic) {
     let urlTypesHTML = '';
     if (tech.url_types && tech.url_types.length > 0) {
         urlTypesHTML = `
-            <div class="tech-section">
-                <h4 class="tech-section-title">${t_ui('urlTypes')}</h4>
+            <div class="tech-section" role="region" aria-labelledby="url-types-title">
+                <h4 class="tech-section-title" id="url-types-title">${t_ui('urlTypes')}</h4>
                 <div class="url-types">
                     ${tech.url_types.map(type => {
                         const typeData = getUrlTypeData(type, isArabic);
                         return `
-                            <span class="${typeData.class}">
+                            <span class="${typeData.class}" role="status">
                                 ${typeData.icon} ${typeData.label}
                             </span>
                         `;
@@ -358,11 +368,11 @@ function buildTechnicalDetailsSection(result, isArabic) {
     let detailedFlagsHTML = '';
     if (tech.red_flags_details && tech.red_flags_details.length > 0) {
         detailedFlagsHTML = `
-            <div class="tech-section">
-                <h4 class="tech-section-title">${t_ui('detailedAnalysis')}</h4>
-                <div class="red-flags-details">
+            <div class="tech-section" role="region" aria-labelledby="detailed-analysis-title">
+                <h4 class="tech-section-title" id="detailed-analysis-title">${t_ui('detailedAnalysis')}</h4>
+                <div class="red-flags-details" role="list">
                     ${tech.red_flags_details.map(detail => `
-                        <div class="red-flag-detail">${sanitizeHTML(detail)}</div>
+                        <div class="red-flag-detail" role="listitem">${sanitizeHTML(detail)}</div>
                     `).join('')}
                 </div>
             </div>
@@ -371,8 +381,8 @@ function buildTechnicalDetailsSection(result, isArabic) {
     
     // === ASSEMBLE TECHNICAL SECTION ===
     return `
-        <details class="technical-details">
-            <summary>${t_ui('technicalDetailsTitle')}</summary>
+        <details class="technical-details" role="region" aria-label="${t_ui('technicalDetailsTitle')}">
+            <summary aria-expanded="false">${t_ui('technicalDetailsTitle')}</summary>
             <div class="tech-content">
                 ${overviewHTML}
                 ${scoresHTML}
@@ -529,7 +539,7 @@ function showNotification(message, type = 'success') {
 }
 
 /**
- * Open modal
+ * Open modal with focus management
  * @param {string} modalId - Modal ID
  */
 function openModal(modalId) {
@@ -537,11 +547,20 @@ function openModal(modalId) {
     if (modal) {
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
+        
+        // Save currently focused element
+        modal._previousFocus = document.activeElement;
+        
+        // Focus first focusable element in modal
+        focusFirstElement(modal);
+        
+        // Add event listener for focus trapping
+        modal.addEventListener('keydown', trapFocus);
     }
 }
 
 /**
- * Close modal
+ * Close modal and restore focus
  * @param {string} modalId - Modal ID
  */
 function closeModal(modalId) {
@@ -549,6 +568,82 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('show');
         document.body.style.overflow = '';
+        
+        // Remove event listener
+        modal.removeEventListener('keydown', trapFocus);
+        
+        // Restore focus to previous element
+        if (modal._previousFocus) {
+            modal._previousFocus.focus();
+        }
+    }
+}
+
+/**
+ * Focus the first focusable element in a container
+ * @param {HTMLElement} container - Container element
+ */
+function focusFirstElement(container) {
+    const focusableElements = getFocusableElements(container);
+    if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+    } else {
+        // If no focusable elements, focus the container itself
+        container.focus();
+    }
+}
+
+/**
+ * Get all focusable elements within a container
+ * @param {HTMLElement} container - Container element
+ * @returns {Array} Array of focusable elements
+ */
+function getFocusableElements(container) {
+    const focusableSelectors = [
+        'a[href]',
+        'button:not([disabled])',
+        'input:not([disabled])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])',
+        '[contenteditable=true]'
+    ];
+    
+    return Array.from(container.querySelectorAll(focusableSelectors.join(', ')))
+        .filter(el => {
+            // Check if element is visible
+            return el.offsetWidth > 0 && el.offsetHeight > 0 && 
+                   window.getComputedStyle(el).visibility !== 'hidden';
+        });
+}
+
+/**
+ * Trap focus within a modal
+ * @param {KeyboardEvent} event - Keyboard event
+ */
+function trapFocus(event) {
+    if (event.key !== 'Tab') return;
+    
+    const modal = event.currentTarget;
+    const focusableElements = getFocusableElements(modal);
+    
+    if (focusableElements.length === 0) return;
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    if (event.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+        }
+    } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement.focus();
+        }
     }
 }
 
@@ -587,3 +682,4 @@ window.updateExportButtonVisibility = updateExportButtonVisibility;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.sanitizeHTML = sanitizeHTML;
+window.t_ui = t_ui;

@@ -19,8 +19,7 @@
 **Name**: Manal Alyami  
 **Role**: Lead Developer & Technical Implementation  
 **Contributions**: Backend, ML/LLM Integration, Frontend, Premium Features, Revenue System  
-**GitHub**: @manal-alyami (if applicable)  
-**Email**: manal@tanabbah.com (if applicable)
+
 
 ---
 
@@ -151,31 +150,19 @@
 #### Premium Feature Set
 Premium features include:
 - Unlimited message analysis (vs 5/day free)
-- Advanced LLM analysis
-- Real-time alerts and notifications
-- Detailed PDF reports
-- Priority support (24-hour response)
-- API access for integrations
-- Bulk message processing
-- Custom detection rules
-- Export history
-- Team collaboration
 
-#### Payment Integration Preparation
-- ✅ Payment gateway hooks (Stripe/HyperPay)
-- ✅ Subscription management structure
-- ✅ Billing cycle handling
-- ✅ Invoice generation system
+#### Payment Integration
+- Coming soon: Payment gateway integration
 - ✅ 7-day free trial implementation
 
 **Code Location**: 
 - Frontend: Premium modal in `index.html`
 - Backend: Premium checks in `backend/main.py`
 
-**Revenue Projection**: 
-- Conservative: 1,200 SAR/year
-- Expected: 15,000 SAR/year
-- Optimistic: 60,000 SAR/year
+**Revenue Model**: 
+- Premium subscription model (5 SAR/month) is designed
+- Payment gateway integration coming soon
+- Revenue projections are theoretical and not yet realized
 
 ---
 
