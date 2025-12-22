@@ -193,12 +193,10 @@ async def analyze_message(request: AnalyzeRequest):
         combined_risk_score = ml_risk_score
         
         if llm_analysis:
-            # If LLM says phishing, use context_score
-            # If LLM says not phishing, invert the score
-            llm_score = llm_analysis.context_score if llm_analysis.is_phishing else (100 - llm_analysis.context_score)
-            
-            # Weighted combination: 40% ML, 60% LLM
+        # Use LLM confidence directly (0-100)
+            llm_score = llm_analysis.confidence
             combined_risk_score = round((ml_risk_score * 0.4) + (llm_score * 0.6), 2)
+
             logger.info(f"Combined Risk Score: {combined_risk_score}% (ML: {ml_risk_score}%, LLM: {llm_score}%)")
         
         # Return response
