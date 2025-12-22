@@ -1,236 +1,231 @@
 /**
  * ========================================
- * Tanabbah - Enhanced UI Display Module v2.2
+ * Tanabbah - Enhanced UI Display Module v2.3
  * ========================================
- * Complete technical details display
+ * Complete bilingual analysis card with technical details
  * Author: Manal Alyami
- * Version: 2.2.0 - Full Technical Insights
+ * Version: 2.3.0 - Production Ready
  * ========================================
  */
 
+// ============================================================================
+// TRANSLATION SYSTEM
+// ============================================================================
+
+const UI_TRANSLATIONS = {
+    ar: {
+        // Classifications
+        SAFE: 'آمنة',
+        LOW_RISK: 'منخفضة الخطورة',
+        SUSPICIOUS: 'مشبوهة',
+        HIGH_RISK: 'عالية الخطورة',
+        
+        // Sections
+        redFlagsTitle: '🚨 مؤشرات الخطر',
+        actionGuidanceTitle: '📋 الإجراء الموصى به',
+        technicalDetailsTitle: '🔬 تفاصيل تقنية (للمختصين)',
+        
+        // Technical Labels
+        overview: '📊 نظرة عامة',
+        urlsFound: 'عدد الروابط',
+        analysisMethod: 'طريقة التحليل',
+        featuresAnalyzed: 'الخصائص المحللة',
+        riskScores: '📈 درجات الخطر',
+        mlScore: 'النموذج الآلي (ML)',
+        llmScore: 'الذكاء الاصطناعي (LLM)',
+        source: 'المصدر',
+        trusted: 'موثوق',
+        untrusted: 'غير موثوق',
+        urlTypes: '🔗 أنواع الروابط',
+        detailedAnalysis: '🔍 تحليل مفصل',
+        noRedFlags: '✅ لم يتم اكتشاف مؤشرات احتيال واضحة',
+        
+        // URL Types
+        urlPhishing: 'احتيالي',
+        urlSuspicious: 'مشبوه',
+        urlLookalike: 'مشابه لموقع معروف',
+        urlTrusted: 'موثوق',
+        urlSafe: 'آمن',
+        urlNoUrls: 'لا توجد روابط',
+        
+        // Actions
+        actionSafe: '✅ لا يوجد إجراء مطلوب',
+        actionLowRisk: '⚠️ تحقق قبل الضغط على أي رابط',
+        actionSuspicious: '🚫 لا تضغط على الروابط حتى تتأكد من المصدر',
+        actionHighRisk: '❌ يُنصح بحذف الرسالة وعدم التفاعل معها'
+    },
+    en: {
+        // Classifications
+        SAFE: 'Safe',
+        LOW_RISK: 'Low Risk',
+        SUSPICIOUS: 'Suspicious',
+        HIGH_RISK: 'High Risk',
+        
+        // Sections
+        redFlagsTitle: '🚨 Risk Indicators',
+        actionGuidanceTitle: '📋 Recommended Action',
+        technicalDetailsTitle: '🔬 Technical Details (For Experts)',
+        
+        // Technical Labels
+        overview: '📊 Overview',
+        urlsFound: 'URLs Found',
+        analysisMethod: 'Analysis Method',
+        featuresAnalyzed: 'Features Analyzed',
+        riskScores: '📈 Risk Scores',
+        mlScore: 'ML Model Score',
+        llmScore: 'AI Confidence',
+        source: 'Source',
+        trusted: 'Trusted',
+        untrusted: 'Untrusted',
+        urlTypes: '🔗 URL Types',
+        detailedAnalysis: '🔍 Detailed Analysis',
+        noRedFlags: '✅ No clear fraud indicators detected',
+        
+        // URL Types
+        urlPhishing: 'Phishing',
+        urlSuspicious: 'Suspicious',
+        urlLookalike: 'Lookalike',
+        urlTrusted: 'Trusted',
+        urlSafe: 'Safe',
+        urlNoUrls: 'No URLs',
+        
+        // Actions
+        actionSafe: '✅ No action required',
+        actionLowRisk: '⚠️ Verify before clicking any links',
+        actionSuspicious: '🚫 Do not click links until you verify the source',
+        actionHighRisk: '❌ Recommended to delete and not interact'
+    }
+};
+
+function t_ui(key) {
+    const lang = window.currentLanguage || 'ar';
+    return UI_TRANSLATIONS[lang][key] || key;
+}
+
+// ============================================================================
+// CLASSIFICATION HELPERS
+// ============================================================================
+
+/**
+ * Get icon for classification
+ */
+function getClassificationIcon(classification) {
+    const icons = {
+        'SAFE': '✅',
+        'LOW_RISK': '⚠️',
+        'SUSPICIOUS': '🚨',
+        'HIGH_RISK': '❌'
+    };
+    return icons[classification] || '✅';
+}
+
+/**
+ * Get color class for classification
+ */
+function getColorClass(classification) {
+    if (classification.includes('LOW')) return 'low-risk';
+    if (classification.includes('SUSPICIOUS')) return 'suspicious';
+    if (classification.includes('HIGH')) return 'high-risk';
+    return 'safe';
+}
+
+/**
+ * Get action color based on classification
+ */
+function getActionColor(classification) {
+    const colors = {
+        'SAFE': 'var(--success)',
+        'LOW_RISK': 'var(--warning)',
+        'SUSPICIOUS': 'var(--danger)',
+        'HIGH_RISK': 'var(--danger)'
+    };
+    return colors[classification] || 'var(--success)';
+}
+
+// ============================================================================
+// MAIN DISPLAY FUNCTION
+// ============================================================================
+
 /**
  * Display enhanced analysis result with complete technical details
- * @param {Object} result - Analysis result object from API
+ * @param {Object} result - Analysis result from API
  */
 function displayEnhancedResult(result) {
     const resultCard = document.getElementById('resultCard');
     const isArabic = window.currentLanguage === 'ar';
     
-    // Get classification and risk score
+    // === EXTRACT DATA ===
     const classification = result.classification || 'SAFE';
-    const classificationText = isArabic ? result.classification_ar : classification;
-    const riskScore = Math.round(result.risk_score || result.combined_risk_score || 0);
+    const classificationText = isArabic ? 
+        (result.classification_ar || t_ui(classification)) : 
+        classification.replace('_', ' ');
     
-    // Determine color class
-    let colorClass = 'safe';
-    if (classification.includes('LOW')) colorClass = 'low-risk';
-    else if (classification.includes('SUSPICIOUS')) colorClass = 'suspicious';
-    else if (classification.includes('HIGH')) colorClass = 'high-risk';
+    const riskScore = Math.round(result.risk_score || result.riskScore || 0);
+    const colorClass = getColorClass(classification);
+    const icon = getClassificationIcon(classification);
     
-    // Icon selection
-    const icons = {
-        'safe': '✅',
-        'low-risk': '⚠️',
-        'suspicious': '🚨',
-        'high-risk': '❌'
-    };
-    const icon = icons[colorClass];
+    // === EXPLANATION ===
+    const explanation = isArabic ? 
+        (result.explanation_ar || result.explanation) : 
+        result.explanation;
     
-    // Get explanation
-    const explanation = isArabic ? result.explanation_ar : result.explanation;
+    // === ACTION GUIDANCE ===
+    const action = isArabic ? 
+        (result.action_ar || result.action || getDefaultAction(classification, 'ar')) : 
+        (result.action || getDefaultAction(classification, 'en'));
     
-    // Get action guidance
-    const action = isArabic ? result.action_ar : result.action;
+    const actionColor = getActionColor(classification);
     
-    // Determine action color
-    const actionColors = {
-        'safe': 'var(--success)',
-        'low-risk': 'var(--warning)',
-        'suspicious': 'var(--danger)',
-        'high-risk': 'var(--danger)'
-    };
-    const actionColor = actionColors[colorClass];
-    
-    // === RED FLAGS DISPLAY ===
+    // === RED FLAGS (Only show if riskScore > 30) ===
     let redFlagsHTML = '';
-    const redFlags = isArabic ? result.red_flags_ar : result.red_flags;
+    if (riskScore > 30) {
+        const redFlags = isArabic ? 
+            (result.red_flags_ar || result.warnings || []) : 
+            (result.red_flags || []);
+        
+        // Filter out "no red flags" messages
+        const displayFlags = redFlags.filter(flag => {
+            const lower = flag.toLowerCase();
+            return !lower.includes('no red flags') && 
+                   !lower.includes('no significant') &&
+                   !lower.includes('لم يتم اكتشاف') &&
+                   !lower.includes('no clear');
+        });
+        
+        if (displayFlags.length > 0) {
+            redFlagsHTML = `
+                <div class="warnings-section">
+                    <div class="warnings-header">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" 
+                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>${t_ui('redFlagsTitle')}</span>
+                    </div>
+                    <div class="warning-list">
+                        ${displayFlags.map(flag => `
+                            <div class="warning-item">
+                                <span class="warning-bullet">•</span>
+                                <div>${sanitizeHTML(flag)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+    }
     
-    // Filter out "no red flags" messages for display
-    const displayFlags = redFlags.filter(flag => {
-        const lower = flag.toLowerCase();
-        return !lower.includes('no red flags') && 
-               !lower.includes('no significant') &&
-               !lower.includes('لم يتم اكتشاف') &&
-               !lower.includes('no clear');
-    });
-    
-    if (displayFlags.length > 0 && riskScore > 25) {
-        redFlagsHTML = `
-            <div class="warnings-section">
-                <div class="warnings-header">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" 
-                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    <span>${isArabic ? 'مؤشرات الخطر' : 'Risk Indicators'}</span>
-                </div>
-                <div class="warning-list">
-                    ${displayFlags.map(flag => `
-                        <div class="warning-item">
-                            <span class="warning-bullet">•</span>
-                            <div>${sanitizeHTML(flag)}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>`;
-    } else if (riskScore <= 25) {
+    // === SAFE MESSAGE (If no red flags and low risk) ===
+    if (riskScore <= 30 && !redFlagsHTML) {
         redFlagsHTML = `
             <div class="safe-message">
                 <div class="safe-icon">✅</div>
-                <div class="safe-text">
-                    ${isArabic ? 'لم يتم اكتشاف مؤشرات احتيال واضحة' : 'No clear fraud indicators detected'}
-                </div>
+                <div class="safe-text">${t_ui('noRedFlags')}</div>
             </div>`;
     }
     
     // === TECHNICAL DETAILS ===
-    let technicalHTML = '';
-    if (result.technical_details) {
-        const tech = result.technical_details;
-        const techTitle = isArabic ? '📊 تفاصيل تقنية (للمختصين)' : '📊 Technical Details (For Experts)';
-        
-        // Build technical details sections
-        let techSections = '';
-        
-        // 1. Overview Section
-        techSections += `
-            <div class="tech-section">
-                <h4 class="tech-section-title">
-                    ${isArabic ? '📋 نظرة عامة' : '📋 Overview'}
-                </h4>
-                <div class="tech-grid">
-                    <div class="tech-item">
-                        <span class="tech-label">${isArabic ? 'عدد الروابط' : 'URLs Found'}:</span>
-                        <span class="tech-value">${tech.urls_found}</span>
-                    </div>
-                    <div class="tech-item">
-                        <span class="tech-label">${isArabic ? 'طريقة التحليل' : 'Analysis Method'}:</span>
-                        <span class="tech-value">${tech.analysis_method}</span>
-                    </div>
-                    <div class="tech-item">
-                        <span class="tech-label">${isArabic ? 'الخصائص المحللة' : 'Features Analyzed'}:</span>
-                        <span class="tech-value">${tech.features_analyzed}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // 2. Risk Scores Section
-        techSections += `
-            <div class="tech-section">
-                <h4 class="tech-section-title">
-                    ${isArabic ? '📈 درجات الخطر' : '📈 Risk Scores'}
-                </h4>
-                <div class="tech-grid">
-                    <div class="tech-item">
-                        <span class="tech-label">${isArabic ? 'النموذج الآلي (ML)' : 'ML Model Score'}:</span>
-                        <span class="tech-value risk-score">${tech.ml_risk_score}%</span>
-                    </div>
-                    ${tech.llm_confidence ? `
-                    <div class="tech-item">
-                        <span class="tech-label">${isArabic ? 'الذكاء الاصطناعي (LLM)' : 'AI Confidence'}:</span>
-                        <span class="tech-value risk-score">${tech.llm_confidence}%</span>
-                    </div>
-                    ` : ''}
-                    <div class="tech-item ${tech.trusted_source ? 'trusted' : ''}">
-                        <span class="tech-label">
-                            ${tech.trusted_source ? '🛡️' : '⚠️'}
-                            ${isArabic ? 'المصدر' : 'Source'}:
-                        </span>
-                        <span class="tech-value">
-                            ${tech.trusted_source ? 
-                                (isArabic ? 'موثوق' : 'Trusted') : 
-                                (isArabic ? 'غير موثوق' : 'Untrusted')}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // 3. URL Types Section (if URLs found)
-        if (tech.urls_found > 0 && tech.url_types.length > 0) {
-            techSections += `
-                <div class="tech-section">
-                    <h4 class="tech-section-title">
-                        ${isArabic ? '🔗 أنواع الروابط' : '🔗 URL Types'}
-                    </h4>
-                    <div class="url-types">
-                        ${tech.url_types.map(type => {
-                            let typeClass = 'url-type';
-                            let typeIcon = '🔗';
-                            let typeLabel = type;
-                            
-                            if (type === 'Phishing') {
-                                typeClass += ' danger';
-                                typeIcon = '🚨';
-                                typeLabel = isArabic ? 'احتيالي' : 'Phishing';
-                            } else if (type === 'Suspicious') {
-                                typeClass += ' warning';
-                                typeIcon = '⚠️';
-                                typeLabel = isArabic ? 'مشبوه' : 'Suspicious';
-                            } else if (type === 'Lookalike') {
-                                typeClass += ' warning';
-                                typeIcon = '👁️';
-                                typeLabel = isArabic ? 'مشابه لموقع معروف' : 'Lookalike';
-                            } else if (type === 'Trusted') {
-                                typeClass += ' safe';
-                                typeIcon = '✅';
-                                typeLabel = isArabic ? 'موثوق' : 'Trusted';
-                            } else if (type === 'Safe') {
-                                typeClass += ' safe';
-                                typeIcon = '✅';
-                                typeLabel = isArabic ? 'آمن' : 'Safe';
-                            }
-                            
-                            return `
-                                <span class="${typeClass}">
-                                    ${typeIcon} ${typeLabel}
-                                </span>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-        
-        // 4. Detailed Red Flags Section
-        if (tech.red_flags_details && tech.red_flags_details.length > 0) {
-            techSections += `
-                <div class="tech-section">
-                    <h4 class="tech-section-title">
-                        ${isArabic ? '🔍 تحليل مفصل' : '🔍 Detailed Analysis'}
-                    </h4>
-                    <div class="red-flags-details">
-                        ${tech.red_flags_details.map(detail => `
-                            <div class="red-flag-detail">
-                                ${sanitizeHTML(detail)}
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-        
-        technicalHTML = `
-            <details class="technical-details" open>
-                <summary>${techTitle}</summary>
-                <div class="tech-content">
-                    ${techSections}
-                </div>
-            </details>
-        `;
-    }
+    const technicalHTML = buildTechnicalDetailsSection(result, isArabic);
     
     // === ASSEMBLE CARD ===
     resultCard.innerHTML = `
@@ -238,7 +233,7 @@ function displayEnhancedResult(result) {
             <div class="result-icon" role="img" aria-label="${classificationText}">${icon}</div>
             <div class="result-info">
                 <div class="result-title">${sanitizeHTML(classificationText)}</div>
-                <div class="risk-score-badge" style="background: linear-gradient(135deg, var(--status-color), var(--status-color-light));">
+                <div class="risk-score-badge ${colorClass}">
                     ${riskScore}%
                 </div>
             </div>
@@ -250,7 +245,7 @@ function displayEnhancedResult(result) {
 
         ${redFlagsHTML}
 
-        <div class="action-guidance" style="border-${isArabic ? 'right' : 'left'}: 4px solid ${actionColor};">
+        <div class="action-guidance" style="border-${isArabic ? 'right' : 'left'}-color: ${actionColor};">
             <div class="action-icon">${icon}</div>
             <div class="action-text">${sanitizeHTML(action)}</div>
         </div>
@@ -258,290 +253,227 @@ function displayEnhancedResult(result) {
         ${technicalHTML}
     `;
     
-    // Apply color class and show
+    // === APPLY STYLING & ANIMATION ===
     resultCard.className = `result-card ${colorClass} show`;
     
-    // Save to history
-    if (typeof addToHistory === 'function') {
-        const textarea = document.getElementById('messageInput');
-        addToHistory(textarea.value, {
-            classification: classification,
-            classification_ar: result.classification_ar,
-            riskScore: riskScore
-        });
-    }
+    // === SAVE TO HISTORY ===
+    saveToHistory(result);
     
-    // Update export button
-    if (typeof updateExportButtonVisibility === 'function') {
-        updateExportButtonVisibility();
-    }
+    // === UPDATE EXPORT BUTTON ===
+    updateExportButtonVisibility();
     
-    // Scroll into view
+    // === SCROLL INTO VIEW ===
     setTimeout(() => {
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
 }
 
-/**
- * Enhanced CSS for complete technical details display
- */
-const enhancedTechnicalStyles = `
-<style>
-/* Technical Details Container */
-.technical-details {
-    margin: 20px 36px;
-    border: 2px solid var(--border-light);
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--bg);
-}
-
-.technical-details summary {
-    padding: 16px 20px;
-    background: var(--card-bg);
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--text);
-    font-size: 1rem;
-    user-select: none;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.technical-details summary:hover {
-    background: var(--bg);
-}
-
-.tech-content {
-    padding: 20px;
-    background: var(--card-bg);
-}
-
-/* Technical Sections */
-.tech-section {
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.tech-section:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-.tech-section-title {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Technical Grid */
-.tech-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-}
-
-.tech-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 14px;
-    background: var(--bg);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.tech-item:hover {
-    background: var(--border-light);
-    transform: translateY(-2px);
-}
-
-.tech-item.trusted {
-    background: rgba(5, 150, 105, 0.1);
-    border: 1px solid var(--success);
-}
-
-.tech-label {
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-.tech-value {
-    font-weight: 800;
-    color: var(--text);
-}
-
-.tech-value.risk-score {
-    color: var(--status-color);
-    font-size: 1.1rem;
-}
-
-/* URL Types */
-.url-types {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.url-type {
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    border: 2px solid;
-    transition: all 0.3s ease;
-}
-
-.url-type.safe {
-    background: rgba(5, 150, 105, 0.1);
-    border-color: var(--success);
-    color: var(--success);
-}
-
-.url-type.warning {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: var(--warning);
-    color: var(--warning);
-}
-
-.url-type.danger {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: var(--danger);
-    color: var(--danger);
-}
-
-.url-type:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-}
-
-/* Red Flags Details */
-.red-flags-details {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.red-flag-detail {
-    padding: 12px 16px;
-    background: var(--bg);
-    border-left: 3px solid var(--primary);
-    border-radius: 6px;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-[dir="ltr"] .red-flag-detail {
-    border-left: none;
-    border-right: 3px solid var(--primary);
-}
-
-.red-flag-detail:hover {
-    background: var(--border-light);
-}
-
-/* Safe Message */
-.safe-message {
-    padding: 24px 36px;
-    background: rgba(5, 150, 105, 0.05);
-    border-bottom: 1px solid var(--border-light);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.safe-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.safe-text {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--success);
-}
-
-/* Action Guidance */
-.action-guidance {
-    padding: 24px 36px;
-    background: var(--status-bg);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.action-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.action-text {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--text);
-    line-height: 1.5;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .tech-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .technical-details {
-        margin: 16px 24px;
-    }
-    
-    .tech-content {
-        padding: 16px;
-    }
-    
-    .url-types {
-        flex-direction: column;
-    }
-    
-    .url-type {
-        width: 100%;
-        text-align: center;
-    }
-}
-</style>
-`;
-
-// Inject enhanced technical styles
-if (!document.getElementById('enhanced-technical-styles')) {
-    const styleEl = document.createElement('div');
-    styleEl.id = 'enhanced-technical-styles';
-    styleEl.innerHTML = enhancedTechnicalStyles;
-    document.head.appendChild(styleEl);
-}
-
-// Export the enhanced function
-window.displayEnhancedResult = displayEnhancedResult;
+// ============================================================================
+// TECHNICAL DETAILS BUILDER
+// ============================================================================
 
 /**
- * Update the main display function
+ * Build technical details section HTML
+ * @param {Object} result - Analysis result
+ * @param {boolean} isArabic - Language flag
+ * @returns {string} HTML string
  */
-function displayResult(result) {
-    if (window.displayEnhancedResult) {
-        window.displayEnhancedResult(result);
-    } else {
-        console.warn('Enhanced display not available');
+function buildTechnicalDetailsSection(result, isArabic) {
+    if (!result.technical_details && !result.url_predictions) {
+        return ''; // No technical data available
+    }
+    
+    const tech = result.technical_details || {};
+    
+    // === OVERVIEW SECTION ===
+    const overviewHTML = `
+        <div class="tech-section">
+            <h4 class="tech-section-title">${t_ui('overview')}</h4>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <span class="tech-label">${t_ui('urlsFound')}:</span>
+                    <span class="tech-value">${tech.urls_found || result.urlsFound || 0}</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-label">${t_ui('analysisMethod')}:</span>
+                    <span class="tech-value">${tech.analysis_method || 'ML + LLM'}</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-label">${t_ui('featuresAnalyzed')}:</span>
+                    <span class="tech-value">${tech.features_analyzed || 0}</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // === RISK SCORES SECTION ===
+    const scoresHTML = `
+        <div class="tech-section">
+            <h4 class="tech-section-title">${t_ui('riskScores')}</h4>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <span class="tech-label">${t_ui('mlScore')}:</span>
+                    <span class="tech-value risk-score">${tech.ml_risk_score || result.ml_risk_score || 0}%</span>
+                </div>
+                ${tech.llm_confidence || result.llmScore ? `
+                <div class="tech-item">
+                    <span class="tech-label">${t_ui('llmScore')}:</span>
+                    <span class="tech-value risk-score">${tech.llm_confidence || result.llmScore}%</span>
+                </div>
+                ` : ''}
+                <div class="tech-item ${tech.trusted_source ? 'trusted' : ''}">
+                    <span class="tech-label">
+                        ${tech.trusted_source ? '🛡️' : '⚠️'}
+                        ${t_ui('source')}:
+                    </span>
+                    <span class="tech-value">
+                        ${tech.trusted_source ? t_ui('trusted') : t_ui('untrusted')}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // === URL TYPES SECTION ===
+    let urlTypesHTML = '';
+    if (tech.url_types && tech.url_types.length > 0) {
+        urlTypesHTML = `
+            <div class="tech-section">
+                <h4 class="tech-section-title">${t_ui('urlTypes')}</h4>
+                <div class="url-types">
+                    ${tech.url_types.map(type => {
+                        const typeData = getUrlTypeData(type, isArabic);
+                        return `
+                            <span class="${typeData.class}">
+                                ${typeData.icon} ${typeData.label}
+                            </span>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // === DETAILED RED FLAGS SECTION ===
+    let detailedFlagsHTML = '';
+    if (tech.red_flags_details && tech.red_flags_details.length > 0) {
+        detailedFlagsHTML = `
+            <div class="tech-section">
+                <h4 class="tech-section-title">${t_ui('detailedAnalysis')}</h4>
+                <div class="red-flags-details">
+                    ${tech.red_flags_details.map(detail => `
+                        <div class="red-flag-detail">${sanitizeHTML(detail)}</div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // === ASSEMBLE TECHNICAL SECTION ===
+    return `
+        <details class="technical-details">
+            <summary>${t_ui('technicalDetailsTitle')}</summary>
+            <div class="tech-content">
+                ${overviewHTML}
+                ${scoresHTML}
+                ${urlTypesHTML}
+                ${detailedFlagsHTML}
+            </div>
+        </details>
+    `;
+}
+
+/**
+ * Get URL type display data
+ * @param {string} type - URL type
+ * @param {boolean} isArabic - Language flag
+ * @returns {Object} Display data
+ */
+function getUrlTypeData(type, isArabic) {
+    const types = {
+        'Phishing': { 
+            class: 'url-type danger', 
+            icon: '🚨', 
+            labelAr: 'احتيالي', 
+            labelEn: 'Phishing' 
+        },
+        'Suspicious': { 
+            class: 'url-type warning', 
+            icon: '⚠️', 
+            labelAr: 'مشبوه', 
+            labelEn: 'Suspicious' 
+        },
+        'Lookalike': { 
+            class: 'url-type warning', 
+            icon: '👁️', 
+            labelAr: 'مشابه', 
+            labelEn: 'Lookalike' 
+        },
+        'Trusted': { 
+            class: 'url-type safe', 
+            icon: '✅', 
+            labelAr: 'موثوق', 
+            labelEn: 'Trusted' 
+        },
+        'Safe': { 
+            class: 'url-type safe', 
+            icon: '✅', 
+            labelAr: 'آمن', 
+            labelEn: 'Safe' 
+        },
+        'No URLs': { 
+            class: 'url-type', 
+            icon: '📭', 
+            labelAr: 'لا توجد روابط', 
+            labelEn: 'No URLs' 
+        }
+    };
+    
+    const data = types[type] || types['Safe'];
+    return {
+        class: data.class,
+        icon: data.icon,
+        label: isArabic ? data.labelAr : data.labelEn
+    };
+}
+
+/**
+ * Get default action text
+ * @param {string} classification - Classification
+ * @param {string} lang - Language
+ * @returns {string} Action text
+ */
+function getDefaultAction(classification, lang) {
+    const key = `action${classification.charAt(0).toUpperCase() + classification.slice(1).toLowerCase().replace('_', '')}`;
+    return UI_TRANSLATIONS[lang][key] || UI_TRANSLATIONS[lang].actionSafe;
+}
+
+// ============================================================================
+// HISTORY INTEGRATION
+// ============================================================================
+
+/**
+ * Save result to history
+ * @param {Object} result - Analysis result
+ */
+function saveToHistory(result) {
+    if (typeof addToHistory === 'function') {
+        const textarea = document.getElementById('messageInput');
+        addToHistory(textarea.value, {
+            classification: result.classification,
+            classification_ar: result.classification_ar,
+            riskScore: result.risk_score || result.riskScore
+        });
     }
 }
 
-// Loading state management
+// ============================================================================
+// UI STATE MANAGEMENT
+// ============================================================================
+
+/**
+ * Show loading state
+ */
 function showLoading() {
     const loading = document.getElementById('loading');
     const resultCard = document.getElementById('resultCard');
@@ -556,12 +488,31 @@ function showLoading() {
     resultCard.classList.remove('show');
 }
 
+/**
+ * Hide loading state
+ */
 function hideLoading() {
     const loading = document.getElementById('loading');
     loading.classList.remove('show');
 }
 
-// Notification system
+/**
+ * Update export button visibility
+ */
+function updateExportButtonVisibility() {
+    const exportBtn = document.getElementById('exportBtn');
+    const resultCard = document.getElementById('resultCard');
+    
+    if (exportBtn && resultCard) {
+        exportBtn.style.display = resultCard.classList.contains('show') ? 'flex' : 'none';
+    }
+}
+
+/**
+ * Show notification
+ * @param {string} message - Notification message
+ * @param {string} type - Notification type (success, error, warning, info)
+ */
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
@@ -577,21 +528,10 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// Export button visibility
-function updateExportButtonVisibility() {
-    const exportBtn = document.getElementById('exportBtn');
-    const resultCard = document.getElementById('resultCard');
-    
-    if (exportBtn && resultCard) {
-        if (resultCard.classList.contains('show')) {
-            exportBtn.style.display = 'flex';
-        } else {
-            exportBtn.style.display = 'none';
-        }
-    }
-}
-
-// Modal functions
+/**
+ * Open modal
+ * @param {string} modalId - Modal ID
+ */
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -600,6 +540,10 @@ function openModal(modalId) {
     }
 }
 
+/**
+ * Close modal
+ * @param {string} modalId - Modal ID
+ */
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -608,9 +552,38 @@ function closeModal(modalId) {
     }
 }
 
-// HTML sanitization helper
+/**
+ * Sanitize HTML
+ * @param {string} str - String to sanitize
+ * @returns {string} Sanitized string
+ */
 function sanitizeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
 }
+
+// ============================================================================
+// BACKWARD COMPATIBILITY
+// ============================================================================
+
+/**
+ * Legacy display function (redirects to enhanced version)
+ */
+function displayResult(result) {
+    displayEnhancedResult(result);
+}
+
+// ============================================================================
+// EXPORT GLOBAL FUNCTIONS
+// ============================================================================
+
+window.displayEnhancedResult = displayEnhancedResult;
+window.displayResult = displayResult;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+window.showNotification = showNotification;
+window.updateExportButtonVisibility = updateExportButtonVisibility;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.sanitizeHTML = sanitizeHTML;
