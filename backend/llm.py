@@ -278,7 +278,7 @@ def create_enhanced_analysis(message: str, urls: List[str]) -> LLMAnalysis:
     message_lower = message.lower()
     
     # === TRUST CHECK ===
-    all_urls_trusted = all(is_trusted_domain(url) for url in urls) if urls else False
+    all_urls_trusted = bool(all(is_trusted_domain(url) for url in urls)) if urls else False
     has_urls = len(urls) > 0
     
     # Check for URL shorteners (HIGH RISK even with trusted domains)
@@ -447,7 +447,7 @@ async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LL
     
     # First, check for immediate trust override
     if urls:
-        all_urls_trusted = all(is_trusted_domain(url) for url in urls)
+        all_urls_trusted = bool(all(is_trusted_domain(url) for url in urls))
         has_shorteners = any(short in url.lower() for url in urls 
                             for short in ['bit.ly', 'tinyurl', 'goo.gl'])
         
@@ -506,7 +506,7 @@ async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LL
         
         if data:
             # Apply trust override to LLM results
-            is_trusted = urls and all(is_trusted_domain(url) for url in urls)
+            is_trusted = bool(urls and all(is_trusted_domain(url) for url in urls))
             
             # Get red flags
             raw_flags = list(data.get("red_flags", []))
