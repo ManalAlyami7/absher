@@ -47,12 +47,14 @@
                         </linearGradient>
                     </defs>
                 </svg>
+                <div class="splash-spinner"></div>
             </div>
             <h1 class="splash-title">تنبَّه</h1>
             <p class="splash-subtitle">Tanabbah Security</p>
             <div class="splash-loader">
                 <div class="splash-loader-bar"></div>
             </div>
+            <p class="splash-loading-text" id="splashLoadingText">Loading application...</p>
         </div>
     </div>
     
@@ -116,16 +118,6 @@
 
                 <div class="header-divider"></div>
 
-                <button class="header-btn report-btn" onclick="openReportModal()" 
-                        title="إبلاغ" aria-label="إبلاغ عن رسالة احتيالية" data-tooltip="Report fraudulent message">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" 
-                              stroke="currentColor" stroke-width="1.5" fill="none"/>
-                        <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-                    </svg>
-                    <span class="btn-label">إبلاغ</span>
-                </button>
-
                 <button class="header-btn premium-btn" onclick="openPremiumModal()" 
                         title="التطبيق" aria-label="تحميل التطبيق" data-tooltip="Get premium mobile app">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -157,15 +149,18 @@
                         <p id="mainSubtitle">الصق الرسالة المشبوهة أدناه لفحصها فوراً</p>
                     </div>
 
-                    <textarea 
-                        id="messageInput" 
-                        class="message-textarea"
-                        dir="auto"
-                        placeholder="مثال: تم تعليق حسابك في أبشر. يُرجى النقر على الرابط bit.ly/abs123 لتحديثه خلال 24 ساعة..."
-                        spellcheck="false"
-                        autocomplete="off"
-                        aria-label="أدخل الرسالة المشبوهة"></textarea>
-                    <div class="character-counter" id="charCounter">0 / 5000</div>
+                    <div class="input-container">
+                        <textarea 
+                            id="messageInput" 
+                            class="message-textarea"
+                            dir="auto"
+                            placeholder="مثال: تم تعليق حسابك في أبشر. يُرجى النقر على الرابط bit.ly/abs123 لتحديثه خلال 24 ساعة..."
+                            spellcheck="false"
+                            autocomplete="off"
+                            aria-label="أدخل الرسالة المشبوهة"></textarea>
+                        <div class="error-message" id="inputError" style="display: none; color: var(--danger); font-size: 0.85rem; margin-top: 5px;"></div>
+                        <div class="character-counter" id="charCounter">0 / 5000</div>
+                    </div>
 
                     <div class="button-row">
                         <button class="btn btn-paste" onclick="pasteFromClipboard()" 

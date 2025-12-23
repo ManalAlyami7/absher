@@ -252,6 +252,19 @@ function displayEnhancedResult(result) {
         </div>
 
         ${technicalHTML}
+        
+        ${riskScore > 50 ? `
+        <div class="report-section">
+            <button class="btn btn-report" onclick="openReportModal()" 
+                    aria-label="Report this suspicious message" title="Report this suspicious message">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 1L2 6V13C2 20 10 24 12 24C14 24 22 20 22 13V6L12 1Z" 
+                          stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                </svg>
+                <span>${t_ui('reportThisMessage')}</span>
+            </button>
+        </div>` : ''}
     `;
     
     // === APPLY STYLING & ANIMATION ===

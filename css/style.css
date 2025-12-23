@@ -440,6 +440,12 @@ body {
     flex-direction: column;
 }
 
+/* Input Container */
+.input-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
 /* Character Counter */
 .character-counter {
     text-align: right;
@@ -1124,6 +1130,39 @@ input:focus {
 .js-focus-visible input.focus-visible {
     outline: 3px solid var(--primary);
     outline-offset: 2px;
+}
+
+/* Report Section Styles */
+.report-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.btn-report {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: auto;
+    width: 100%;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.btn-report:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.btn-report:active {
+    transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {

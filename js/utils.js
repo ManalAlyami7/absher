@@ -190,6 +190,7 @@ const translations = {
         reportInfo: 'سيتم إرسال البلاغ بشكل سري وآمن',
         sendReport: 'إرسال البلاغ',
         cancel: 'إلغاء',
+        reportThisMessage: 'الإبلاغ عن هذه الرسالة',
         
         // Notifications
         notifPasted: '✅ تم اللصق بنجاح',
@@ -287,6 +288,7 @@ const translations = {
         reportInfo: 'Report will be sent securely and anonymously',
         sendReport: 'Send Report',
         cancel: 'Cancel',
+        reportThisMessage: 'Report this message',
         
         // Notifications
         notifPasted: '✅ Pasted successfully',

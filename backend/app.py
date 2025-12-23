@@ -149,7 +149,8 @@ def calculate_enhanced_risk(
     ml_score: float,
     llm_analysis: Optional[LLMAnalysis],
     urls: List[str],
-    url_predictions: List[URLPrediction]
+    url_predictions: List[URLPrediction],
+    language: str = "ar"
 ) -> tuple:
     """
     Enhanced risk calculation with complete technical details

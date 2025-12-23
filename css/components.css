@@ -1527,6 +1527,27 @@
 .splash-logo {
     margin-bottom: 20px;
     animation: splashLogo 1.5s ease-out, splashPulse 2s infinite 2s;
+    position: relative;
+}
+
+.splash-spinner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 80px;
+    border: 3px solid rgba(0, 108, 53, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid #006c35;
+    animation: spin 1s linear infinite;
+    opacity: 0.7;
+}
+
+.splash-loading-text {
+    font-size: 0.9rem;
+    color: rgba(0, 108, 53, 0.7);
+    margin: 15px 0 0;
+    font-weight: 500;
 }
 
 .splash-title {
@@ -1659,6 +1680,15 @@
     }
     100% {
         transform: translateY(0px);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
     }
 }
 
