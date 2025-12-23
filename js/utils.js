@@ -132,76 +132,110 @@ function removeFromStorage(key) {
 const translations = {
     ar: {
         // Header & Brand
-        language: 'EN',
-        darkMode: 'الإضاءة',
+        language: 'English',
+        languageAr: 'العربية',
+        darkMode: 'نمط العرض',
         history: 'السجل',
-        save: 'حفظ',
+        save: 'تصدير',
         report: 'إبلاغ',
+        app: 'التطبيق',
         
         // Privacy
         privacyNotice: 'نحن لا نحفظ أو نخزن الرسائل التي تفحصها. خصوصيتك مهمة لنا',
         
         // Main Section
-        mainTitle: 'فحص الرسائل الاحتيالية',
-        mainSubtitle: 'الصق الرسالة المشبوهة أدناه لفحصها فوراً',
-        placeholder: 'مثال: تم تعليق حسابك في أبشر. يرجى الضغط على الرابط bit.ly/abs123 للتحديث خلال 24 ساعة...',
+        mainTitle: 'ماسح الرسائل الاحتيالية',
+        mainSubtitle: 'الصق الرسالة المشبوهة أدناه لتحليلها فورًا',
+        placeholder: 'مثال: تم تعليق حسابك في أبشر. يُرجى النقر على الرابط bit.ly/abs123 لتحديثه خلال 24 ساعة...',
         paste: 'لصق',
         clear: 'مسح',
-        analyze: 'فحص الرسالة',
-        analyzing: 'جاري فحص الرسالة وتحليل المحتوى بالذكاء الاصطناعي...',
+        analyze: 'تحليل الرسالة',
+        analyzing: 'جاري تحليل الرسالة وفحص محتواها باستخدام الذكاء الاصطناعي...',
         
         // Results
-        safe: 'آمنة غالباً',
+        safe: 'آمنة',
         suspicious: 'مشبوهة',
         fraud: 'احتيالية',
-        riskScore: 'درجة الخطر',
-        explanation: 'تم فحص الرسالة بنجاح بالذكاء الاصطناعي',
+        riskScore: 'نسبة الخطر',
+        explanation: 'تم تحليل الرسالة بنجاح باستخدام الذكاء الاصطناعي',
         
         // Tips Section
-        tipsTitle: 'نصائح الأمان',
-        tip1: 'لا تشارك كلمات المرور أو أكواد التحقق مطلقاً',
-        tip2: 'تحقق من الروابط قبل النقر عليها',
+        tipsTitle: 'توصيات الأمان',
+        tip1: 'لا تُشارك معلوماتك السرية أو رموز التحقق مطلقًا',
+        tip2: 'تحقّق من صحة الروابط قبل النقر عليها',
         tip3: 'النطاق الرسمي لأبشر: ',
         tip3Value: 'absher.sa',
         tip4: 'المواقع الحكومية تنتهي بـ: ',
         tip4Value: '.gov.sa',
-        tip5: 'احذر من الرسائل التي تطلب إجراء عاجل',
+        tip5: 'احذر من الرسائل التي تطالب باتخاذ إجراء فوري',
         
         // Official Sites
         officialSitesTitle: 'المواقع الرسمية',
         
         // History
-        historyTitle: 'رسائل تم فحصها سابقاً',
-        noHistory: 'لم يتم فحص أي رسائل بعد',
-        deleteHistory: 'حذف جميع السجلات',
-        confirmDeleteOne: 'هل تريد حذف هذا السجل؟',
-        confirmDeleteAll: 'هل تريد حذف جميع السجلات؟\n\nلا يمكن التراجع عن هذا الإجراء.',
-        confirmClear: 'هل تريد مسح الرسالة؟',
+        historyTitle: 'الرسائل التي تم تحليلها',
+        noHistory: 'لم تتم تحليل أية رسائل بعد',
+        deleteHistory: 'حذف السجل بأكمله',
+        confirmDeleteOne: 'هل ترغب في حذف هذا السجل؟',
+        confirmDeleteAll: 'هل ترغب في حذف السجل بأكمله؟\n\nلا يمكن التراجع عن هذا الإجراء.',
+        confirmClear: 'هل ترغب في مسح الرسالة؟',
+        searchHistory: 'البحث في السجل...',
+        searchLabel: 'البحث في السجل',
+        searchBtnLabel: 'بحث',
+        clearHistory: 'حذف السجل بأكمله',
+        
+        // Report
+        reportTitle: 'الإبلاغ عن رسالة احتيالية',
+        reportDescription: 'سيتم إرسال الرسالة إلى الجهات المختصة لاتخاذ الإجراءات اللازمة. نُقدّر مساهمتكم في حماية المجتمع من الاحتيال الإلكتروني.',
+        reportInfo: 'سيتم إرسال البلاغ بشكل سري وآمن',
+        sendReport: 'إرسال البلاغ',
+        cancel: 'إلغاء',
         
         // Notifications
         notifPasted: '✅ تم اللصق بنجاح',
         notifCleared: '🗑️ تم المسح',
-        notifSaved: '✅ تم نسخ النتيجة بنجاح',
-        notifPasteFailed: '⚠️ استخدم Ctrl+V للصق',
+        notifSaved: '✅ تم حفظ النتيجة بنجاح',
+        notifPasteFailed: '⚠️ يُرجى استخدام Ctrl+V للصق',
         notifNoResult: '⚠️ لا توجد نتيجة للحفظ',
-        notifNoMessage: '⚠️ الرجاء لصق الرسالة أولاً',
+        notifNoMessage: '⚠️ يُرجى لصق الرسالة أولًا',
         notifDeleted: '🗑️ تم حذف السجل',
         notifAllDeleted: '🗑️ تم حذف جميع السجلات',
-        notifMessageTooLong: '⚠️ الرسالة طويلة جداً. الحد الأقصى 5000 حرف',
+        notifMessageTooLong: '⚠️ الرسالة طويلة جدًا. الحد الأقصى 5000 حرف',
         reportSending: '⏳ جاري إرسال البلاغ...',
         reportSent: '✅ تم إرسال البلاغ بنجاح إلى الجهات المختصة',
-        reportFailed: '⚠️ فشل إرسال البلاغ. حاول لاحقاً',
+        reportFailed: '⚠️ فشل إرسال البلاغ. يُرجى المحاولة لاحقًا',
         
         // Footer
-        footerText: 'تنبَه هو تطبيق مستقل وغير تابع لأي جهة حكومية. الغرض منه هو التوعية وحماية المستخدمين من الاحتيال الإلكتروني.'
+        footerText: 'يُعد \"تنـبَّـه\" تطبيقًا مستقلًا غير تابع لأية جهة حكومية. يهدف التطبيق إلى التوعية وحماية المستخدمين من الاحتيال الإلكتروني.',
+        
+        // Premium Mobile App
+        premiumTitle: 'تنـبَّـه - تطبيق مميز',
+        premiumHeader: 'حماية مُتقدمة من الرسائل الاحتيالية',
+        premiumDesc: 'احمِ نفسك وعائلتك من الاحتيال الإلكتروني مع <strong>التحديثات التلقائية</strong> وتحليل الرسائل في الخلفية',
+        feature1: 'فحص تلقائي',
+        feature2: 'تنبيهات فورية',
+        feature3: 'تقارير مفصلة',
+        feature4: 'تحليل ذكي',
+        downloadBtn: 'ابدأ الآن - تجربة مجانية',
+        trial: '✨ تجربة مجانية 7 أيام - لا حاجة لبطاقة ائتمان',
+        termsAr: 'بتنزيل التطبيق، أنت توافق على <a href="#" style="color: var(--primary); text-decoration: underline;">الشروط والأحكام</a>. يمكنك إلغاء الاشتراك في أي وقت',
+        
+        // New Premium Modal Texts
+        premiumBadgeText: '✓ حماية مُتقدمة',
+        proofLabel1: 'مستخدم',
+        proofLabel2: 'دقة',
+        proofLabel3: 'حماية',
+        guaranteeText: '✓ ضمان استرداد الأموال لمدة 30 يومًا'
     },
     en: {
         // Header & Brand
-        language: 'عربي',
+        language: 'Arabic',
+        languageAr: 'عربي',
         darkMode: 'Theme',
         history: 'History',
         save: 'Export',
         report: 'Report',
+        app: 'App',
         
         // Privacy
         privacyNotice: 'We do not save or store the messages you check. Your privacy matters to us',
@@ -242,6 +276,17 @@ const translations = {
         confirmDeleteOne: 'Do you want to delete this record?',
         confirmDeleteAll: 'Do you want to delete all history?\n\nThis action cannot be undone.',
         confirmClear: 'Do you want to clear the message?',
+        searchHistory: 'Search history...',
+        searchLabel: 'Search history',
+        searchBtnLabel: 'Search',
+        clearHistory: 'Delete all history',
+        
+        // Report
+        reportTitle: 'Report Fraudulent Message',
+        reportDescription: 'The message will be sent to authorities for investigation. Thank you for your contribution to protecting the community from fraud.',
+        reportInfo: 'Report will be sent securely and anonymously',
+        sendReport: 'Send Report',
+        cancel: 'Cancel',
         
         // Notifications
         notifPasted: '✅ Pasted successfully',
@@ -258,7 +303,26 @@ const translations = {
         reportFailed: '⚠️ Failed to send report. Try again later',
         
         // Footer
-        footerText: 'Tanabbah is an independent app not affiliated with any government entity. Its purpose is to raise awareness and protect users from online fraud.'
+        footerText: 'Tanabbah is an independent app not affiliated with any government entity. Its purpose is to raise awareness and protect users from online fraud.',
+        
+        // Premium Mobile App
+        premiumTitle: 'Tanabbah Premium App',
+        premiumHeader: 'Advanced Protection from Fraudulent Messages',
+        premiumDesc: 'Protect yourself and your family from online fraud with <strong>automatic updates</strong> and background message analysis',
+        feature1: 'Automatic Scanning',
+        feature2: 'Real-time Alerts',
+        feature3: 'Detailed Reports',
+        feature4: 'Smart Analysis',
+        downloadBtn: 'Start Now - Free Trial',
+        trial: '✨ 7-day free trial - No credit card required',
+        terms: 'By downloading the app, you agree to <a href="#" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a>. Cancel anytime',
+        
+        // New Premium Modal Texts
+        premiumBadgeText: '🔥 Security & Protection 🔥',
+        proofLabel1: 'Users',
+        proofLabel2: 'Accuracy',
+        proofLabel3: 'Protection',
+        guaranteeText: '✓ 30-Day Money-Back Guarantee'
     }
 };
 
@@ -387,3 +451,4 @@ if (typeof module !== 'undefined' && module.exports) {
         initCopyrightProtection
     };
 }
+

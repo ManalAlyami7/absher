@@ -171,7 +171,7 @@ function performLocalAnalysis(text) {
     if (urgencyPatterns.some(p => text.toLowerCase().includes(p.toLowerCase()))) {
         riskScore += 25;
         redFlags.push('Urgency tactics');
-        redFlagsAr.push('أسلوب الاستعجال والضغط');
+        redFlagsAr.push('استخدام أسلوب الاستعجال والضغط');
     }
     
     // Check for government impersonation
@@ -183,7 +183,7 @@ function performLocalAnalysis(text) {
         !urls.some(url => officialDomains.some(d => url.toLowerCase().includes(d)))) {
         riskScore += 35;
         redFlags.push('Potential government impersonation');
-        redFlagsAr.push('انتحال صفة جهة حكومية');
+        redFlagsAr.push('انتحال صفة جهة حكومية رسمية');
         urlTypes.push('Phishing');
     }
     
@@ -193,7 +193,7 @@ function performLocalAnalysis(text) {
     if (sensitiveKeywords.some(word => text.toLowerCase().includes(word))) {
         riskScore += 30;
         redFlags.push('Requests sensitive information');
-        redFlagsAr.push('طلب معلومات حساسة');
+        redFlagsAr.push('طلب معلومات سرية أو حساسة');
     }
     
     // Cap risk score
@@ -239,9 +239,9 @@ function performLocalAnalysis(text) {
         trusted_source: false,
         red_flags_details: [
             ...redFlagsAr,
-            `تم اكتشاف ${urls.length} رابط`,
-            `طريقة التحليل: محلية (Heuristic)`,
-            `درجة الخطر الإجمالية: ${riskScore}%`
+            `تم اكتشاف ${urls.length} رابط/روابط`,
+            `طريقة التحليل: تحليل محلي (Heuristic)`,
+            `نسبة الخطر الإجمالية: ${riskScore}%`
         ],
         analysis_method: 'Local Heuristic',
         features_analyzed: urls.length * 41
@@ -280,15 +280,15 @@ function getExplanationText(classification, riskScore, isTrusted, language) {
     if (language === 'ar') {
         if (classification === 'SAFE') {
             if (isTrusted) {
-                return `الرسالة تبدو رسمية وصادرة من جهة موثوقة. لم يتم اكتشاف مؤشرات احتيال واضحة. (درجة الخطر: ${riskScore}%)`;
+                return `تبدو الرسالة رسمية وصادرة من جهة موثوقة. لم يتم اكتشاف أي مؤشرات احتيال واضحة. (نسبة الخطر: ${riskScore}%)`;
             }
-            return `الرسالة تبدو آمنة بشكل عام. لا توجد مؤشرات خطر واضحة. (درجة الخطر: ${riskScore}%)`;
+            return `تبدو الرسالة آمنة بشكل عام. لا توجد مؤشرات خطر واضحة. (نسبة الخطر: ${riskScore}%)`;
         } else if (classification === 'LOW_RISK') {
-            return `الرسالة تحتوي على بعض العلامات التي تستدعي الحذر المعتدل. يُنصح بالتحقق من المصدر. (درجة الخطر: ${riskScore}%)`;
+            return `تحتوي الرسالة على بعض العلامات التي تستدعي الحذر المعتدل. يُنصح بالتحقق من مصدر الرسالة. (نسبة الخطر: ${riskScore}%)`;
         } else if (classification === 'SUSPICIOUS') {
-            return `الرسالة تحتوي على عدة مؤشرات مشبوهة. توخَّ الحذر الشديد ولا تضغط على أي روابط. (درجة الخطر: ${riskScore}%)`;
+            return `تحتوي الرسالة على عدة مؤشرات مشبوهة. يُنصح بالحذر الشديد وعدم النقر على أي روابط. (نسبة الخطر: ${riskScore}%)`;
         } else {
-            return `الرسالة تحتوي على مؤشرات احتيال قوية. لا تتفاعل معها ويُنصح بحذفها فوراً. (درجة الخطر: ${riskScore}%)`;
+            return `تحتوي الرسالة على مؤشرات احتيال قوية. يُنصح بعدم التفاعل معها وحذفها فوراً. (نسبة الخطر: ${riskScore}%)`;
         }
     } else {
         if (classification === 'SAFE') {
@@ -311,9 +311,9 @@ function getExplanationText(classification, riskScore, isTrusted, language) {
  */
 function getActionText(classification, language) {
     const actions = {
-        'SAFE': { ar: '✅ لا يوجد إجراء مطلوب', en: '✅ No action required' },
-        'LOW_RISK': { ar: '⚠️ تحقق قبل الضغط على أي رابط', en: '⚠️ Verify before clicking any links' },
-        'SUSPICIOUS': { ar: '🚫 لا تضغط على الروابط حتى تتأكد من المصدر', en: '🚫 Do not click links until you verify the source' },
+        'SAFE': { ar: '✅ لا يلزم اتخاذ أي إجراء', en: '✅ No action required' },
+        'LOW_RISK': { ar: '⚠️ تحقق من مصدريّة الرسالة قبل النقر على أي رابط', en: '⚠️ Verify before clicking any links' },
+        'SUSPICIOUS': { ar: '🚫 لا تنقر على الروابط حتى تتأكّد من مصدريّة الرسالة', en: '🚫 Do not click links until you verify the source' },
         'HIGH_RISK': { ar: '❌ يُنصح بحذف الرسالة وعدم التفاعل معها', en: '❌ Recommended to delete and not interact' }
     };
     return actions[classification]?.[language] || actions['SAFE'][language];

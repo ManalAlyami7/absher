@@ -440,6 +440,81 @@ body {
     flex-direction: column;
 }
 
+/* Character Counter */
+.character-counter {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 600;
+    padding-right: 4px;
+}
+
+.character-counter.warning {
+    color: var(--warning);
+}
+
+.character-counter.danger {
+    color: var(--danger);
+    animation: pulse 1s infinite;
+}
+
+/* Input Validation */
+.message-textarea.warning {
+    border-color: var(--warning);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.message-textarea.danger {
+    border-color: var(--danger);
+    background: rgba(239, 68, 68, 0.05);
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Skeleton Loading */
+.skeleton {
+    background: linear-gradient(90deg, var(--bg) 25%, var(--border-light) 50%, var(--bg) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Focus Management */
+.focus-indicator {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Micro-interactions */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 108, 53, 0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.header-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 108, 53, 0.2);
+}
+
+.header-btn:active {
+    transform: translateY(0);
+}
+
 /* ============================================================================
    CARD COMPONENT
    ============================================================================ */
@@ -1020,7 +1095,33 @@ body {
 
 button:focus-visible,
 a:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+input:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Enhanced focus styles for better accessibility */
+button:focus,
+a:focus,
+textarea:focus,
+input:focus {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Focus styles for keyboard users only */
+.js-focus-visible button:focus:not(.focus-visible),
+.js-focus-visible a:focus:not(.focus-visible),
+.js-focus-visible textarea:focus:not(.focus-visible),
+.js-focus-visible input:focus:not(.focus-visible) {
+    outline: none;
+}
+
+.js-focus-visible button.focus-visible,
+.js-focus-visible a.focus-visible,
+.js-focus-visible textarea.focus-visible,
+.js-focus-visible input.focus-visible {
     outline: 3px solid var(--primary);
     outline-offset: 2px;
 }

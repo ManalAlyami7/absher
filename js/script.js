@@ -27,7 +27,39 @@ window.addEventListener('DOMContentLoaded', function() {
     setupTextareaAutoDirection();
     setupKeyboardShortcuts();
     setupHistorySearch();
+    setupFocusManagement();
 });
+
+/**
+ * Setup focus management for better accessibility
+ */
+function setupFocusManagement() {
+    // Add class to body when using keyboard navigation
+    let usingKeyboard = false;
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            usingKeyboard = true;
+            document.body.classList.add('keyboard-nav');
+        }
+    });
+    
+    document.addEventListener('mousedown', function() {
+        usingKeyboard = false;
+        document.body.classList.remove('keyboard-nav');
+    });
+    
+    // Add focus indicators to focusable elements
+    document.addEventListener('focusin', function(e) {
+        if (usingKeyboard) {
+            e.target.classList.add('focus-indicator');
+        }
+    });
+    
+    document.addEventListener('focusout', function(e) {
+        e.target.classList.remove('focus-indicator');
+    });
+}
 
 /**
  * Initialize application settings and load saved data
@@ -87,6 +119,33 @@ function hideSplashScreen() {
  */
 function setupTextareaAutoDirection() {
     const textarea = document.getElementById('messageInput');
+    const charCounter = document.getElementById('charCounter');
+    
+    // Update character counter
+    function updateCharacterCounter() {
+        const text = textarea.value;
+        const length = text.length;
+        const maxLength = 5000;
+        
+        if (charCounter) {
+            charCounter.textContent = `${length} / ${maxLength}`;
+            
+            // Update counter styling based on length
+            charCounter.classList.remove('warning', 'danger');
+            textarea.classList.remove('warning', 'danger');
+            
+            if (length > maxLength * 0.8) { // 4000+ characters
+                charCounter.classList.add('warning');
+                textarea.classList.add('warning');
+            }
+            
+            if (length > maxLength) { // Over limit
+                charCounter.classList.add('danger');
+                textarea.classList.add('danger');
+            }
+        }
+    }
+    
     textarea.addEventListener('input', function() {
         const text = this.value;
         const hasArabic = /[\u0600-\u06FF]/.test(text);
@@ -101,7 +160,13 @@ function setupTextareaAutoDirection() {
             this.setAttribute('dir', 'auto');
             this.style.textAlign = '';
         }
+        
+        // Update character counter
+        updateCharacterCounter();
     });
+    
+    // Initialize counter on page load
+    updateCharacterCounter();
 }
 
 /**
@@ -147,6 +212,7 @@ async function analyzeMessage() {
 
     // Show loading state
     showLoading();
+    showSkeleton();
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
@@ -168,6 +234,7 @@ async function analyzeMessage() {
         );
     } finally {
         hideLoading();
+        hideSkeleton();
     }
 }
 
@@ -261,7 +328,12 @@ function updateUILanguage() {
         reportDescriptionText: 'reportDescription',
         reportInfoText: 'reportInfo',
         sendReportBtnText: 'sendReport',
-        cancelReportBtnText: 'cancel'
+        cancelReportBtnText: 'cancel',
+        
+        // History Modal
+        historySearch: 'searchHistory',
+        historySearchLabel: 'searchLabel',
+        historySearchBtnLabel: 'searchBtnLabel'
     };
     
     // Update language button separately since it's dynamic
@@ -291,6 +363,26 @@ function updateUILanguage() {
     const footerEl = document.getElementById('footerText');
     if (footerEl) {
         footerEl.innerHTML = t('footerText');
+    }
+    
+    // Update history modal elements
+    const historySearchInput = document.getElementById('historySearch');
+    if (historySearchInput) {
+        historySearchInput.placeholder = t('searchHistory');
+        historySearchInput.setAttribute('aria-label', t('searchLabel'));
+    }
+    
+    const historySearchBtn = document.getElementById('historySearchBtn');
+    if (historySearchBtn) {
+        historySearchBtn.setAttribute('aria-label', t('searchLabel'));
+        historySearchBtn.setAttribute('title', t('searchBtnLabel'));
+        historySearchBtn.setAttribute('data-tooltip', t('searchBtnLabel'));
+    }
+    
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.setAttribute('title', t('clearHistory'));
+        clearHistoryBtn.setAttribute('data-tooltip', t('clearHistory'));
     }
 
     // Update header buttons

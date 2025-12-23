@@ -31,8 +31,8 @@ const UI_TRANSLATIONS = {
         analysisMethod: 'طريقة التحليل',
         featuresAnalyzed: 'الخصائص المحللة',
         riskScores: '📈 درجات الخطر',
-        mlScore: 'النموذج الآلي (ML)',
-        llmScore: 'الذكاء الاصطناعي (LLM)',
+        mlScore: 'نسبة الخطر (ML)',
+        llmScore: 'ثقة الذكاء الاصطناعي (Confidence)',
         source: 'المصدر',
         trusted: 'موثوق',
         untrusted: 'غير موثوق',
@@ -72,8 +72,8 @@ const UI_TRANSLATIONS = {
         analysisMethod: 'Analysis Method',
         featuresAnalyzed: 'Features Analyzed',
         riskScores: '📈 Risk Scores',
-        mlScore: 'ML Model Score',
-        llmScore: 'AI Confidence',
+        mlScore: 'ML Risk Score',
+        llmScore: 'AI Confidence Score',
         source: 'Source',
         trusted: 'Trusted',
         untrusted: 'Untrusted',
@@ -507,6 +507,28 @@ function hideLoading() {
 }
 
 /**
+ * Show skeleton loading state
+ */
+function showSkeleton() {
+    const skeleton = document.getElementById('resultSkeleton');
+    const resultCard = document.getElementById('resultCard');
+    if (skeleton && resultCard) {
+        skeleton.style.display = 'block';
+        resultCard.classList.add('show');
+    }
+}
+
+/**
+ * Hide skeleton loading state
+ */
+function hideSkeleton() {
+    const skeleton = document.getElementById('resultSkeleton');
+    if (skeleton) {
+        skeleton.style.display = 'none';
+    }
+}
+
+/**
  * Update export button visibility
  */
 function updateExportButtonVisibility() {
@@ -677,6 +699,8 @@ window.displayEnhancedResult = displayEnhancedResult;
 window.displayResult = displayResult;
 window.showLoading = showLoading;
 window.hideLoading = hideLoading;
+window.showSkeleton = showSkeleton;
+window.hideSkeleton = hideSkeleton;
 window.showNotification = showNotification;
 window.updateExportButtonVisibility = updateExportButtonVisibility;
 window.openModal = openModal;
