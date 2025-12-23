@@ -237,11 +237,16 @@ function performLocalAnalysis(text) {
         ml_risk_score: riskScore,
         llm_confidence: null,
         trusted_source: false,
-        red_flags_details: [
+        red_flags_details: window.currentLanguage === 'ar' ? [
             ...redFlagsAr,
-            `تم اكتشاف ${urls.length} رابط/روابط`,
+            `${urls.length} رابط/روابط تم اكتشافها`,
             `طريقة التحليل: تحليل محلي (Heuristic)`,
             `نسبة الخطر الإجمالية: ${riskScore}%`
+        ] : [
+            ...redFlags,
+            `Detected ${urls.length} link(s)`,
+            `Analysis method: Local Heuristic`,
+            `Overall risk percentage: ${riskScore}%`
         ],
         analysis_method: 'Local Heuristic',
         features_analyzed: urls.length * 41
