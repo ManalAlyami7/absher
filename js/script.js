@@ -93,8 +93,10 @@ function initializeApp() {
     
     console.log('✅ Tanabbah initialized successfully');
     
-    // Hide splash screen after initialization
-    hideSplashScreen();
+    // Hide splash screen after initialization with minimum display time
+    setTimeout(() => {
+        hideSplashScreen();
+    }, 1000); // Show splash for at least 1 second to ensure visibility
 }
 
 /**
