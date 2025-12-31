@@ -1532,8 +1532,9 @@
 
 .splash-spinner {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 80px;
     height: 80px;
     border: 3px solid rgba(0, 108, 53, 0.3);
@@ -1541,6 +1542,7 @@
     border-top: 3px solid #006c35;
     animation: spin 1s linear infinite;
     opacity: 0.7;
+    z-index: 1;
 }
 
 .splash-loading-text {

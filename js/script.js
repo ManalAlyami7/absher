@@ -111,7 +111,7 @@ function hideSplashScreen() {
         
         // Remove splash screen after animation completes
         setTimeout(() => {
-            splashScreen.style.display = 'none';
+        splashScreen.style.display = 'none';
         }, 2000);
     }
     
