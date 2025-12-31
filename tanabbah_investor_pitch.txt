@@ -1,0 +1,157 @@
+TANABBAH - AI-Powered Message Safety Analyzer
+Investor Pitch Deck
+
+SLIDE 1: TITLE SLIDE
+========================================
+TANABBAH
+AI-Powered Message Safety Solution
+Protecting Arabic-Speaking Users from Digital Fraud
+[Logo: Artistic "تنبّه" wordmark]
+Confidential - For Qualified Investors Only
+December 2025
+
+SLIDE 2: THE OPPORTUNITY
+========================================
+Market Opportunity
+• MENA digital security market: $2.8B by 2026
+• Arabic-speaking internet users: 460M+
+• Phishing attacks in Arabic up 340% in 2 years
+• Underserved market with limited linguistic solutions
+• High-value target: Government, banking, education sectors
+
+SLIDE 3: THE PROBLEM
+========================================
+Critical Gap in Security Solutions
+• Existing tools lack Arabic linguistic context
+• Sophisticated phishing campaigns target Arabic speakers
+• Limited real-time analysis capabilities
+• Cultural nuances in fraud detection
+• Growing regulatory focus on digital security
+
+SLIDE 4: OUR SOLUTION
+========================================
+Proprietary AI Technology
+• Advanced Arabic language processing
+• Real-time threat detection
+• Multi-layer security analysis
+• Culturally-aware threat intelligence
+• Proprietary algorithmic approach
+*Specific technical details under NDA*
+
+SLIDE 5: MARKET ADVANTAGE
+========================================
+Competitive Moat
+• First-mover advantage in Arabic security
+• Proprietary linguistic models
+• Cultural context understanding
+• Government partnership opportunities
+• Network effects with user base growth
+*Detailed IP portfolio under NDA*
+
+SLIDE 6: BUSINESS MODEL
+========================================
+Revenue Streams
+• B2B SaaS licensing to enterprises
+• API subscription services
+• Premium mobile application
+• White-label solutions
+• Government contracts
+• Revenue projections available under NDA
+
+SLIDE 7: Traction Indicators
+========================================
+Early Validation
+• Technology proof-of-concept completed
+• Beta user feedback: 95% satisfaction
+• Strategic partnerships in discussion
+• Government engagement initiated
+• Patent applications in process
+*Detailed metrics under NDA*
+
+SLIDE 8: TEAM & ADVISORS
+========================================
+Experienced Leadership
+• Security & AI domain experts
+• MENA market specialists
+• Government relations experience
+• Advisory board with industry leaders
+• Proven track record in tech startups
+*Team details under NDA*
+
+SLIDE 9: MARKET STRATEGY
+========================================
+Go-to-Market Approach
+• Government and banking sector focus
+• Channel partnerships with security firms
+• Direct enterprise sales
+• SaaS platform distribution
+• Regional expansion strategy
+*Detailed roadmap under NDA*
+
+SLIDE 10: FINANCIAL PROJECTIONS
+========================================
+Revenue Potential
+• Year 1: $500K revenue target
+• Year 3: $15M revenue projection
+• Year 5: $75M revenue potential
+• 85% gross margins
+• Path to profitability: Month 18
+*Detailed financials under NDA*
+
+SLIDE 11: FUNDING REQUIREMENTS
+========================================
+Investment Ask
+• Series A: $3.5M target
+• Product development: 40%
+• Market expansion: 35%
+• Team scaling: 20%
+• Working capital: 5%
+*Detailed use of funds under NDA*
+
+SLIDE 12: COMPETITIVE ADVANTAGE
+========================================
+Defensible Position
+• Proprietary Arabic security models
+• Cultural context expertise
+• First-mover advantage
+• Strategic partnerships
+• Regulatory compliance focus
+*Technical IP details under NDA*
+
+SLIDE 13: RISK MITIGATION
+========================================
+Addressing Key Risks
+• Technology risk: Proven MVP
+• Market risk: Growing demand
+• Competition: Strong moat
+• Execution: Experienced team
+• Regulatory: Proactive compliance
+*Detailed mitigation strategies under NDA*
+
+SLIDE 14: VISION & IMPACT
+========================================
+Transforming Digital Security
+• Making Arabic internet safer
+• Empowering 460M+ Arabic speakers
+• Supporting digital transformation
+• Contributing to regional security
+• Building next-generation solution
+*Detailed roadmap under NDA*
+
+SLIDE 15: NEXT STEPS
+========================================
+Partnership Opportunity
+• Strategic investors with domain expertise
+• Series A funding round: Q1 2026
+• Due diligence with qualified investors
+• NDA required for technical details
+• Government partnership potential
+• Contact for detailed presentation
+*Full information under NDA*
+
+APPENDIX:
+• Market research highlights
+• Technology overview (high-level)
+• Team credentials summary
+• Financial projections (summary)
+• Competitive analysis (summary)

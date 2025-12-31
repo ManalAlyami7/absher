@@ -1,0 +1,154 @@
+TANABBAH - AI-Powered Message Safety Analyzer
+PowerPoint Presentation Outline
+
+SLIDE 1: TITLE SLIDE
+========================================
+TANABBAH
+AI-Powered Message Safety Analyzer
+Protecting Users from Phishing & Fraudulent Messages
+[Logo: Artistic "تنبّه" wordmark]
+Subtitle: Advanced Security Solution for Arabic-Speaking Users
+Date: December 2025
+
+SLIDE 2: PROBLEM STATEMENT
+========================================
+The Problem
+• Phishing and fraudulent messages are growing rapidly in the MENA region
+• Arabic-speaking users face unique threats in their native language
+• Traditional security tools lack cultural and linguistic context
+• Users struggle to identify sophisticated phishing attempts
+• Need for real-time, AI-powered threat detection
+
+SLIDE 3: INTRODUCING TANABBAH
+========================================
+Tanabbah - تنبّه
+• Arabic word meaning "Be Aware" or "Beware"
+• AI-powered message safety analyzer
+• Specifically designed for Arabic-speaking users
+• Real-time phishing and fraud detection
+• Combines machine learning with linguistic analysis
+
+SLIDE 4: KEY FEATURES
+========================================
+Core Features
+• AI-Powered Analysis: Hybrid ML + LLM approach
+• Real-Time Detection: Instant message scanning
+• Arabic Language Support: Native Arabic analysis
+• URL Threat Assessment: 41+ security features analyzed
+• Bilingual Interface: Arabic/English toggle
+• Privacy Focused: No message storage
+
+SLIDE 5: TECHNOLOGY STACK
+========================================
+Technical Architecture
+• Frontend: HTML5, CSS3, JavaScript
+• Backend: Python FastAPI
+• Machine Learning: Scikit-learn, Random Forest
+• LLM Integration: Hugging Face Inference API
+• Security Analysis: 41+ URL features
+• Trusted Domain Recognition: Government sites
+
+SLIDE 6: ANALYSIS METHODS
+========================================
+Multi-Layer Analysis
+• Machine Learning Model: Analyzes URL features
+• LLM Analysis: Contextual message understanding
+• Signature-Based: Known phishing patterns
+• Trust Override: Government domain recognition
+• Hybrid Scoring: Weighted risk assessment
+
+SLIDE 7: USER INTERFACE
+========================================
+User Experience
+• Clean, intuitive Arabic interface
+• One-click message analysis
+• Detailed technical insights
+• Bilingual support with toggle
+• Responsive design for all devices
+• Accessibility features
+
+SLIDE 8: SECURITY FEATURES
+========================================
+Advanced Security Analysis
+• 41+ URL features examined
+• Domain reputation checking
+• Suspicious pattern detection
+• URL shortener identification
+• Lookalike domain detection
+• Trusted government domain recognition
+
+SLIDE 9: ACCURACY & PERFORMANCE
+========================================
+Performance Metrics
+• 96.5% detection accuracy
+• Real-time analysis (under 3 seconds)
+• Hybrid scoring system (ML + LLM)
+• Continuous model improvement
+• Regular security updates
+• Trusted domain whitelist
+
+SLIDE 10: TRUST & PRIVACY
+========================================
+Privacy-First Approach
+• No message storage or logging
+• Client-side processing
+• GDPR compliant
+• End-to-end privacy
+• Secure API communications
+• Transparent data practices
+
+SLIDE 11: CULTURAL RELEVANCE
+========================================
+Designed for Arabic Users
+• Native Arabic language processing
+• Culturally appropriate phishing patterns
+• Government domain recognition (absher.sa, etc.)
+• Arabic-specific social engineering tactics
+• Regional threat intelligence
+• Localized user experience
+
+SLIDE 12: IMPACT & BENEFITS
+========================================
+User Benefits
+• Protection from Arabic phishing attempts
+• Real-time safety verification
+• Educational insights on threats
+• Peace of mind for users
+• Empowerment through awareness
+• Reduced fraud incidents
+
+SLIDE 13: FUTURE ROADMAP
+========================================
+Upcoming Features
+• Mobile application
+• Browser extension
+• API for integration
+• Enhanced LLM capabilities
+• Additional Arabic dialects
+• Advanced threat intelligence
+
+SLIDE 14: CONCLUSION
+========================================
+Tanabbah - تنبّه
+• Essential security tool for Arabic speakers
+• AI-powered protection
+• Culturally aware threat detection
+• Privacy-focused design
+• Making digital communication safer
+
+SLIDE 15: CONTACT & NEXT STEPS
+========================================
+Get Started with Tanabbah
+• Visit our website: tanabbah.app
+• API documentation available
+• Open source components
+• Contact for enterprise solutions
+• Join our beta testing program
+• Follow our security updates
+
+APPENDIX SLIDES:
+• Technical architecture diagrams
+• Detailed feature demonstrations
+• Security analysis examples
+• Performance benchmarks
+• User testimonials

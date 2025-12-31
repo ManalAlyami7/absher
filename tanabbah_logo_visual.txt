@@ -1,0 +1,51 @@
+Tanabbah (تنبّه) Logo Concept - Stylized Wordmark
+
+Visual Description:
+
+The logo features a stylized representation of the Arabic word "تنبّه" with artistic typography that incorporates security elements:
+
+     █████╗ ██████╗ ██╗   ██╗███████╗██████╗ 
+    ██╔══██╗██╔══██╗██║   ██║██╔════╝██╔══██╗
+    ███████║██║  ██║██║   ██║█████╗  ██████╔╝
+    ██╔══██║██║  ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗
+    ██║  ██║██████╔╝ ╚████╔╝ ███████╗██║  ██║
+    ╚═╝  ╚═╝╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝
+    
+    ┌─────────────────────────────────────────┐
+    │  تـنـبّـه                              │
+    │  [Artistic Arabic typography with      │
+    │   security/warning elements integrated]│
+    └─────────────────────────────────────────┘
+
+Conceptual Design Elements:
+
+1. The Arabic letter ت (Teh) is stylized with a protective shield shape integrated into its form
+2. The ن (Noon) has a subtle eye-like shape in its dot position to represent scrutiny/analysis
+3. The ب (Beh) incorporates a subtle warning triangle element
+4. The ّ (Shadda) diacritic above the ب is emphasized as an alert symbol
+5. The overall typography has a modern, geometric Arabic calligraphy style
+6. Green color palette with gradient effects for depth
+7. The letters connect in a flowing, contemporary style
+8. Negative space is used artistically within the letter forms
+9. The entire word forms a protective shield-like shape when viewed as a whole
+
+Color Scheme:
+- Primary: #006C35 (Deep green representing Saudi Arabia and security)
+- Secondary: #00964A (Lighter green for highlights)
+- Accent: #FFFFFF (White for contrast and clarity)
+- Background: #F8F9FA (Light background for app icon)
+
+Symbolism:
+- The word "تنبّه" itself becomes a symbol of alertness and awareness
+- Security elements are subtly integrated into the letter forms
+- The green color palette represents safety and trust
+- The modern typography conveys technology and AI capabilities
+
+Technical Specifications:
+- Scalable vector design suitable for app icons (minimum 16x16px)
+- Readable at small sizes
+- Works in single color if needed
+- Optimized for both light and dark backgrounds
+- Aspect ratio suitable for square app icons and horizontal logos
+
+The logo transforms the Arabic word "تنبّه" into a visual symbol that represents the core function of the app - alerting users to potential phishing and fraudulent messages.

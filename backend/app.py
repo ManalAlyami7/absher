@@ -257,18 +257,30 @@ def calculate_enhanced_risk(
                     f"⚠️ رابط مشبوه: {pred.url} (احتمالية: {pred.probability*100:.0f}%)"
                 )
         
-        # Add LLM red flags
-        if llm_analysis and llm_analysis.red_flags_ar:
-            for flag in llm_analysis.red_flags_ar:
-                if flag != "لم يتم اكتشاف مؤشرات احتيال واضحة":
-                    red_flags_details.append(f"🧠 {flag}")
+        # Add LLM red flags based on language
+        if llm_analysis:
+            llm_flags = llm_analysis.red_flags_ar if language == "ar" else llm_analysis.red_flags
+            if llm_flags:
+                for flag in llm_flags:
+                    if language == "ar":
+                        if flag != "لم يتم اكتشاف مؤشرات احتيال واضحة":
+                            red_flags_details.append(f"🧠 {flag}")
+                    else:
+                        if flag != "no significant red flags":
+                            red_flags_details.append(f"🧠 {flag}")
         
-        # If no specific flags, add general assessment
+        # If no specific flags, add general assessment based on language
         if not red_flags_details:
             if risk_score < 30:
-                red_flags_details.append("✅ لم يتم اكتشاف مؤشرات خطر واضحة")
+                if language == "ar":
+                    red_flags_details.append("✅ لم يتم اكتشاف مؤشرات خطر واضحة")
+                else:
+                    red_flags_details.append("✅ No significant risk indicators detected")
             else:
-                red_flags_details.append("⚠️ تم اكتشاف بعض المؤشرات التي تستدعي الانتباه")
+                if language == "ar":
+                    red_flags_details.append("⚠️ تم اكتشاف بعض المؤشرات التي تستدعي الانتباه")
+                else:
+                    red_flags_details.append("⚠️ Some indicators requiring attention detected")
     
     # === TECHNICAL DETAILS ===
     analysis_method = "Hybrid (ML + LLM)" if llm_analysis else "ML Only"
@@ -381,7 +393,7 @@ async def analyze_message(request: AnalyzeRequest):
         
         # Calculate enhanced risk with technical details
         risk_score, classification, classification_ar, technical_details = \
-            calculate_enhanced_risk(ml_risk_score, llm_analysis, urls, url_predictions)
+            calculate_enhanced_risk(ml_risk_score, llm_analysis, urls, url_predictions, request.language)
         
         # Get explanations
         has_trusted = technical_details.trusted_source

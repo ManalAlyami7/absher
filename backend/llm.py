@@ -67,7 +67,28 @@ class LLMAnalysis(BaseModel):
 def is_trusted_domain(url: str) -> bool:
     """Check if URL belongs to trusted Saudi government domain"""
     url_lower = url.lower()
-    return any(domain in url_lower for domain in TRUSTED_DOMAINS)
+    
+    # Remove protocol if present
+    if '://' in url_lower:
+        url_lower = url_lower.split('://', 1)[1]
+    
+    # Extract just the domain part (before any path)
+    if '/' in url_lower:
+        domain_only = url_lower.split('/', 1)[0]
+    else:
+        domain_only = url_lower
+    
+    # Check against trusted domains
+    for domain in TRUSTED_DOMAINS:
+        if domain == '.gov.sa':  # Special case for all .gov.sa domains
+            if domain_only.endswith('.gov.sa'):
+                return True
+        elif domain in domain_only:
+            # Check if it's the exact domain or a subdomain of the trusted domain
+            if domain_only == domain or domain_only.endswith('.' + domain):
+                return True
+    
+    return False
 
 
 def translate_red_flag(flag: str) -> str:
@@ -424,6 +445,28 @@ def create_enhanced_analysis(message: str, urls: List[str]) -> LLMAnalysis:
     score = min(100, max(0, score))  # Ensure score is between 0 and 100
     is_phishing = score > 45  # Lowered threshold to catch more phishing
     
+    # Filter out debug messages and incomplete flags
+    filtered_flags = []
+    for flag in red_flags:
+        flag_lower = flag.lower()
+        # Skip if it looks like debug text or incomplete message
+        skip_flag = False
+        debug_indicators = [
+            'missing', 'debug', 'error', 'in url', 's in', 'review', 'enhance', 'logic', 'conflicts',
+            'review the', 'enhance the', 'missing', 'incomplete', 'issue with',
+            'check for', 'analyze', 'note:', 'note :', 'todo:', 'fix:', 'debug:',
+            'placeholder', 'template', 'sample', 'example'
+        ]
+        for indicator in debug_indicators:
+            if indicator in flag_lower:
+                skip_flag = True
+                break
+        
+        if not skip_flag:
+            filtered_flags.append(flag)
+    
+    red_flags = filtered_flags
+    
     # Translate red flags
     red_flags_ar = [translate_red_flag(flag) for flag in red_flags] if red_flags else ["لم يتم اكتشاف مؤشرات احتيال واضحة"]
     
@@ -508,8 +551,30 @@ async def analyze_message_with_llm(message: str, urls: List[str]) -> Optional[LL
             # Apply trust override to LLM results
             is_trusted = bool(urls and all(is_trusted_domain(url) for url in urls))
             
-            # Get red flags
+            # Get red flags and filter out debug/incomplete messages
             raw_flags = list(data.get("red_flags", []))
+            
+            # Filter out debug messages and incomplete flags
+            filtered_flags = []
+            for flag in raw_flags:
+                flag_lower = flag.lower()
+                # Skip if it looks like debug text or incomplete message
+                skip_flag = False
+                debug_indicators = [
+                    'missing', 'debug', 'error', 'in url', 's in', 'review', 'enhance', 'logic', 'conflicts',
+                    'review the', 'enhance the', 'missing', 'incomplete', 'issue with',
+                    'check for', 'analyze', 'note:', 'note :', 'todo:', 'fix:', 'debug:',
+                    'placeholder', 'template', 'sample', 'example'
+                ]
+                for indicator in debug_indicators:
+                    if indicator in flag_lower:
+                        skip_flag = True
+                        break
+                
+                if not skip_flag:
+                    filtered_flags.append(flag)
+            
+            raw_flags = filtered_flags
             red_flags_ar = [translate_red_flag(flag) for flag in raw_flags] if raw_flags else ["لم يتم اكتشاف مؤشرات احتيال واضحة"]
             
             # Extract values with proper handling
