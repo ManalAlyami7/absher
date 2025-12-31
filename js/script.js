@@ -112,7 +112,7 @@ function hideSplashScreen() {
         // Remove splash screen after animation completes
         setTimeout(() => {
             splashScreen.style.display = 'none';
-        }, 500);
+        }, 2000);
     }
     
     if (container) {
